@@ -5,6 +5,7 @@ import Cart from './pages/Cart';
 import Products from './pages/Products';
 import AdminPanel from './pages/AdminPanel';
 import Auth from './pages/Auth';
+import Footer from './components/footer/Footer';
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/auth" element={<Auth />} />
       </Routes>
+      <Footer />
     </>
   );
 }
