@@ -92,7 +92,7 @@ export default function Auth() {
     }
 
     return (
-        <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8 md:py-16">
+    <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8 md:py-16">
             {/* Luces suaves flotantes */}
             <div className="absolute inset-0 pointer-events-none z-0">
                 <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-float" />
@@ -111,7 +111,7 @@ export default function Auth() {
                 theme="colored"
             />
 
-            <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 border border-gray-200 animate-fadeInDown relative z-10">
+            <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 border border-gray-200 animate-fadeInDown relative z-10 mt-8">
                 {/* Header con logo y bienvenida */}
                 <div className="flex flex-col items-center mb-6">
                     <FaStore className="text-4xl text-black mb-2" />
