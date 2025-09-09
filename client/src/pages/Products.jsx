@@ -262,7 +262,7 @@ export default function Products() {
                 <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 opacity-20 rounded-full blur-3xl animate-float2" />
             </div>
             <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover theme="colored" />
-            <div className="relative z-10 px-6 py-12">
+            <div className="relative z-10 px-6 py-20">
                 <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-400 dark:via-purple-300 dark:to-pink-300 mb-10 text-center animate-fadeInDown drop-shadow-lg">
                     Nuestros Productos
                 </h1>
