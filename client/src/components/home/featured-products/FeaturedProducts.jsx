@@ -2,7 +2,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import Marquee from "react-fast-marquee";
-import ProductCard from '../products/ProductCard';
+import ProductCard from '../../products/ProductCard';
 
 export default function FeaturedProducts() {
     const navigate = useNavigate();
