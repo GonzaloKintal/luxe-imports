@@ -7,6 +7,12 @@ export default function RegisterForm({
     onBlurField, 
     onSubmit 
 }) {
+    // Validación para teléfono internacional
+    const telefono = formData.telefono || '';
+    const telefonoTouched = touchedFields.telefono;
+    const telefonoRegex = /^\+\d{8,15}$/;
+    const telefonoError = telefonoTouched && !telefonoRegex.test(telefono.trim());
+
     return (
         <form onSubmit={onSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -102,6 +108,29 @@ export default function RegisterForm({
                 </div>
                 {touchedFields.password && !formData.password && (
                     <span className="text-xs text-red-500 mt-1">La contraseña es obligatoria</span>
+                )}
+            </div>
+
+            <div>
+                <label className="block text-gray-700 mb-2 text-sm font-medium">Teléfono</label>
+                <div className="relative">
+                    <input
+                        name="telefono"
+                        type="tel"
+                        value={formData.telefono || ''}
+                        onChange={onFormChange}
+                        onBlur={() => onBlurField('telefono')}
+                        className={`w-full pl-4 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent ${
+                            telefonoTouched && !telefonoRegex.test(telefono.trim())
+                                ? 'border-red-500'
+                                : 'border-gray-300'
+                        }`}
+                        placeholder="Ej: +54 11 2345 6789"
+                        required
+                    />
+                </div>
+                {telefonoError && (
+                    <span className="text-xs text-red-500 mt-1">Formato internacional requerido. Ejemplo: +54 11 2345 6789</span>
                 )}
             </div>
             

@@ -76,15 +76,19 @@ export default function Auth() {
         setRegisterTouched({ firstName: true, lastName: true, email: true, password: true });
         if (!registerForm.firstName || !registerForm.lastName || !registerForm.email || !registerForm.password) return;
         try {
+            const payload = {
+                ...registerForm,
+                telefono: registerForm.telefono ? registerForm.telefono.trim() : '',
+            };
             const res = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(registerForm),
+                body: JSON.stringify(payload),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al registrarse');
             toast.success('Registro exitoso, ahora puedes iniciar sesión');
-            setRegisterForm({ firstName: '', lastName: '', email: '', password: '' });
+            setRegisterForm({ firstName: '', lastName: '', email: '', password: '', telefono: '' });
             setTab('login');
         } catch (err) {
             toast.error(err.message);
@@ -111,7 +115,7 @@ export default function Auth() {
                 theme="colored"
             />
 
-            <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 border border-gray-200 animate-fadeInDown relative z-10 mt-8">
+            <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 border border-gray-200 animate-fadeInDown relative z-10 mt-8 min-h-[750px]">
                 {/* Header con logo y bienvenida */}
                 <div className="flex flex-col items-center mb-6">
                     <FaStore className="text-4xl text-black mb-2" />

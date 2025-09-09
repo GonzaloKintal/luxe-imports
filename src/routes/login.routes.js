@@ -16,10 +16,16 @@ const manager = userManager;
 router.post('/register', async (req, res, next) => {
   try {
     
-    const { email, password, firstName, lastName } = req.body || {};
+  const { email, password, firstName, lastName, telefono } = req.body || {};
 
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password || !firstName || !lastName || !telefono) {
       return res.status(400).json({ error: 'Faltan campos requeridos' });
+    }
+
+    // Validación de formato internacional para teléfono: +54 11 2345 6789
+    const telefonoRegex = /^\+\d{8,15}$/;
+    if (!telefonoRegex.test(telefono)) {
+      return res.status(400).json({ error: 'El teléfono debe tener formato internacional, ej: +54 11 2345 6789' });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,6 +42,7 @@ router.post('/register', async (req, res, next) => {
       password,
       firstName,
       lastName,
+      telefono,
       role: 'user'
     });
 
@@ -46,6 +53,7 @@ router.post('/register', async (req, res, next) => {
         email: newUser.email,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
+        telefono: newUser.telefono,
         role: newUser.role
       }
     });
