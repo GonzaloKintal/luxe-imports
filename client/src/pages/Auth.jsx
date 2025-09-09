@@ -89,6 +89,7 @@ export default function Auth() {
             if (!res.ok) throw new Error(data.error || 'Error al registrarse');
             toast.success('Registro exitoso, ahora puedes iniciar sesión');
             setRegisterForm({ firstName: '', lastName: '', email: '', password: '', telefono: '' });
+            setRegisterTouched({ firstName: false, lastName: false, email: false, password: false, telefono: false });
             setTab('login');
         } catch (err) {
             toast.error(err.message);
