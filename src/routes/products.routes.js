@@ -15,6 +15,16 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// Ruta GET '/featured' -> Obtiene los primeros 7 productos
+router.get('/featured', async (req, res, next) => {
+  try {
+    const products = await manager.getFeaturedProducts(7);
+    res.json(products);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Ruta GET '/:pid' -> Obtiene un producto por su ID
 router.get('/:pid', async (req, res, next) => {
   try {

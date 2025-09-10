@@ -17,6 +17,12 @@ class ProductManager {
     return product;
   }
 
+  // Obtiene los primeros N productos
+  async getFeaturedProducts(limit = 7) {
+    return await Product.find().limit(limit);
+  }
+
+
   // Agrega un producto nuevo
   async addProduct(data) {
     const newProduct = new Product(data);

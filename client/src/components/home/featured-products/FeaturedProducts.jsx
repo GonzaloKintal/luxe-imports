@@ -1,39 +1,29 @@
 
 
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Marquee from "react-fast-marquee";
 import ProductCard from '../../products/ProductCard';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function FeaturedProducts() {
     const navigate = useNavigate();
-    
-    // Mock productos destacados
-    const destacados = [
-        {
-            title: 'iPhone 15 Pro',
-            price: 899999,
-            img: 'https://placehold.co/300x200?text=iPhone+15+Pro',
-            tag: 'iPhone',
-        },
-        {
-            title: 'Perfume Tom Ford',
-            price: 45999,
-            img: 'https://placehold.co/300x200?text=Tom+Ford',
-            tag: 'Perfumes',
-        },
-        {
-            title: 'iPhone 14',
-            price: 699999,
-            img: 'https://placehold.co/300x200?text=iPhone+14',
-            tag: 'iPhone',
-        },
-        {
-            title: 'iPhone 12 Pro Max',
-            price: 599999,
-            img: 'https://placehold.co/300x200?text=iPhone+14',
-            tag: 'iPhone',
-        },
-    ];
+    const [destacados, setDestacados] = useState([]);
+
+    useEffect(() => {
+        const fetchFeatured = async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/products/featured`);
+            const data = await res.json();
+            setDestacados(data);
+        } catch (error) {
+            console.error("Error al obtener productos destacados:", error);
+        }
+        };
+
+        fetchFeatured();
+    }, []);
 
      return (
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
@@ -44,8 +34,10 @@ export default function FeaturedProducts() {
             </div>
 
             <Marquee pauseOnHover gradient={false} speed={40} className='py-4'>
-                {destacados.map((prod, idx) => (
-                    <ProductCard key={idx} {...prod} />
+                {destacados.map((prod) => (
+                    <div className="w-[250px] flex-shrink-0 mx-2">
+                        <ProductCard key={prod._id} {...prod} id={prod._id} onClick={() => navigate(`/products/product-detail/${prod._id}`)} />
+                    </div>
                 ))}
             </Marquee>
 

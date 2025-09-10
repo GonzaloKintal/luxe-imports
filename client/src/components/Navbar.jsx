@@ -1,7 +1,7 @@
 
 
 import { useState, useEffect, useContext } from 'react';
-import { FaUserCircle, FaChevronDown, FaSignOutAlt, FaUserShield, FaUser } from 'react-icons/fa';
+import { FaUserCircle, FaChevronDown, FaSignOutAlt, FaUserShield, FaUser, FaSignInAlt } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 
@@ -90,10 +90,11 @@ function Navbar() {
                         {!user && (
                             <Link
                                 to="/auth"
-                                className={`relative group transition-all duration-300 ${isActive('/auth') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
+                                className={`relative group transition-all duration-300 flex items-center gap-2 ${isActive('/auth') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                                 onClick={() => setIsOpen(false)}
                             >
-                                Acceder
+                                <FaSignInAlt className="text-sm" />
+                                Ingresar
                                 <span className={`absolute -bottom-1 left-0 h-0.5 bg-white transition-all duration-300 ${isActive('/auth') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
                             </Link>
                         )}
@@ -115,7 +116,7 @@ function Navbar() {
                                         className={`relative group transition-all duration-300 ${isActive('/cart') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                                         onClick={() => setIsOpen(false)}
                                     >
-                                        Cart
+                                        Carrito
                                         <span className={`absolute -bottom-1 left-0 h-0.5 bg-white transition-all duration-300 ${isActive('/cart') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
                                     </Link>
                                 )}
@@ -135,29 +136,29 @@ function Navbar() {
                                                 onClick={() => setProfileOpen(false)}
                                             />
                                             <div
-                                                className="absolute right-0 mt-2 w-72 bg-black/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-800 p-6 z-50 flex flex-col items-center"
+                                                className="absolute right-0 mt-4 w-72 bg-white rounded-xl shadow-2xl border border-gray-300 p-6 z-50 flex flex-col items-center text-black"
                                                 onClick={e => e.stopPropagation()}
                                             >
                                                 <div className="mb-2 flex flex-col items-center">
-                                                    <FaUserCircle className="text-6xl text-white mb-2" />
-                                                    <div className="flex items-center gap-2 text-sm text-gray-300 mb-2">
+                                                    <FaUserCircle className="text-6xl text-gray-900 mb-2" />
+                                                    <div className="flex items-center gap-2 text-sm text-gray-900 mb-2">
                                                         {user.role === 'admin' ? <FaUserShield className="text-base" /> : <FaUser className="text-base" />}
                                                         <span className="font-semibold">{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
                                                     </div>
                                                 </div>
                                                 {user.name && (
-                                                    <div className="text-base font-bold text-white mb-1 text-center">{user.name}</div>
+                                                    <div className="text-base font-bold text-gray-900 mb-1 text-center">{user.name}</div>
                                                 )}
-                                                <div className="text-sm font-semibold text-gray-300 mb-1 text-center">{user.email}</div>
+                                                <div className="text-sm font-semibold text-gray-900 mb-1 text-center">{user.email}</div>
                                                 <button
                                                     onClick={() => {
                                                         localStorage.removeItem('token');
                                                         window.location.reload();
                                                     }}
-                                                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-red-900/50 backdrop-blur-sm text-red-300 font-semibold hover:bg-red-800/70 transition-all duration-300 shadow-sm group border border-red-800/50"
+                                                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-300 shadow-sm border border-red-200"
                                                 >
                                                     <FaSignOutAlt className="text-lg group-hover:scale-105 transition-transform duration-200" />
-                                                    <span className="group-hover:underline">Cerrar sesión</span>
+                                                    <span className="cursor-pointer group-hover:underline">Cerrar sesión</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -188,10 +189,11 @@ function Navbar() {
                         {!user && (
                             <Link
                                 to="/auth"
-                                className={`block py-3 transition-all duration-300 transform hover:translate-x-2 ${isActive('/auth') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
+                                className={`py-3 transition-all duration-300 transform hover:translate-x-2 flex items-center gap-2 ${isActive('/auth') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                                 onClick={() => setIsOpen(false)}
                             >
-                                Acceder
+                                <FaSignInAlt className="text-sm" />
+                                Ingresar
                             </Link>
                         )}
                         {user && (
@@ -210,7 +212,7 @@ function Navbar() {
                                         className={`block py-3 transition-all duration-300 transform hover:translate-x-2 ${isActive('/cart') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                                         onClick={() => setIsOpen(false)}
                                     >
-                                        Cart
+                                        Carrito
                                     </Link>
                                 )}
                                 <div className="py-3">
