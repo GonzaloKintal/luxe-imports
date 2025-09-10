@@ -1,6 +1,11 @@
-import Product from '../models/Product.js';
+import Product from "../models/Product.js";
 
 class ProductManager {
+  // Obtiene productos destacados
+  async getFeaturedProducts() {
+    return await Product.find({ featured: true });
+  }
+
   // Obtiene todos los productos desde MongoDB
   async getProducts() {
     return await Product.find();
@@ -10,18 +15,12 @@ class ProductManager {
   async getProductById(id) {
     const product = await Product.findById(id);
     if (!product) {
-      const error = new Error('Producto no encontrado');
+      const error = new Error("Producto no encontrado");
       error.status = 404;
       throw error;
     }
     return product;
   }
-
-  // Obtiene los primeros N productos
-  async getFeaturedProducts(limit = 7) {
-    return await Product.find().limit(limit);
-  }
-
 
   // Agrega un producto nuevo
   async addProduct(data) {
@@ -34,7 +33,7 @@ class ProductManager {
   async updateProduct(id, updates) {
     const product = await Product.findByIdAndUpdate(id, updates, { new: true });
     if (!product) {
-      const error = new Error('Producto no encontrado');
+      const error = new Error("Producto no encontrado");
       error.status = 404;
       throw error;
     }
@@ -45,7 +44,7 @@ class ProductManager {
   async deleteProduct(id) {
     const result = await Product.findByIdAndDelete(id);
     if (!result) {
-      const error = new Error('Producto no encontrado');
+      const error = new Error("Producto no encontrado");
       error.status = 404;
       throw error;
     }

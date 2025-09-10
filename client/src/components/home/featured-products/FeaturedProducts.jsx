@@ -13,23 +13,23 @@ export default function FeaturedProducts() {
 
     useEffect(() => {
         const fetchFeatured = async () => {
-        try {
-            const res = await fetch(`${API_URL}/api/products/featured`);
-            const data = await res.json();
-            setDestacados(data);
-        } catch (error) {
-            console.error("Error al obtener productos destacados:", error);
-        }
+            try {
+                const res = await fetch(`${API_URL}/api/products/featured`);
+                const data = await res.json();
+                setDestacados(data);
+            } catch (error) {
+                console.error("Error al obtener productos destacados:", error);
+            }
         };
 
         fetchFeatured();
     }, []);
 
-     return (
+    return (
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
             <div className="text-center mb-10">
                 <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
-                Productos Destacados
+                    Productos Destacados
                 </h2>
             </div>
 
