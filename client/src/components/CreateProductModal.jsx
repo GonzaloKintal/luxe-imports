@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 export default function CreateProductModal({ open, onSave, onCancel }) {
