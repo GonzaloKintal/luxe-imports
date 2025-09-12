@@ -7,7 +7,7 @@ import ProductFilters from './ProductFilters';
 
 export default function AdminProducts({ products, setProducts, API_URL }) {
 
-    const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL || 'https://dolarapi.com/v1/dolares/oficial';
+    const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
     const [cotizacion, setCotizacion] = useState(null);
     const [loadingCotizacion, setLoadingCotizacion] = useState(true);
     const [errorCotizacion, setErrorCotizacion] = useState(null);
