@@ -1,29 +1,95 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaCheckCircle, FaBan, FaEdit, FaTrash } from 'react-icons/fa';
+import EditProductForm from './EditProductForm';
 
 export default function FilteredProductCard({ 
     product, 
     onEdit, 
     onToggleFeatured, 
     onDelete, 
-    onReactivate 
+    onReactivate,
+    cotizacion,
+    loadingCotizacion,
+    errorCotizacion,
+    isEditing,
+    onStartEditing,
+    onCancelEditing
 }) {
+
+    const formRef = useRef(null);
+    const [formHeight, setFormHeight] = useState(0);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    
+    // Actualizar la altura cuando el formulario cambie
+    useEffect(() => {
+        if (formRef.current && isEditing) {
+            setFormHeight(formRef.current.scrollHeight);
+        } else {
+            setFormHeight(0);
+        }
+    }, [isEditing, product]);
+
+     const handleDeleteClick = () => {
+        setShowDeleteConfirmation(true);
+    };
+    
+    const handleCancelDelete = () => {
+        setShowDeleteConfirmation(false);
+        setIsDeleting(false);
+    };
+    
+    const handleConfirmDelete = async (id) => {
+        setIsDeleting(true);
+        await onDelete(id);
+        setShowDeleteConfirmation(false);
+        setIsDeleting(false);
+    };
+    
     return (
-        <li className="bg-white p-4 rounded-xl border border-gray-300 shadow-md flex items-center gap-4 transition-all duration-300 hover:shadow-lg">
-            <ProductImage 
-                src={product.thumbnails?.[0] || 'https://placehold.co/100x100'}
-                alt={product.title}
-            />
-            
-            <ProductInfo product={product} />
-            
-            <ProductActions 
-                product={product}
-                onEdit={onEdit}
-                onToggleFeatured={onToggleFeatured}
-                onDelete={onDelete}
-                onReactivate={onReactivate}
-            />
+        <li className="bg-white p-4 rounded-xl border border-gray-300 shadow-md transition-all duration-300 hover:shadow-lg">
+            <div className="flex flex-col gap-2">
+                {/* Vista siempre visible */}
+                <div className="flex items-center gap-4">
+                    <ProductImage 
+                        src={product.thumbnails?.[0] || 'https://placehold.co/100x100'}
+                        alt={product.title}
+                    />
+                    
+                    <ProductInfo 
+                        product={product}
+                        cotizacion={cotizacion}
+                        loadingCotizacion={loadingCotizacion}
+                        errorCotizacion={errorCotizacion}
+                    />
+                    
+                    <ProductActions 
+                        product={product}
+                        onEdit={onStartEditing}
+                        onToggleFeatured={onToggleFeatured}
+                        onDelete={onDelete}
+                        onReactivate={onReactivate}
+                    />
+                </div>
+
+                <div 
+                    className="overflow-hidden transition-all duration-500 ease-in-out"
+                    style={{ maxHeight: `${formHeight}px` }}
+                    ref={formRef}
+                >
+                    {isEditing && (
+                        <EditProductForm 
+                            product={product}
+                            onSave={(updatedProduct) => {
+                                onEdit(updatedProduct);
+                                onCancelEditing();
+                            }}
+                            onCancel={onCancelEditing}
+                        />
+                    )}
+                </div>
+
+                </div>
         </li>
     );
 }
@@ -38,11 +104,23 @@ function ProductImage({ src, alt }) {
     );
 }
 
-function ProductInfo({ product }) {
+function ProductInfo({ product, cotizacion, loadingCotizacion, errorCotizacion }) {
     return (
         <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-lg text-gray-900 truncate">{product.title}</h2>
-            <p className="text-gray-700">${typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}</p>
+            {/* Precio en dólares y en pesos */}
+            <div className="flex flex-col gap-1">
+                <span className="text-gray-700 font-semibold">USD ${typeof product.price === 'number' ? product.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : 'N/A'}</span>
+                <span className="text-gray-600 text-sm">
+                    {loadingCotizacion
+                        ? 'Cargando cotización...'
+                        : errorCotizacion
+                            ? errorCotizacion
+                            : cotizacion
+                                ? `AR$ ${(product.price * cotizacion).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
+                                : 'Sin cotización'}
+                </span>
+            </div>
             <p className="text-sm text-gray-500">Stock: {product.stock}</p>
         </div>
     );
@@ -91,7 +169,7 @@ function FeaturedButton({ product, onToggleFeatured }) {
 function EditButton({ product, onEdit }) {
     return (
         <button
-            onClick={() => onEdit(product)}
+            onClick={() => onEdit()}
             className="p-3 rounded-lg bg-blue-500/60 hover:bg-blue-600 text-white transition-all duration-300 shadow-md flex items-center justify-center"
             title="Editar producto"
         >
@@ -103,7 +181,7 @@ function EditButton({ product, onEdit }) {
 function DeleteButton({ product, onDelete }) {
     return (
         <button
-            onClick={() => onDelete(product._id || product.id)}
+            onClick={() => onDelete(product._id || product.id, product.title)}
             className="p-3 rounded-lg bg-red-500/60 hover:bg-red-600 text-white transition-all duration-300 shadow-md flex items-center justify-center"
             title="Eliminar producto"
         >
@@ -111,7 +189,6 @@ function DeleteButton({ product, onDelete }) {
         </button>
     );
 }
-
 
 function ReactivateButton({ product, onReactivate }) {
     return (

@@ -1,23 +1,42 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FaChevronDown, FaList } from 'react-icons/fa';
-import EditProductModal from '../../EditProductModal';
-import ConfirmModal from '../../ConfirmModal';
+import ConfirmDeleteProduct from './ConfirmDeleteProduct';
 import FilteredProductsList from './FilteredProductsList';
 import ProductFilters from './ProductFilters';
 
 export default function AdminProducts({ products, setProducts, API_URL }) {
+
+    const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL || 'https://dolarapi.com/v1/dolares/oficial';
+    const [cotizacion, setCotizacion] = useState(null);
+    const [loadingCotizacion, setLoadingCotizacion] = useState(true);
+    const [errorCotizacion, setErrorCotizacion] = useState(null);
     const productsDetailsRef = React.useRef(null);
     const [productsOpen, setProductsOpen] = useState(false);
     const [showActivos, setShowActivos] = useState(true);
     const [search, setSearch] = useState("");
     const [showList, setShowList] = useState(true);
     const [stockFilter, setStockFilter] = useState('todos');
-    const [showEdit, setShowEdit] = useState(false);
-    const [editProduct, setEditProduct] = useState(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+    const [editingProductId, setEditingProductId] = useState(null);
+    const [deleteProductName, setDeleteProductName] = useState('');
+
+    useEffect(() => {
+        async function fetchDolar() {
+            try {
+                setLoadingCotizacion(true);
+                const res = await fetch(DOLAR_API_URL);
+                const data = await res.json();
+                setCotizacion(data.venta);
+            } catch (err) {
+                setErrorCotizacion('No se pudo obtener la cotización');
+            } finally {
+                setLoadingCotizacion(false);
+            }
+        }
+        fetchDolar();
+    }, [DOLAR_API_URL]);
 
     async function toggleFeatured(product) {
         try {
@@ -39,8 +58,9 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
         }
     }
 
-    function handleDelete(id) {
+    function handleDelete(id, name) {
         setDeleteId(id);
+        setDeleteProductName(name);
         setShowConfirm(true);
     }
 
@@ -63,6 +83,7 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
         } finally {
             setShowConfirm(false);
             setDeleteId(null);
+            setDeleteProductName('');
         }
     }
 
@@ -85,18 +106,24 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
         }
     }
 
-    function handleEdit(product) {
-        setEditProduct(product);
-        setShowEdit(true);
+    // Función para iniciar edición (cierra cualquier edición previa)
+    function startEditing(productId) {
+        setEditingProductId(productId);
     }
 
-    async function saveEdit(form) {
+    // Función para cancelar edición
+    function cancelEditing() {
+        setEditingProductId(null);
+    }
+
+    async function handleEdit(form) {
         try {
-            console.log('AdminProducts: saveEdit form:', form);
+            console.log('AdminProducts: handleEdit form:', form);
             const token = localStorage.getItem('token');
             const productId = form.id;
-            console.log('AdminProducts: saveEdit productId:', productId);
-            console.log('AdminProducts: saveEdit body:', form.body);
+            console.log('AdminProducts: handleEdit productId:', productId);
+            console.log('AdminProducts: handleEdit body:', form.body);
+            
             const res = await fetch(`${API_URL}/api/products/${productId}`, {
                 method: 'PUT',
                 headers: {
@@ -105,14 +132,15 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
                 },
                 body: JSON.stringify(form.body),
             });
+            
             if (!res.ok) throw new Error('Error al editar producto');
+            
             const updated = await res.json();
             setProducts(products.map(p => (p._id === productId || p.id === productId) ? updated : p));
-            setShowEdit(false);
-            setEditProduct(null);
+            setEditingProductId(null);
             toast.success('Producto editado correctamente');
         } catch (err) {
-            console.error('AdminProducts: saveEdit error:', err);
+            console.error('AdminProducts: handleEdit error:', err);
             toast.error('No se pudo editar el producto');
         }
     }
@@ -159,24 +187,30 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
                     onToggleFeatured={toggleFeatured}
                     onDelete={handleDelete}
                     onReactivate={handleReactivate}
+                    cotizacion={cotizacion}
+                    loadingCotizacion={loadingCotizacion}
+                    errorCotizacion={errorCotizacion}
+                    editingProductId={editingProductId}
+                    onStartEditing={startEditing}
+                    onCancelEditing={cancelEditing}
                 />
             )}
 
-            {/* Modales */}
-            <EditProductModal
-                open={showEdit}
-                product={editProduct}
-                onSave={saveEdit}
-                onCancel={() => { setShowEdit(false); setEditProduct(null); }}
-            />
-
-            <ConfirmModal
+            {/* Modal de confirmación de eliminación */}
+            <ConfirmDeleteProduct
                 open={showConfirm}
                 title="Confirmar eliminación"
                 message="¿Seguro que quieres eliminar este producto?"
+                productName={deleteProductName}
                 onConfirm={confirmDelete}
-                onCancel={() => { setShowConfirm(false); setDeleteId(null); }}
+                onCancel={() => { 
+                    setShowConfirm(false); 
+                    setDeleteId(null);
+                    setDeleteProductName('');
+                }}
             />
+
         </div>
     );
+
 }

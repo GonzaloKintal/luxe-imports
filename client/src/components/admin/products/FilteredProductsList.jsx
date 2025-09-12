@@ -6,7 +6,13 @@ export default function FilteredProductsList({
     onEdit, 
     onToggleFeatured, 
     onDelete, 
-    onReactivate 
+    onReactivate,
+    cotizacion,
+    loadingCotizacion,
+    errorCotizacion,
+    editingProductId,
+    onStartEditing,
+    onCancelEditing
 }) {
 
     if (filteredProducts.length === 0) {
@@ -22,7 +28,6 @@ export default function FilteredProductsList({
     return (
         <ul className="space-y-4 w-full mt-4">
             {filteredProducts.map((product) => (
-
                 <FilteredProductCard
                     key={product._id || product.id}
                     product={product}
@@ -30,8 +35,13 @@ export default function FilteredProductsList({
                     onToggleFeatured={onToggleFeatured}
                     onDelete={onDelete}
                     onReactivate={onReactivate}
+                    cotizacion={cotizacion}
+                    loadingCotizacion={loadingCotizacion}
+                    errorCotizacion={errorCotizacion}
+                    isEditing={editingProductId === (product._id || product.id)}
+                    onStartEditing={() => onStartEditing(product._id || product.id)}
+                    onCancelEditing={onCancelEditing}
                 />
-                
             ))}
         </ul>
     );
