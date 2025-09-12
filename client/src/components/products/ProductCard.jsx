@@ -1,6 +1,29 @@
 import { FaTags, FaShoppingCart } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
 
 export default function ProductCard({ title, price, thumbnails, onClick }) {
+  const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
+  const [cotizacion, setCotizacion] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchDolar() {
+      try {
+        setLoading(true);
+        const res = await fetch(DOLAR_API_URL);
+        const data = await res.json();
+        setCotizacion(data.venta);
+      } catch (err) {
+        setError('No se pudo obtener la cotización');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDolar();
+  }, []);
+
+  const precioPesos = cotizacion ? price * cotizacion : null;
 
   return (
     <div className="bg-white rounded-2xl shadow-md border border-gray-100 hover:border-gray-200 w-full max-w-sm mx-auto flex flex-col hover:shadow-lg transition-all duration-300">
@@ -19,9 +42,13 @@ export default function ProductCard({ title, price, thumbnails, onClick }) {
 
         {/* Espacio flexible para empujar precio y botón hacia abajo */}
         <div className="flex flex-col mt-auto">
-          {/* Precio */}
-          <div className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">
-            ${price.toLocaleString('es-AR')}
+          {/* Precio en dólares */}
+          <div className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+            USD ${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          </div>
+          {/* Precio en pesos */}
+          <div className="text-base sm:text-lg text-gray-700 mb-3 sm:mb-4">
+            {loading ? 'Cargando cotización...' : error ? error : precioPesos ? `AR$ ${precioPesos.toLocaleString('es-AR', { minimumFractionDigits: 2 })}` : 'Sin cotización'}
           </div>
 
           {/* Botón */}

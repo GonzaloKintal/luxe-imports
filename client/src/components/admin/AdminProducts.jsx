@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FaEye, FaEyeSlash, FaChevronDown, FaList, FaFilter, FaSearch, FaListAlt, FaCheckCircle, FaBan } from 'react-icons/fa';
 import EditProductModal from '../../components/EditProductModal';
 import ConfirmModal from '../../components/ConfirmModal';
 
 export default function AdminProducts({ products, setProducts, API_URL }) {
+    const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL || 'https://dolarapi.com/v1/dolares/oficial';
+    const [cotizacion, setCotizacion] = useState(null);
+    const [loadingCotizacion, setLoadingCotizacion] = useState(true);
+    const [errorCotizacion, setErrorCotizacion] = useState(null);
     const productsDetailsRef = React.useRef(null);
     const [productsOpen, setProductsOpen] = useState(false);
     const [showActivos, setShowActivos] = useState(true);
@@ -15,6 +19,22 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
     const [editProduct, setEditProduct] = useState(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+
+    useEffect(() => {
+        async function fetchDolar() {
+            try {
+                setLoadingCotizacion(true);
+                const res = await fetch(DOLAR_API_URL);
+                const data = await res.json();
+                setCotizacion(data.venta);
+            } catch (err) {
+                setErrorCotizacion('No se pudo obtener la cotización');
+            } finally {
+                setLoadingCotizacion(false);
+            }
+        }
+        fetchDolar();
+    }, [DOLAR_API_URL]);
 
     async function toggleFeatured(product) {
         try {
@@ -206,7 +226,19 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
                                 />
                                 <div className="flex-1 min-w-0">
                                     <h2 className="font-semibold text-lg text-gray-900 truncate">{p.title}</h2>
-                                    <p className="text-gray-700">${typeof p.price === 'number' ? p.price.toFixed(2) : 'N/A'}</p>
+                                    {/* Precio en dólares y en pesos */}
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-gray-700 font-semibold">USD ${typeof p.price === 'number' ? p.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : 'N/A'}</span>
+                                        <span className="text-gray-600 text-sm">
+                                            {loadingCotizacion
+                                                ? 'Cargando cotización...'
+                                                : errorCotizacion
+                                                    ? errorCotizacion
+                                                    : cotizacion
+                                                        ? `AR$ ${(p.price * cotizacion).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
+                                                        : 'Sin cotización'}
+                                        </span>
+                                    </div>
                                     <p className="text-sm text-gray-500">Stock: {p.stock}</p>
                                 </div>
                                 <div className="flex gap-2 flex-wrap">

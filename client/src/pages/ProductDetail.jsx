@@ -8,21 +8,37 @@ import 'react-toastify/dist/ReactToastify.css';
 import { UserContext } from '../context/UserContext';
 import { FaShoppingCart } from 'react-icons/fa';
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 export default function ProductDetail() {
+  const API_URL = import.meta.env.VITE_API_URL;
+  const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [cartInfo, setCartInfo] = useState({ cartId: null, items: {} });
+  const [cotizacion, setCotizacion] = useState(null);
+  const [loadingCotizacion, setLoadingCotizacion] = useState(true);
+  const [errorCotizacion, setErrorCotizacion] = useState(null);
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
   const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    async function fetchDolar() {
+      try {
+        setLoadingCotizacion(true);
+        const res = await fetch(DOLAR_API_URL);
+        const data = await res.json();
+        setCotizacion(data.venta);
+      } catch (err) {
+        setErrorCotizacion('No se pudo obtener la cotización');
+      } finally {
+        setLoadingCotizacion(false);
+      }
+    }
+    fetchDolar();
   }, []);
 
   useEffect(() => {
@@ -173,7 +189,6 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 pt-20">
       <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover theme="colored" />
-      
       {/* Botón de volver */}
       <div className="absolute top-25 left-15">
         <button
@@ -189,7 +204,6 @@ export default function ProductDetail() {
         {/* Layout responsive: mobile vertical, desktop horizontal */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="lg:grid lg:grid-cols-2 lg:gap-0">
-            
             {/* IZQUIERDA: Galería de imágenes */}
             <div className="p-6 lg:p-8">
               <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4">
@@ -199,7 +213,6 @@ export default function ProductDetail() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              
               {/* Miniaturas si hay más de una imagen */}
               {product.thumbnails && product.thumbnails.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto">
@@ -225,7 +238,6 @@ export default function ProductDetail() {
             {/* DERECHA: Información del producto */}
             <div className="p-6 lg:p-8 lg:border-l lg:border-gray-200">
               <div className="space-y-6">
-                
                 {/* Título y categoría */}
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -238,9 +250,23 @@ export default function ProductDetail() {
                   )}
                 </div>
 
-                {/* Precio */}
-                <div className="text-4xl font-bold text-gray-900">
-                  ${product.price.toLocaleString('es-AR')}
+                {/* Precio en dólares y en pesos */}
+                <div className="flex flex-col gap-1 mb-2">
+                  <div className="text-4xl font-bold text-gray-900">
+                    USD ${product.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </div>
+                  <div className="text-xl text-gray-700">
+                    {loadingCotizacion
+                      ? 'Cargando cotización...'
+                      : errorCotizacion
+                        ? errorCotizacion
+                        : cotizacion
+                          ? `AR$ ${(product.price * cotizacion).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
+                          : 'Sin cotización'}
+                  </div>
+                  <div className="text-[10px] text-gray-400 mt-1">
+                    * Los precios en pesos argentinos se calculan automáticamente según la cotización oficial y pueden variar al momento de la compra.
+                  </div>
                 </div>
 
                 {/* Descripción */}
