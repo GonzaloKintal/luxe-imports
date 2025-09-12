@@ -152,41 +152,87 @@ export default function Auth() {
 
                 {/* Formularios */}
                 <div className="relative min-h-[320px] md:min-h-[380px]">
-                    {/* Formulario de Login */}
-                    <div
-                        key={tab}
-                        className={`absolute inset-0 transition-all duration-400 ease-in-out ${
-                            tab === 'login' 
-                                ? 'opacity-100 translate-x-0 z-10' 
-                                : 'opacity-0 -translate-x-4 pointer-events-none z-0'
-                        }`}
-                    >
-                        <LoginForm
-                            formData={loginForm}
-                            onFormChange={handleLoginChange}
-                            touchedFields={loginTouched}
-                            onBlurField={handleLoginBlur}
-                            onSubmit={handleLogin}
-                        />
-                    </div>
+		{/* Formulario de Login */}
+		<div
+		    key={tab}
+		    className={`absolute inset-0 transition-all duration-400 ease-in-out px-4 py-25 ${
+			tab === 'login' 
+			    ? 'opacity-100 translate-x-0 z-10' 
+			    : 'opacity-0 -translate-x-4 pointer-events-none z-0'
+		    }`}
+		>
+		    {/* Aro giratorio blanco y negro */}
+		    <div className="w-full flex justify-center mb-12 -mt-20">
+			<div className="relative w-48 h-48 flex items-center justify-center">
+			    {/* Aro animado */}
+			    <div className="absolute inset-0 rounded-full border-8 border-black border-t-white animate-spin"></div>
+			    {/* Texto centrado */}
+			    <span className="text-black text-4xl font-serif font-bold"> 
+				Luxe  {/* ACA IRIA EL ICONO DE LUXE IMPORTS */}
+			    </span>
+			</div>
+		    </div>
 
-                    {/* Formulario de Registro */}
-                    <div
-                        key={tab + '-register'}
-                        className={`absolute inset-0 transition-all duration-400 ease-in-out ${
-                            tab === 'register' 
-                                ? 'opacity-100 translate-x-0 z-10' 
-                                : 'opacity-0 translate-x-4 pointer-events-none z-0'
-                        }`}
-                    >
-                        <RegisterForm
-                            formData={registerForm}
-                            onFormChange={handleRegisterChange}
-                            touchedFields={registerTouched}
-                            onBlurField={handleRegisterBlur}
-                            onSubmit={handleRegister}
-                        />
-                    </div>
+		    <LoginForm
+			formData={loginForm}
+			onFormChange={handleLoginChange}
+			touchedFields={loginTouched}
+			onBlurField={handleLoginBlur}
+			onSubmit={handleLogin}
+		    />
+
+		    <style jsx>{`
+			@keyframes spin {
+			    0% { transform: rotate(0deg); }
+			    100% { transform: rotate(360deg); }
+			}
+			.animate-spin {
+			    animation: spin 2s linear infinite;
+			}
+		    `}</style>
+		</div>
+
+		{/* Formulario de Registro */}
+		<div
+		    key={tab + '-register'}
+		    className={`absolute inset-0 transition-all duration-400 ease-in-out ${
+			tab === 'register' 
+			    ? 'opacity-100 translate-x-0 z-10' 
+			    : 'opacity-0 translate-x-4 pointer-events-none z-0'
+		    }`}
+		>
+		    {/* Barra negra minimalista con luz en movimiento */}
+		    <div className="flex justify-center mb-16">
+			<div className="relative w-48 h-4 bg-black rounded-full overflow-hidden">
+			    {/* Línea blanca en movimiento */}
+			    <div className="absolute top-0 left-0 h-4 w-8 bg-white animate-light"></div>
+			    <div className="absolute top-0 left-0 h-4 w-6 bg-white/50 animate-light delay-300"></div>
+			</div>
+		    </div>
+
+		    <RegisterForm
+			formData={registerForm}
+			onFormChange={handleRegisterChange}
+			touchedFields={registerTouched}
+			onBlurField={handleRegisterBlur}
+			onSubmit={handleRegister}
+		    />
+
+		    <style jsx>{`
+			@keyframes lightMove {
+			    0% { transform: translateX(-100%); opacity: 0.2; }
+			    50% { transform: translateX(100%); opacity: 0.7; }
+			    100% { transform: translateX(200%); opacity: 0.2; }
+			}
+			.animate-light {
+			    animation: lightMove 2s linear infinite;
+			}
+			.delay-300 { animation-delay: 0.3s; }
+		    `}</style>
+		</div>
+
+
+
                 </div>
             </div>
 
@@ -210,6 +256,32 @@ export default function Auth() {
                     100% { transform: translateY(0); } 
                 }
                 .animate-float2 { animation: float2 8s ease-in-out infinite; }
+                @keyframes float-slow {
+		  0%, 100% { transform: translateY(0px); }
+		  50% { transform: translateY(-15px); }
+		}
+
+		@keyframes float-fast {
+		  0%, 100% { transform: translateY(0px); }
+		  50% { transform: translateY(-8px); }
+		}
+
+		.animate-float-slow {
+		  animation: float-slow 4s ease-in-out infinite;
+		}
+
+		.animate-float-fast {
+		  animation: float-fast 2.5s ease-in-out infinite;
+		}
+
+		.delay-200 {
+		  animation-delay: 0.2s;
+		}
+
+		.delay-150 {
+		  animation-delay: 0.15s;
+		}
+
             `}</style>
         </main>
     );
