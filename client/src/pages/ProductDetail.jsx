@@ -177,7 +177,7 @@ export default function ProductDetail() {
       {/* Botón de volver */}
       <div className="absolute top-25 left-15">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/products')}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
         >
           <FaArrowLeft /> Volver

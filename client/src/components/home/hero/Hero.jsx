@@ -25,9 +25,18 @@ export default function Hero() {
 
             {/* Contenido centrado */}
             <div className="relative z-10 text-center px-6">
-              <h1 className="luxe-font text-5xl md:text-7xl font-bold mb-6 tracking-tight text-white animate-text-reveal">
-                LUXE <span className="text-gray-400">IMPORTS</span>
+              <h1 className="luxe-font text-5xl md:text-7xl font-bold mb-6 tracking-tight text-white">
+                <span
+                  style={{
+                    textShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6)',
+                  }}
+                >
+                  LUXE
+                </span>{" "}
+                <span className="text-gray-400">IMPORTS</span>
               </h1>
+
+
               <p className="text-xl md:text-2xl mb-8 font-light text-gray-300 animate-fade-in-up">
                 iPhones & Perfumes Importados
               </p>

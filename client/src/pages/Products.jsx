@@ -13,11 +13,11 @@ export default function Products() {
     const [ordenPrecio, setOrdenPrecio] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [shouldRestoreScroll, setShouldRestoreScroll] = useState(false);
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
 
 
+    // 1️⃣ Fetch de productos
     useEffect(() => {
         async function fetchProductos() {
             try {
@@ -26,13 +26,6 @@ export default function Products() {
                 if (!res.ok) throw new Error('Error al cargar productos');
                 const data = await res.json();
                 setProductos(data);
-
-                // Marcamos que debemos restaurar el scroll después de cargar
-                const savedScroll = sessionStorage.getItem('productosScroll');
-                if (savedScroll) {
-                    setShouldRestoreScroll(true);
-                }
-
             } catch (err) {
                 setError(err.message || 'Error desconocido');
             } finally {
@@ -40,19 +33,21 @@ export default function Products() {
             }
         }
         fetchProductos();
-    }, []);
+    }, [API_URL]);
 
-    // Restaurar scroll al montar
+    // 2️⃣ Restaurar scroll cada vez que la página se monta o volvés desde otro lado
     useEffect(() => {
-        if (!loading && shouldRestoreScroll) {
+        if (!loading && productos.length > 0) {
             const savedScroll = sessionStorage.getItem('productosScroll');
             if (savedScroll) {
                 window.scrollTo(0, parseInt(savedScroll, 10));
                 sessionStorage.removeItem('productosScroll');
-                setShouldRestoreScroll(false);
+            } else {
+                window.scrollTo(0, 0);
             }
         }
-    }, [loading, shouldRestoreScroll]);
+    }, [loading, productos.length]);
+
 
     // Guardamos scroll antes de ir a detalle
     const handleGoToDetail = (id) => {

@@ -1,11 +1,13 @@
 
-import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Hero from '../components/home/hero/Hero';
 import FeaturedProducts from '../components/home/featured-products/FeaturedProducts';
 
 export default function Home() {
-    const navigate = useNavigate();
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <>
