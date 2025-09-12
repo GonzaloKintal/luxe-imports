@@ -109,7 +109,7 @@ export default function CreateProductForm({ onSave, onCancel }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                 <label className="block text-gray-700 mb-1 font-semibold text-sm">
-                    Precio <span className="text-red-500">*</span>
+                    Precio (USD)<span className="text-red-500">*</span>
                 </label>
                 <input
                     name="price"

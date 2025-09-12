@@ -42,13 +42,13 @@ export default function ProductCard({ title, price, thumbnails, onClick }) {
 
         {/* Espacio flexible para empujar precio y botón hacia abajo */}
         <div className="flex flex-col mt-auto">
-          {/* Precio en dólares */}
-          <div className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
-            USD ${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-          </div>
           {/* Precio en pesos */}
-          <div className="text-base sm:text-lg text-gray-700 mb-3 sm:mb-4">
+          <div className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
             {loading ? 'Cargando cotización...' : error ? error : precioPesos ? `AR$ ${precioPesos.toLocaleString('es-AR', { minimumFractionDigits: 2 })}` : 'Sin cotización'}
+          </div>
+          {/* Precio en dólares */}
+          <div className="text-base sm:text-lg text-gray-700 mb-3 sm:mb-4">
+            USD ${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
 
           {/* Botón */}

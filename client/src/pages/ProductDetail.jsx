@@ -253,9 +253,6 @@ export default function ProductDetail() {
                 {/* Precio en dólares y en pesos */}
                 <div className="flex flex-col gap-1 mb-2">
                   <div className="text-4xl font-bold text-gray-900">
-                    USD ${product.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </div>
-                  <div className="text-xl text-gray-700">
                     {loadingCotizacion
                       ? 'Cargando cotización...'
                       : errorCotizacion
@@ -263,6 +260,9 @@ export default function ProductDetail() {
                         : cotizacion
                           ? `AR$ ${(product.price * cotizacion).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
                           : 'Sin cotización'}
+                  </div>
+                  <div className="text-xl text-gray-700">
+                    USD ${product.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </div>
                   <div className="text-[10px] text-gray-400 mt-1">
                     * Los precios en pesos argentinos se calculan automáticamente según la cotización oficial y pueden variar al momento de la compra.
