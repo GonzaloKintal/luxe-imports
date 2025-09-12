@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import AdminActions from '../components/admin/AdminActions';
-import AdminProducts from '../components/admin/AdminProducts';
+import AdminActions from '../components/admin/actions/AdminActions';
+import AdminProducts from '../components/admin/products/AdminProducts';
 
 export default function AdminPanel() {
     const [user, setUser] = useState(null);
