@@ -108,10 +108,9 @@ function ProductInfo({ product, cotizacion, loadingCotizacion, errorCotizacion }
     return (
         <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-lg text-gray-900 truncate">{product.title}</h2>
-            {/* Precio en dólares y en pesos */}
+            {/* Precio en pesos y en dólares */}
             <div className="flex flex-col gap-1">
-                <span className="text-gray-700 font-semibold">USD ${typeof product.price === 'number' ? product.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : 'N/A'}</span>
-                <span className="text-gray-600 text-sm">
+                <span className="text-gray-700 font-bold text-sm">
                     {loadingCotizacion
                         ? 'Cargando cotización...'
                         : errorCotizacion
@@ -119,6 +118,9 @@ function ProductInfo({ product, cotizacion, loadingCotizacion, errorCotizacion }
                             : cotizacion
                                 ? `AR$ ${(product.price * cotizacion).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
                                 : 'Sin cotización'}
+                </span>
+                <span className="text-gray-600 text-sm">
+                    USD ${typeof product.price === 'number' ? product.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : 'N/A'}
                 </span>
             </div>
             <p className="text-sm text-gray-500">Stock: {product.stock}</p>
