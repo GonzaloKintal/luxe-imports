@@ -17,6 +17,7 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
     const [stockFilter, setStockFilter] = useState('todos');
     const [showEdit, setShowEdit] = useState(false);
     const [editProduct, setEditProduct] = useState(null);
+    const [savingEdit, setSavingEdit] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
 
@@ -108,6 +109,7 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
     }
 
     async function saveEdit(form) {
+        setSavingEdit(true);
         try {
             console.log('AdminProducts: saveEdit form:', form);
             const token = localStorage.getItem('token');
@@ -122,15 +124,21 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
                 },
                 body: JSON.stringify(form.body),
             });
-            if (!res.ok) throw new Error('Error al editar producto');
-            const updated = await res.json();
-            setProducts(products.map(p => (p._id === productId || p.id === productId) ? updated : p));
+            const data = await res.json();
+            if (!res.ok) {
+                // Si el backend envía un mensaje específico, mostrarlo
+                const errorMsg = data?.error || data?.message || 'Error al editar producto';
+                throw new Error(errorMsg);
+            }
+            setProducts(products.map(p => (p._id === productId || p.id === productId) ? data : p));
             setShowEdit(false);
             setEditProduct(null);
             toast.success('Producto editado correctamente');
         } catch (err) {
             console.error('AdminProducts: saveEdit error:', err);
-            toast.error('No se pudo editar el producto');
+            toast.error(err.message || 'No se pudo editar el producto');
+        } finally {
+            setSavingEdit(false);
         }
     }
 
@@ -286,6 +294,7 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
                 product={editProduct}
                 onSave={saveEdit}
                 onCancel={() => { setShowEdit(false); setEditProduct(null); }}
+                saving={savingEdit}
             />
 
             <ConfirmModal

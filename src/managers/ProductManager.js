@@ -37,6 +37,12 @@ class ProductManager {
       error.status = 404;
       throw error;
     }
+    // Notificar si el stock es bajo o 0
+    if (typeof product.stock === 'number' && product.stock <= 3) {
+      // Importar dinámicamente para evitar problemas en test
+      const { notifyAdminLowStock } = await import('../utils/notifyAdmin.js');
+      await notifyAdminLowStock(product);
+    }
     return product;
   }
 
