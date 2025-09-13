@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
-import { FaHistory } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaHistory, FaWhatsapp } from 'react-icons/fa';
 
 export default function HistoryAdmin({ history, loading, onClose }) {
-    
+
     const [expanded, setExpanded] = useState({});
     const [details, setDetails] = useState({});
     const API_URL = import.meta.env.VITE_API_URL;
@@ -13,6 +13,32 @@ export default function HistoryAdmin({ history, loading, onClose }) {
         setDetails({});
         setExpanded({});
     }, [history]);
+
+    // Estado para pedidos confirmados
+    const [confirmedHistory, setConfirmedHistory] = useState([]);
+    const [loadingConfirmed, setLoadingConfirmed] = useState(true);
+    const [errorConfirmed, setErrorConfirmed] = useState(null);
+
+    useEffect(() => {
+        async function fetchConfirmed() {
+            setLoadingConfirmed(true);
+            setErrorConfirmed(null);
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/api/carts/confirmados`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) throw new Error('Error al obtener compras confirmadas');
+                const data = await res.json();
+                setConfirmedHistory(Array.isArray(data) ? data : []);
+            } catch (err) {
+                setErrorConfirmed(err.message);
+            } finally {
+                setLoadingConfirmed(false);
+            }
+        }
+        fetchConfirmed();
+    }, [API_URL]);
 
     async function fetchDetails(cartId, products) {
         if (details[cartId]) return; // Ya cargado
@@ -46,50 +72,65 @@ export default function HistoryAdmin({ history, loading, onClose }) {
                 </div>
 
                 <div className="space-y-4">
-                    {loading ? (
+                    {loadingConfirmed ? (
                         <div className="text-center py-12">
                             <div className="inline-flex items-center gap-3 text-gray-600">
                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                                 <span className="text-lg">Cargando historial...</span>
                             </div>
                         </div>
-                    ) : history.length === 0 ? (
+                    ) : errorConfirmed ? (
+                        <div className="text-center py-12 text-red-500">{errorConfirmed}</div>
+                    ) : confirmedHistory.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="text-gray-400 mb-4">
                                 <FaHistory className="text-6xl mx-auto" />
                             </div>
                             <h4 className="text-xl font-medium text-gray-600 mb-2">
-                                No hay compras registradas
+                                No hay compras confirmadas
                             </h4>
                             <p className="text-gray-500">
-                                Las compras realizadas aparecerán aquí
+                                Las compras confirmadas aparecerán aquí
                             </p>
                         </div>
                     ) : (
                         <div className="space-y-4">
                             <div className="flex items-center justify-between mb-4">
                                 <p className="text-sm text-gray-600">
-                                    Se encontraron <span className="font-semibold text-gray-900">{history.length}</span> compras
+                                    Se encontraron <span className="font-semibold text-gray-900">{confirmedHistory.length}</span> compras confirmadas
                                 </p>
                             </div>
-                            
-                            {history.map((h, i) => {
-                                const cartId = h._id || h.id || i;
+                            {confirmedHistory.map((h) => {
+                                const cartId = h._id;
                                 return (
                                     <div key={cartId} className="border border-gray-200 rounded-lg bg-gray-50">
                                         <div className="p-4">
                                             <div className="flex justify-between items-center">
                                                 <div className="flex-1">
                                                     <div className="font-semibold text-gray-900">
-                                                        Pedido #{cartId.slice(-8)}
+                                                        Pedido {cartId || 'N/A'}
                                                     </div>
                                                     <div className="text-sm text-gray-600 mt-1 space-y-1">
-                                                        <div>Usuario: <span className="font-medium">{h.userId || 'N/A'}</span></div>
-                                                        <div>Estado: <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                                                            h.status === 'paid' 
-                                                                ? 'bg-green-100 text-green-800' 
-                                                                : 'bg-yellow-100 text-yellow-800'
-                                                        }`}>
+                                                        <div>Usuario: <span className="font-medium">
+                                                            {h.userId?.email || h.userId?.firstName || h.userId?.lastName || h.userId?._id || 'N/A'}
+                                                            {h.userId?.firstName && (
+                                                                <span className="ml-1">{h.userId.firstName}</span>
+                                                            )}
+                                                            {h.userId?.lastName && (
+                                                                <span className="ml-1">{h.userId.lastName}</span>
+                                                            )}
+                                                            {h.userId?.telefono && (
+                                                                <a
+                                                                    href={`https://wa.me/${h.userId.telefono.replace(/[^\d]/g, '')}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="ml-2 text-green-700 hover:text-green-900"
+                                                                >
+                                                                    <FaWhatsapp className="inline-block text-lg" />
+                                                                </a>
+                                                            )}
+                                                        </span></div>
+                                                        <div>Estado: <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800`}>
                                                             {h.status || 'N/A'}
                                                         </span></div>
                                                     </div>
@@ -106,7 +147,6 @@ export default function HistoryAdmin({ history, loading, onClose }) {
                                                     {expanded[cartId] ? 'Ocultar productos' : 'Ver productos'}
                                                 </button>
                                             </div>
-                                            
                                             {expanded[cartId] && Array.isArray(details[cartId]) && (
                                                 <div className="mt-4 border-t border-gray-200 pt-4">
                                                     <div className="space-y-3">

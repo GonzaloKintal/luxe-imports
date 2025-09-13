@@ -5,7 +5,7 @@ import User from "../models/User.js";
 class CartManager {
   // Obtiene todos los carritos
   async getCarts() {
-    return await Cart.find().populate("products.productId");
+    return await Cart.find().populate("products.productId").populate("userId");
   }
 
   // Busca un carrito por ID
@@ -165,20 +165,15 @@ class CartManager {
       error.status = 404;
       throw error;
     }
-    if (
-      cart.status !== "abierto" ||
-      cart.status === "pendiente de confirmacion"
-    ) {
-      const error = new Error(
-        "Solo se pueden eliminar carritos abiertos o pendientes de confirmación."
-      );
+    if (cart.status === "confirmado") {
+      const error = new Error("No se pueden eliminar carritos confirmados.");
       error.status = 400;
       throw error;
     }
     await Cart.findByIdAndDelete(cartId);
   }
 
-  async payCart(cartId) {
+  async confirmCart(cartId) {
     const cart = await Cart.findById(cartId);
     if (!cart) {
       const error = new Error("Carrito no encontrado");
@@ -213,7 +208,9 @@ class CartManager {
   async getPurchaseHistoryByUserId(userId) {
     return await Cart.find({
       userId,
-    }).populate("products.productId");
+    })
+      .populate("products.productId")
+      .populate("userId");
   }
 }
 

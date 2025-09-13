@@ -25,6 +25,17 @@ router.post('/:cid/confirm-request', authenticateToken, async (req, res, next) =
   }
 });
 
+// GET /api/carts/pendientes => Obtener todos los carritos pendientes de confirmación (solo admin)
+router.get('/pendientes', authenticateToken, isAdmin, async (req, res, next) => {
+  try {
+    const allCarts = await manager.getCarts();
+    const pendingCarts = allCarts.filter(cart => cart.status === 'pendiente de confirmacion');
+    res.json(pendingCarts);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // POST /api/carts/ => Crear nuevo carrito
 router.post('/', authenticateToken, async (req, res, next) => {
   try {
@@ -167,9 +178,9 @@ router.delete('/:cid', authenticateToken, async (req, res, next) => {
     const cart = await manager.getCartById(req.params.cid);
     if (!cart) return res.status(404).json({ error: 'Carrito no encontrado' });
 
-    // Validar que el carrito pertenezca al usuario autenticado
+    // Validar que el carrito pertenezca al usuario autenticado o sea admin
     const userId = (req.user._id || req.user.id);
-    if (userId.toString() !== cart.userId.toString()) {
+    if (userId.toString() !== cart.userId.toString() && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'No autorizado para eliminar este carrito' });
     }
 
@@ -181,7 +192,6 @@ router.delete('/:cid', authenticateToken, async (req, res, next) => {
   }
 });
 
-// POST /api/carts/:cid/pay => Pagar el carrito
 // POST /api/carts/:cid/confirmar => Confirmar el carrito
 router.post('/:cid/confirmar', authenticateToken, isAdmin, async (req, res, next) => {
   try {
@@ -193,7 +203,7 @@ router.post('/:cid/confirmar', authenticateToken, isAdmin, async (req, res, next
       return res.status(403).json({ error: 'No autorizado para confirmar este carrito' });
     }
 
-    const result = await manager.payCart(req.params.cid);
+    const result = await manager.confirmCart(req.params.cid);
     res.json({ message: 'Carrito confirmado correctamente', cart: result });
   } catch (error) {
     if (error.status) {
