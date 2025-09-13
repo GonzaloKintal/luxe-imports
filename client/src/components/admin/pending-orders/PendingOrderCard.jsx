@@ -65,7 +65,7 @@ export default function PendingOrderCard({ order, onConfirm, onDelete }) {
             <div className="flex justify-start md:justify-end">
                 <div className="flex gap-2">
                     <button
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
                         onClick={() => onConfirm(order._id)}
                     >
                         Confirmar

@@ -3,7 +3,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { FaUserCircle, FaChevronDown, FaSignOutAlt, FaUserShield, FaUser, FaSignInAlt } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
-import { UserContext } from '../context/UserContext';
+import { UserContext } from '../../context/UserContext';
 
 function Navbar() {
     const { user, setUser } = useContext(UserContext);
@@ -152,7 +152,8 @@ function Navbar() {
                                                 <div className="text-sm font-semibold text-gray-900 mb-1 text-center">{user.email}</div>
                                                 <button
                                                     onClick={() => {
-                                                        localStorage.removeItem('token');
+                                                        localStorage.clear();
+                                                        sessionStorage.clear();
                                                         window.location.reload();
                                                     }}
                                                     className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-300 shadow-sm border border-red-200"

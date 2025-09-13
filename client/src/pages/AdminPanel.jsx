@@ -111,8 +111,8 @@ export default function AdminPanel() {
         }
     }, [activeTab, API_URL]);
 
-    if (loading) return <div className="p-6 text-center">Cargando...</div>;
-    if (error) return <div className="p-6 text-center text-red-600">{error}</div>;
+    // if (loading) return <div className="p-6 text-center">Cargando...</div>;
+    // if (error) return <div className="p-6 text-center text-red-600">{error}</div>;
 
     return (
         <main className="bg-gray-100 px-6 md:px-12 pt-12 relative overflow-hidden min-h-screen w-full">
@@ -165,6 +165,8 @@ export default function AdminPanel() {
                             products={products}
                             setProducts={setProducts}
                             API_URL={API_URL}
+                            loading={loading}
+                            error={error}
                         />
                     )}
                     
@@ -173,6 +175,8 @@ export default function AdminPanel() {
                             products={products}
                             setProducts={setProducts}
                             API_URL={API_URL}
+                            loading={loading}
+                            error={error}
                         />
                     )}
 
@@ -182,17 +186,12 @@ export default function AdminPanel() {
                         />
                     )}
 
-
                     {activeTab === 'history' && (
                         <HistoryOrders
                             history={history}
-                            loading={loadingHistory}
                             onClose={() => {}}
                         />
                     )}
-
-                    {/* Futuras tabs acá */}
-                    
                 </div>
             </div>
         </main>

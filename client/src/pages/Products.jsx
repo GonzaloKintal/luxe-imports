@@ -39,10 +39,12 @@ export default function Products() {
         async function fetchProductos() {
             try {
                 setLoading(true);
+
                 const res = await fetch(`${API_URL}/api/products/`);
                 if (!res.ok) throw new Error('Error al cargar productos');
                 const data = await res.json();
                 setProductos(data);
+
             } catch (err) {
                 setError(err.message || 'Error desconocido');
             } finally {
@@ -80,40 +82,26 @@ export default function Products() {
         setOrdenPrecio('');
     };
 
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center min-h-screen text-gray-700 dark:text-gray-300">
-                Cargando productos...
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex justify-center items-center min-h-screen text-red-600 dark:text-red-400">
-                {error}
-            </div>
-        );
-    }
-
     // Filtro y búsqueda
-    let productosFiltrados = productos
-        .filter(producto => producto.status)
-        .filter(producto =>
-            producto.title.toLowerCase().includes(busqueda.toLowerCase())
-        )
-        .filter(producto =>
-            filtroCategoria ? producto.category === filtroCategoria : true
-        )
-        .filter(producto =>
-            filtroStock === 'all' ? true : filtroStock === 'in' ? Number(producto.stock) > 0 : Number(producto.stock) <= 0
-        );
+    let productosFiltrados = [];
+    if (!loading && !error) {
+        productosFiltrados = productos
+            .filter(producto => producto.status)
+            .filter(producto =>
+                producto.title.toLowerCase().includes(busqueda.toLowerCase())
+            )
+            .filter(producto =>
+                filtroCategoria ? producto.category === filtroCategoria : true
+            )
+            .filter(producto =>
+                filtroStock === 'all' ? true : filtroStock === 'in' ? Number(producto.stock) > 0 : Number(producto.stock) <= 0
+            );
 
-    if (ordenPrecio === 'asc') {
-        productosFiltrados = productosFiltrados.slice().sort((a, b) => a.price - b.price);
-    } else if (ordenPrecio === 'desc') {
-        productosFiltrados = productosFiltrados.slice().sort((a, b) => b.price - a.price);
+        if (ordenPrecio === 'asc') {
+            productosFiltrados = productosFiltrados.slice().sort((a, b) => a.price - b.price);
+        } else if (ordenPrecio === 'desc') {
+            productosFiltrados = productosFiltrados.slice().sort((a, b) => b.price - a.price);
+        }
     }
 
     return (
@@ -143,6 +131,8 @@ export default function Products() {
                 <ProductList
                     productos={productosFiltrados}
                     onGoToDetail={handleGoToDetail}
+                    loading={loading}
+                    error={error}
                 />
             </div>
         </main>

@@ -32,7 +32,6 @@ export default function Cart() {
 		    });
 		    const data = await res.json();
 		    if (!res.ok) throw new Error(data.error || 'Error al obtener info del usuario');
-		    console.log("Respuesta /me:", data);
 		    setUserInfo(data);
 		} catch (err) {
 		    console.error("Error al obtener /me:", err);
@@ -100,7 +99,6 @@ export default function Cart() {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     const productosInCart = await productosRes.json();
-                    console.log('Productos en carrito:', productosInCart);
                     if (!productosRes.ok) throw new Error(productosInCart.error || 'Error al cargar carrito');
 
                     // Obtener detalles completos de productos y añadir cantidades
@@ -128,7 +126,6 @@ export default function Cart() {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
-                console.log('Respuesta admin-info:', data);
                 if (res.ok && data.telefono) {
                     setAdminPhone(data.telefono);
                     setAdminName(data.nombre || 'Luxe Imports');
@@ -435,8 +432,6 @@ export default function Cart() {
                                         const productos = products
                                             .map(p => `- ${p.title} x${p.quantity} ($${(p.price * p.quantity).toFixed(2)})`)
                                             .join('%0A'); // salto de línea en URL
-
-					console.log("Contenido de userInfo en Cart:", userInfo);
 
 
 

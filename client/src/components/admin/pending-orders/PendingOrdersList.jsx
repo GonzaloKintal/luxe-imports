@@ -8,7 +8,7 @@ export default function PendingOrdersList({ orders, loading, error, onConfirm, o
         return (
             <div className="text-center py-12">
                 <div className="inline-flex items-center gap-3 text-gray-600">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
                     <span className="text-lg">Cargando pedidos...</span>
                 </div>
             </div>

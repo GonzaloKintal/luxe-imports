@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import { FaPlus, FaUserShield, FaTag } from 'react-icons/fa';
 import CreateProductForm from './CreateProductForm';
 import CreateAdminForm from './CreateAdminForm';
 import CreateCategoryForm from './CreateCategoryForm';
+import { AnimatePresence } from "framer-motion";
+import PageTransition from '../../PageTransition';
+import ActionButtonsList from './ActionButtonsList';
 
 export default function AdminActions({ products, setProducts, API_URL }) {
-    const [openForm, setOpenForm] = useState(null); // 'product' | 'admin' | null
+    const [openForm, setOpenForm] = useState(null); // 'product' | 'admin' | 'category' | null
     const [showForm, setShowForm] = useState(false);
 
     function handleOpenForm(form) {
@@ -68,81 +70,52 @@ export default function AdminActions({ products, setProducts, API_URL }) {
     }
 
     return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <button
-                        onClick={() => handleOpenForm('product')} 
-                        className="flex items-center gap-3 px-6 py-4 rounded-lg font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition-all duration-200"
-                    >
-                        <FaPlus className="text-lg" />
-                        <span>Crear Producto</span>
-                    </button>
+                <h2 className="text-xl font-semibold text-gray-800 mb-6">Acciones administrativas</h2>
+                
+                {/* Botones (cards) */}
+                <ActionButtonsList 
+                    openForm={openForm}
+                    onFormOpen={handleOpenForm}
+                />
 
-                    <button
-                        onClick={() => handleOpenForm('admin')} 
-                        className="flex items-center gap-3 px-6 py-4 rounded-lg font-medium bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 transition-all duration-200"
-                    >
-                        <FaUserShield className="text-lg" />
-                        <span>Crear Admin</span>
-                    </button>
-
-                    <button
-                        onClick={() => handleOpenForm('category')} 
-                        className="flex items-center gap-3 px-6 py-4 rounded-lg font-medium bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition-all duration-200"
-                    >
-                        <FaTag className="text-lg" />
-                        <span>Crear Categoría</span>
-                    </button>
-                </div>
-
-                {/* Formulario de Crear Producto */}
-                {openForm === 'product' && (
-                    <div
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            showForm ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                        }`}
-                    >
-                        <div className="border-t border-gray-200 pt-4">
-                            <CreateProductForm
+                {/* Formularios */}
+                <AnimatePresence mode="wait">
+                    {openForm === 'product' && (
+                        <PageTransition key="product-form">
+                            <div className="border-t border-gray-200 pt-5 mt-3">
+                                <CreateProductForm
                                 onSave={saveCreate}
                                 onCancel={handleCloseForm}
-                            />
-                        </div>
-                    </div>
-                )}
+                                />
+                            </div>
+                        </PageTransition>
+                    )}
 
-                {/* Formulario de Crear Admin */}
-                {openForm === 'admin' && (
-                    <div
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            showForm ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                        }`}
-                    >
-                        <div className="border-t border-gray-200 pt-4">
-                            <CreateAdminForm
+                    {openForm === 'admin' && (
+                        <PageTransition key="admin-form">
+                            <div className="border-t border-gray-200 pt-5 mt-3">
+                                <CreateAdminForm
                                 onSave={handleCreateAdmin}
                                 onCancel={handleCloseForm}
-                            />
-                        </div>
-                    </div>
-                )}
+                                />
+                            </div>
+                        </PageTransition>
+                    )}
 
-                {/* Formulario de Crear Categoría */}
-                {openForm === 'category' && (
-                    <div
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            showForm ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                        }`}
-                    >
-                        <div className="border-t border-gray-200 pt-4">
-                            <CreateCategoryForm
+                    {openForm === 'category' && (
+                        <PageTransition key="category-form">
+                            <div className="border-t border-gray-200 pt-5 mt-3">
+                                <CreateCategoryForm
                                 onSave={handleCreateCategory}
                                 onCancel={handleCloseForm}
-                            />
-                        </div>
-                    </div>
-                )}
+                                />
+                            </div>
+                        </PageTransition>
+                    )}
+                </AnimatePresence>
+
             </div>
         </div>
     );

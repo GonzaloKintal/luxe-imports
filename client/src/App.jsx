@@ -1,5 +1,7 @@
-import { Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import PageTransition from './components/PageTransition';
+import Navbar from './components/navbar/Navbar';
 import Home from './pages/Home';
 import Cart from './pages/Cart';
 import Products from './pages/Products';
@@ -10,20 +12,29 @@ import Footer from './components/footer/Footer';
 import About from './components/about/About';
 
 export default function App() {
+
+  const location = useLocation();
+
   return (
     <>
       <Navbar />
-      <Routes>
 
-        <Route path="/" element={<Home />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/products/product-detail/:id" element={<ProductDetail />} />
-        <Route path="/admin" element={<AdminPanel />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/about" element={<About />} />
+      <AnimatePresence mode="wait">
 
-      </Routes>
+        <Routes location={location} key={location.pathname}>
+        
+          <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+          <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+          <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+          <Route path="/products" element={<PageTransition><Products /></PageTransition>} />
+          <Route path="/products/product-detail/:id" element={<PageTransition><ProductDetail /></PageTransition>} />
+          <Route path="/admin" element={<PageTransition><AdminPanel /></PageTransition>} />
+          <Route path="/about" element={<PageTransition><About /></PageTransition>} />
+
+        </Routes>
+
+      </AnimatePresence>
+
       <Footer />
     </>
   );

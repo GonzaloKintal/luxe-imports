@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import PendingOrdersList from './PendingOrdersList';
 import ConfirmOrderAction from './ConfirmOrderAction';
 
-export default function PendingOrders({ loading, onClose }) {
+export default function PendingOrders() {
 
     const [orders, setOrders] = React.useState([]);
     const [loadingOrders, setLoadingOrders] = React.useState(true);
@@ -121,7 +121,7 @@ export default function PendingOrders({ loading, onClose }) {
                 <div className="p-6">
                     <div className="mb-6">
                         <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                            <FaClock className="text-orange-500" />
+                            <FaClock className="text-blue-500" />
                             Pedidos Pendientes
                         </h3>
                         <p className="text-gray-600 mt-1">

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaHistory } from 'react-icons/fa';
 import HistoryOrdersList from './HistoryOrdersList';
 
-export default function HistoryOrders({ history, loading, onClose }) {
+export default function HistoryOrders({ history }) {
     
     const [expanded, setExpanded] = useState({});
     const [details, setDetails] = useState({});

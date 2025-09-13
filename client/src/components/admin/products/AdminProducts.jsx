@@ -5,14 +5,12 @@ import ConfirmDeleteProduct from './ConfirmDeleteProduct';
 import FilteredProductsList from './FilteredProductsList';
 import ProductFilters from './ProductFilters';
 
-export default function AdminProducts({ products, setProducts, API_URL }) {
+export default function AdminProducts({ products, setProducts, API_URL, loading, error }) {
 
     const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
     const [cotizacion, setCotizacion] = useState(null);
     const [loadingCotizacion, setLoadingCotizacion] = useState(true);
     const [errorCotizacion, setErrorCotizacion] = useState(null);
-    const productsDetailsRef = React.useRef(null);
-    const [productsOpen, setProductsOpen] = useState(false);
     const [showActivos, setShowActivos] = useState(true);
     const [search, setSearch] = useState("");
     const [stockFilter, setStockFilter] = useState('todos');
@@ -117,11 +115,8 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
 
     async function handleEdit(form) {
         try {
-            console.log('AdminProducts: handleEdit form:', form);
             const token = localStorage.getItem('token');
             const productId = form.id;
-            console.log('AdminProducts: handleEdit productId:', productId);
-            console.log('AdminProducts: handleEdit body:', form.body);
             
             const res = await fetch(`${API_URL}/api/products/${productId}`, {
                 method: 'PUT',
@@ -153,8 +148,48 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
         })
         .filter(p => !search || p.title.toLowerCase().includes(search.toLowerCase()));
 
+    // Si está cargando productos
+    if (loading) {
+        return (
+            <div className="w-full">
+                <div className="flex justify-center items-center py-20 text-gray-600">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <p>Cargando productos...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Si hay error cargando productos
+    if (error) {
+        return (
+            <div className="w-full">
+                <div className="flex justify-center items-center py-20 text-red-600">
+                    <div className="text-center">
+                        <div className="text-6xl mb-4">⚠️</div>
+                        <h3 className="text-xl font-semibold mb-2">Error al cargar productos</h3>
+                        <p className="text-gray-600">{error}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Si no hay productos
     if (products.length === 0) {
-        return null;
+        return (
+            <div className="w-full">
+                <div className="flex justify-center items-center py-20 text-gray-600">
+                    <div className="text-center">
+                        <div className="text-6xl mb-4">📦</div>
+                        <h3 className="text-xl font-semibold mb-2">No hay productos</h3>
+                        <p className="text-gray-500">Crea tu primer producto para comenzar</p>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
