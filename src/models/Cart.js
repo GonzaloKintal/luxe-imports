@@ -8,7 +8,7 @@ const cartProductSchema = new mongoose.Schema({
 const cartSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   products: [cartProductSchema],
-  status: { type: String, default: 'in_progress' },
+  status: { type: String, default: 'abierto' }, // 'abierto', 'pendiente de confirmacion', 'pagado', 'cancelado'
   createdAt: { type: Date, default: Date.now },
   paidAt: { type: Date },
 });

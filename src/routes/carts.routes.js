@@ -5,6 +5,26 @@ import { authenticateToken, isAdmin } from '../middlewares/auth.js';
 const router = express.Router();
 const manager = cartManager;
 
+// POST /api/carts/:cid/confirm-request => Marcar carrito como pendiente de confirmación
+router.post('/:cid/confirm-request', authenticateToken, async (req, res, next) => {
+  try {
+    const cart = await manager.getCartById(req.params.cid);
+    // Validar que el carrito pertenezca al usuario autenticado o sea admin
+    const userId = (req.user._id || req.user.id);
+    if (userId.toString() !== cart.userId.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'No autorizado para marcar como pendiente de confirmación este carrito' });
+    }
+    const result = await manager.markAsPendingConfirmation(req.params.cid);
+    res.json({ message: 'El carrito está pendiente de confirmación.', cart: result });
+  } catch (error) {
+    if (error.status) {
+      res.status(error.status).json({ error: error.message });
+    } else {
+      next(error);
+    }
+  }
+});
+
 // POST /api/carts/ => Crear nuevo carrito
 router.post('/', authenticateToken, async (req, res, next) => {
   try {
@@ -20,6 +40,7 @@ router.post('/', authenticateToken, async (req, res, next) => {
 });
 
 // GET /api/carts/history => Obtener historial de pedidos pagados del usuario
+// GET /api/carts/history => Obtener historial de pedidos confirmados y pendientes del usuario
 router.get('/history', authenticateToken, async (req, res, next) => {
   try {
     const userId = req.user._id || req.user.id;
@@ -30,12 +51,12 @@ router.get('/history', authenticateToken, async (req, res, next) => {
   }
 });
 
-// GET /api/carts/paid => Obtener todos los carritos pagados (solo admin)
-router.get('/paid', authenticateToken, isAdmin, async (req, res, next) => {
+// GET /api/carts/confirmados => Obtener todos los carritos confirmados (solo admin)
+router.get('/confirmados', authenticateToken, isAdmin, async (req, res, next) => {
   try {
     const allCarts = await manager.getCarts();
-    const paidCarts = allCarts.filter(cart => cart.status === 'paid');
-    res.json(paidCarts);
+    const confirmedCarts = allCarts.filter(cart => cart.status === 'confirmado');
+    res.json(confirmedCarts);
   } catch (error) {
     next(error);
   }
@@ -162,24 +183,23 @@ router.delete('/:cid', authenticateToken, async (req, res, next) => {
 });
 
 // POST /api/carts/:cid/pay => Pagar el carrito
-router.post('/:cid/pay', authenticateToken, async (req, res, next) => {
+// POST /api/carts/:cid/confirmar => Confirmar el carrito
+router.post('/:cid/confirmar', authenticateToken, isAdmin, async (req, res, next) => {
   try {
     const cart = await manager.getCartById(req.params.cid);
 
     // Validar que el carrito pertenezca al usuario autenticado o sea admin
     const userId = (req.user._id || req.user.id);
     if (userId.toString() !== cart.userId.toString() && req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'No autorizado para pagar este carrito' });
+      return res.status(403).json({ error: 'No autorizado para confirmar este carrito' });
     }
 
     const result = await manager.payCart(req.params.cid);
-    res.json({ message: 'Carrito pagado correctamente', cart: result });
+    res.json({ message: 'Carrito confirmado correctamente', cart: result });
   } catch (error) {
     if (error.status) {
-      // Si el error tiene status, lo usás para responder
       res.status(error.status).json({ error: error.message });
     } else {
-      // Si es otro error inesperado, lo pasás al middleware de manejo de errores
       next(error);
     }
   }

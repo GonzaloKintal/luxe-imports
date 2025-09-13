@@ -20,7 +20,7 @@ class CartManager {
   }
 
   async getCartByUserId(userId) {
-    return await Cart.findOne({ userId, status: "in_progress" }).populate(
+    return await Cart.findOne({ userId, status: "abierto" }).populate(
       "products.productId"
     );
   }
@@ -46,19 +46,36 @@ class CartManager {
       throw error;
     }
 
-    // Verificar si ya existe un carrito en progreso
-    const existingCart = await Cart.findOne({ userId, status: "in_progress" });
+    // Verificar si ya existe un carrito abierto
+    const existingCart = await Cart.findOne({ userId, status: "abierto" });
     if (existingCart) {
-      const error = new Error(
-        "Ya existe un carrito en progreso para este usuario"
-      );
+      const error = new Error("Ya existe un carrito abierto para este usuario");
       error.status = 409;
       throw error;
     }
 
-    const newCart = new Cart({ userId, products: [], status: "in_progress" });
+    const newCart = new Cart({ userId, products: [], status: "abierto" });
     await newCart.save();
     return newCart;
+  }
+  // Marcar carrito como pendiente de confirmación
+  async markAsPendingConfirmation(cartId) {
+    const cart = await Cart.findById(cartId);
+    if (!cart) {
+      const error = new Error("Carrito no encontrado");
+      error.status = 404;
+      throw error;
+    }
+    if (cart.status !== "abierto") {
+      const error = new Error(
+        "Solo se puede marcar como pendiente de confirmación un carrito abierto."
+      );
+      error.status = 400;
+      throw error;
+    }
+    cart.status = "pendiente de confirmacion";
+    await cart.save();
+    return cart;
   }
 
   async addProductToCart(cartId, productId) {
@@ -74,10 +91,8 @@ class CartManager {
       error.status = 404;
       throw error;
     }
-    if (cart.status !== "in_progress") {
-      const error = new Error(
-        "No se puede modificar un carrito que ya fue pagado."
-      );
+    if (cart.status !== "abierto") {
+      const error = new Error("Solo se pueden modificar carritos abiertos.");
       error.status = 400;
       throw error;
     }
@@ -108,10 +123,8 @@ class CartManager {
       error.status = 404;
       throw error;
     }
-    if (cart.status !== "in_progress") {
-      const error = new Error(
-        "No se puede modificar un carrito que ya fue pagado."
-      );
+    if (cart.status !== "abierto") {
+      const error = new Error("Solo se pueden modificar carritos abiertos.");
       error.status = 400;
       throw error;
     }
@@ -129,10 +142,8 @@ class CartManager {
   async updateProductQuantity(cartId, productId, quantity) {
     const cart = await Cart.findById(cartId);
     if (!cart) return null;
-    if (cart.status !== "in_progress") {
-      const error = new Error(
-        "No se puede modificar un carrito que ya fue pagado."
-      );
+    if (cart.status !== "abierto") {
+      const error = new Error("Solo se pueden modificar carritos abiertos.");
       error.status = 400;
       throw error;
     }
@@ -154,9 +165,12 @@ class CartManager {
       error.status = 404;
       throw error;
     }
-    if (cart.status !== "in_progress") {
+    if (
+      cart.status !== "abierto" ||
+      cart.status === "pendiente de confirmacion"
+    ) {
       const error = new Error(
-        "No se puede eliminar un carrito que ya fue pagado."
+        "Solo se pueden eliminar carritos abiertos o pendientes de confirmación."
       );
       error.status = 400;
       throw error;
@@ -171,8 +185,8 @@ class CartManager {
       error.status = 404;
       throw error;
     }
-    if (cart.status !== "in_progress") {
-      throw new Error("El carrito ya fue pagado.");
+    if (cart.status !== "pendiente de confirmacion") {
+      throw new Error("El carrito no está pendiente de confirmación.");
     }
     if (!cart.products || cart.products.length === 0) {
       throw new Error("El carrito está vacío.");
@@ -191,13 +205,16 @@ class CartManager {
       product.stock -= item.quantity;
       await product.save();
     }
-    cart.status = "paid";
+    cart.status = "confirmado";
     cart.paidAt = new Date();
     await cart.save();
   }
 
   async getPurchaseHistoryByUserId(userId) {
-    return await Cart.find({ userId }).populate("products.productId");
+    return await Cart.find({
+      userId,
+      status: { $in: ["confirmado", "pendiente de confirmacion"] },
+    }).populate("products.productId");
   }
 }
 
