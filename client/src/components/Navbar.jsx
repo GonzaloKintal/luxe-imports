@@ -215,15 +215,48 @@ function Navbar() {
                                         Carrito
                                     </Link>
                                 )}
-                                <div className="py-3">
-                                    <button
-                                        className="flex items-center gap-2 text-gray-300 hover:text-white transition-all duration-300 font-semibold transform hover:translate-x-2"
-                                        onClick={() => setProfileOpen((open) => !open)}
-                                    >
-                                        Perfil
-                                        <FaChevronDown className={`ml-1 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
-                                    </button>
-                                </div>
+
+			<div className="py-3 relative">
+			  <button
+			    className="w-full flex justify-between items-center text-gray-200 hover:text-white transition-all duration-300 font-semibold"
+			    onClick={() => setProfileOpen(!profileOpen)}
+			  >
+			    Perfil
+			    <FaChevronDown
+			      className={`ml-1 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`}
+			    />
+			  </button>
+
+			  {profileOpen && (
+			    <div className="mt-2 relative z-20 flex flex-col gap-3 p-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg border border-gray-200 text-black">
+			      <div className="flex flex-col items-center">
+				<div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+				  {user.role === 'admin' ? <FaUserShield /> : <FaUser />}
+				  <span>{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
+				</div>
+			      </div>
+
+			      {user.name && (
+				<div className="text-center text-base font-bold text-gray-900">{user.name}</div>
+			      )}
+
+			      <div className="text-center text-sm text-gray-800">{user.email}</div>
+
+			      <button
+				onClick={() => {
+				  localStorage.removeItem('token');
+				  window.location.reload();
+				}}
+				className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-300 shadow-sm border border-red-200"
+			      >
+				<FaSignOutAlt className="text-lg" />
+				Cerrar sesión
+			      </button>
+			    </div>
+			  )}
+			</div>
+
+
                             </>
                         )}
                     </div>
