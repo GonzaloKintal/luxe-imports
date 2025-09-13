@@ -11,7 +11,8 @@ export default function SearchAndFilters({
     setFiltroStock: externalSetFiltroStock,
     ordenPrecio: externalOrdenPrecio,
     setOrdenPrecio: externalSetOrdenPrecio,
-    productosFiltrados = []
+    productosFiltrados = [],
+    onLimpiarFiltros
 }) {
     // Si no se pasan props externas, usar estados internos
     const [internalBusqueda, internalSetBusqueda] = useState('');
@@ -35,6 +36,7 @@ export default function SearchAndFilters({
     return (
         <section className="max-w-7xl mx-auto mb-10 animate-fadeInUp">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 bg-white rounded-lg shadow-sm p-6 mb-4 border border-gray-200">
+
                 {/* Filtro de búsqueda */}
                 <div className="flex flex-col w-full">
                     <label className="mb-2 text-sm font-semibold text-gray-700">Buscar</label>
@@ -49,6 +51,7 @@ export default function SearchAndFilters({
                         />
                     </div>
                 </div>
+
                 {/* Filtro de categoría */}
                 <div className="flex flex-col w-full">
                     <label className="mb-2 text-sm font-semibold text-gray-700">Categoría</label>
@@ -66,6 +69,7 @@ export default function SearchAndFilters({
                         </select>
                     </div>
                 </div>
+
                 {/* Filtro de stock */}
                 <div className="flex flex-col w-full">
                     <label className="mb-2 text-sm font-semibold text-gray-700">Stock</label>
@@ -82,6 +86,7 @@ export default function SearchAndFilters({
                         </select>
                     </div>
                 </div>
+
                 {/* Filtro de orden de precio */}
                 <div className="flex flex-col w-full">
                     <label className="mb-2 text-sm font-semibold text-gray-700">Ordenar por precio</label>
@@ -98,6 +103,7 @@ export default function SearchAndFilters({
                         </select>
                     </div>
                 </div>
+
             </div>
             <div className="text-right text-sm text-gray-600 mb-2">
                 {productosFiltrados.length} producto{productosFiltrados.length === 1 ? '' : 's'} encontrados

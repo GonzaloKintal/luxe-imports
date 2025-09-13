@@ -42,7 +42,11 @@ export default function EditProductForm({ product, onSave, onCancel }) {
     }
 
     function handleThumbnails(e) {
-        setForm({ ...form, thumbnails: e.target.value.split(',').map(t => t.trim()).filter(Boolean) });
+        const raw = e.target.value;
+        setForm({
+            ...form,
+            thumbnails: raw.split(',')
+        });
     }
 
     function handleSubmit(e) {

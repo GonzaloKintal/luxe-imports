@@ -7,15 +7,32 @@ import ProductList from '../components/products/ProductList';
 
 export default function Products() {
     const [productos, setProductos] = useState([]);
-    const [busqueda, setBusqueda] = useState('');
-    const [filtroCategoria, setFiltroCategoria] = useState('');
-    const [filtroStock, setFiltroStock] = useState('all');
-    const [ordenPrecio, setOrdenPrecio] = useState('');
+    const [busqueda, setBusqueda] = useState(sessionStorage.getItem('productosBusqueda') || '');
+    const [filtroCategoria, setFiltroCategoria] = useState(sessionStorage.getItem('productosCategoria') || '');
+    const [filtroStock, setFiltroStock] = useState(sessionStorage.getItem('productosStock') || 'all');
+    const [ordenPrecio, setOrdenPrecio] = useState(sessionStorage.getItem('productosOrden') || '');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
 
+
+    // Guardar filtros en sessionStorage cuando cambien
+    useEffect(() => {
+        sessionStorage.setItem('productosBusqueda', busqueda);
+    }, [busqueda]);
+
+    useEffect(() => {
+        sessionStorage.setItem('productosCategoria', filtroCategoria);
+    }, [filtroCategoria]);
+
+    useEffect(() => {
+        sessionStorage.setItem('productosStock', filtroStock);
+    }, [filtroStock]);
+
+    useEffect(() => {
+        sessionStorage.setItem('productosOrden', ordenPrecio);
+    }, [ordenPrecio]);
 
     // 1️⃣ Fetch de productos
     useEffect(() => {
@@ -53,6 +70,14 @@ export default function Products() {
     const handleGoToDetail = (id) => {
         sessionStorage.setItem('productosScroll', window.scrollY);
         navigate(`/products/product-detail/${id}`);
+    };
+
+    // Función para limpiar todos los filtros
+    const limpiarFiltros = () => {
+        setBusqueda('');
+        setFiltroCategoria('');
+        setFiltroStock('all');
+        setOrdenPrecio('');
     };
 
 
@@ -111,6 +136,7 @@ export default function Products() {
                     setOrdenPrecio={setOrdenPrecio}
                     productosFiltrados={productosFiltrados}
                     onGoToDetail={handleGoToDetail}
+                    onLimpiarFiltros={limpiarFiltros}
                 />
 
                 {/* Lista de productos */}

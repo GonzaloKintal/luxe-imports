@@ -1,22 +1,12 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import { FaPlus, FaUserShield, FaHistory, FaChevronDown, FaShieldAlt } from 'react-icons/fa';
+import { FaPlus, FaUserShield } from 'react-icons/fa';
 import CreateProductForm from './CreateProductForm';
 import CreateAdminForm from './CreateAdminForm';
-import HistoryAdmin from './HistoryAdmin';
 
 export default function AdminActions({ products, setProducts, API_URL }) {
-    const adminDetailsRef = React.useRef(null);
-    const [adminOpen, setAdminOpen] = useState(false);
-    const [showCreate, setShowCreate] = useState(false);
-    const [showCreateAdmin, setShowCreateAdmin] = useState(false);
-    const [showHistory, setShowHistory] = useState(false);
-    const [history, setHistory] = useState([]);
-    const [loadingHistory, setLoadingHistory] = useState(false);
-    const [renderHistoryForm, setRenderHistoryForm] = useState(false);
-    const [openForm, setOpenForm] = useState(null); // 'product' | 'admin' | 'history' | null
+    const [openForm, setOpenForm] = useState(null); // 'product' | 'admin' | null
     const [showForm, setShowForm] = useState(false);
-
 
     function handleOpenForm(form) {
         if (openForm === form) return; // si clickeo el mismo, no hace nada
@@ -27,39 +17,6 @@ export default function AdminActions({ products, setProducts, API_URL }) {
     function handleCloseForm() {
         setShowForm(false);
         setTimeout(() => setOpenForm(null), 300); // 300ms = duración de la transición
-    }
-
-    function closeCreateProduct() {
-        setShowCreate(false);
-    }
-
-    // Helpers para animación - Historial
-    function openHistory() {
-        setRenderHistoryForm(true);
-        requestAnimationFrame(() => setShowHistory(true));
-    }
-
-    function handleOpenHistory() {
-        handleOpenForm('history');
-        handleShowHistory();
-    }
-
-    async function handleShowHistory() {
-        openHistory()
-        setLoadingHistory(true);
-        try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/carts/paid`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Error al obtener historial');
-            setHistory(Array.isArray(data) ? data : []);
-        } catch (err) {
-            toast.error(err.message || 'Error al obtener historial');
-        } finally {
-            setLoadingHistory(false);
-        }
     }
 
     async function handleCreateAdmin(form) {
@@ -76,7 +33,7 @@ export default function AdminActions({ products, setProducts, API_URL }) {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al crear admin');
             toast.success('Admin creado correctamente');
-            setShowCreateAdmin(false);
+            handleCloseForm();
         } catch (err) {
             toast.error(err.message || 'Error al crear admin');
         }
@@ -96,7 +53,7 @@ export default function AdminActions({ products, setProducts, API_URL }) {
             if (!res.ok) throw new Error('Error al crear producto');
             const created = await res.json();
             setProducts([...products, created]);
-            closeCreateProduct();
+            handleCloseForm();
             toast.success('Producto creado correctamente');
         } catch {
             toast.error('No se pudo crear el producto');
@@ -104,80 +61,58 @@ export default function AdminActions({ products, setProducts, API_URL }) {
     }
 
     return (
-        <div className="w-full">
-            <details className="w-full" ref={adminDetailsRef} onToggle={e => setAdminOpen(adminDetailsRef.current?.open)}>
-                <summary className="cursor-pointer px-6 py-4 bg-gray-100 border border-gray-300 text-gray-900 rounded-xl font-bold text-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-between gap-3 select-none">
-                    <span className="flex items-center gap-3">
-                        <FaShieldAlt className="text-xl text-gray-600" /> Acciones de administrador
-                    </span>
-                    <FaChevronDown className={`text-xl opacity-70 ml-2 transition-transform duration-300 ${adminOpen ? 'rotate-180' : ''}`} />
-                </summary>
-                <div className="flex flex-col gap-3 mt-4 p-4 bg-white rounded-xl shadow-lg border border-gray-300">
-                    
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <button
                         onClick={() => handleOpenForm('product')} 
-                        className="flex items-center gap-2 px-5 py-3 rounded-lg font-semibold bg-gray-100 hover:bg-gray-200 text-gray-900 border border-gray-300 shadow-sm transition-all duration-300"
+                        className="flex items-center gap-3 px-6 py-4 rounded-lg font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition-all duration-200"
                     >
-                        <FaPlus className="text-xl" /> Crear producto
+                        <FaPlus className="text-lg" />
+                        <span>Crear Producto</span>
                     </button>
 
-                    {openForm === 'product' && (
-                        <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                showForm ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                            }`}
-                        >
+                    <button
+                        onClick={() => handleOpenForm('admin')} 
+                        className="flex items-center gap-3 px-6 py-4 rounded-lg font-medium bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 transition-all duration-200"
+                    >
+                        <FaUserShield className="text-lg" />
+                        <span>Crear Admin</span>
+                    </button>
+                </div>
+
+                {/* Formulario de Crear Producto */}
+                {openForm === 'product' && (
+                    <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            showForm ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+                        }`}
+                    >
+                        <div className="border-t border-gray-200 pt-4">
                             <CreateProductForm
                                 onSave={saveCreate}
                                 onCancel={handleCloseForm}
                             />
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    <button
-                        onClick={() => handleOpenForm('admin')} 
-                        className="flex items-center gap-2 px-5 py-3 rounded-lg font-semibold bg-gray-100 hover:bg-gray-200 text-gray-900 border border-gray-300 shadow-sm transition-all duration-300"
+                {/* Formulario de Crear Admin */}
+                {openForm === 'admin' && (
+                    <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            showForm ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+                        }`}
                     >
-                        <FaUserShield className="text-xl" /> Crear admin
-                    </button>
-
-                    {openForm === 'admin' && (
-                        <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                showForm ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                            }`}
-                        >
+                        <div className="border-t border-gray-200 pt-4">
                             <CreateAdminForm
                                 onSave={handleCreateAdmin}
                                 onCancel={handleCloseForm}
                             />
                         </div>
-                    )}
-
-                    <button
-                        onClick={() => handleOpenHistory('history')} 
-                        className="flex items-center gap-2 px-5 py-3 rounded-lg font-semibold bg-gray-100 hover:bg-gray-200 text-gray-900 border border-gray-300 shadow-sm transition-all duration-300"
-                    >
-                        <FaHistory className="text-xl" /> Ver historial de compras
-                    </button>
-
-                    {openForm === 'history' && (
-                        <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                showForm ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                            }`}
-                        >
-                            <HistoryAdmin
-                                history={history}
-                                loading={loadingHistory}
-                                onClose={handleCloseForm}
-                            />
-                        </div>
-                    )}
-
-                </div>
-            </details>
-
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

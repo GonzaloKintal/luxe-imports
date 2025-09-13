@@ -206,7 +206,7 @@ export default function ProductDetail() {
           <div className="lg:grid lg:grid-cols-2 lg:gap-0">
             {/* IZQUIERDA: Galería de imágenes */}
             <div className="p-6 lg:p-8">
-              <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4">
+              <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4 max-w-lg mx-auto">
                 <img
                   src={product.thumbnails[currentImageIndex] || '/placeholder-product.jpg'}
                   alt={product.title}

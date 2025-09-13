@@ -15,7 +15,6 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
     const [productsOpen, setProductsOpen] = useState(false);
     const [showActivos, setShowActivos] = useState(true);
     const [search, setSearch] = useState("");
-    const [showList, setShowList] = useState(true);
     const [stockFilter, setStockFilter] = useState('todos');
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
@@ -159,44 +158,39 @@ export default function AdminProducts({ products, setProducts, API_URL }) {
     }
 
     return (
-        <div className="w-full mt-6">
-            <details className="w-full" ref={productsDetailsRef} onToggle={e => setProductsOpen(productsDetailsRef.current?.open)}>
-                <summary className="cursor-pointer px-6 py-4 bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-900 rounded-xl font-bold text-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-between gap-3 select-none">
-                    <span className="flex items-center gap-3">
-                        <FaList className="text-xl text-gray-600" /> Administrar productos ({filteredProducts.length})
-                    </span>
-                    <FaChevronDown className={`text-xl opacity-70 ml-2 transition-transform duration-300 ${productsOpen ? 'rotate-180' : ''}`} />
-                </summary>
-                <ProductFilters
-                    showActivos={showActivos}
-                    setShowActivos={setShowActivos}
-                    search={search}
-                    setSearch={setSearch}
-                    stockFilter={stockFilter}
-                    setStockFilter={setStockFilter}
-                    showList={showList}
-                    setShowList={setShowList}
-                />
-            </details>
+        <div className="w-full">
 
-            {/* Lista de productos filtrados */}
-            {showList && productsOpen && (
-                <FilteredProductsList
-                    filteredProducts={filteredProducts}
-                    onEdit={handleEdit}
-                    onToggleFeatured={toggleFeatured}
-                    onDelete={handleDelete}
-                    onReactivate={handleReactivate}
-                    cotizacion={cotizacion}
-                    loadingCotizacion={loadingCotizacion}
-                    errorCotizacion={errorCotizacion}
-                    editingProductId={editingProductId}
-                    onStartEditing={startEditing}
-                    onCancelEditing={cancelEditing}
-                />
-            )}
+            {/* Filtros */}
+            <ProductFilters
+                showActivos={showActivos}
+                setShowActivos={setShowActivos}
+                search={search}
+                setSearch={setSearch}
+                stockFilter={stockFilter}
+                setStockFilter={setStockFilter}
+            />
 
-            {/* Modal de confirmación de eliminación */}
+            {/* Subtítulo */}
+            <h2 className="mt-4 text-lg text-gray-500 text-center flex items-center justify-end gap-2">
+                Mostrando {filteredProducts.length} productos
+            </h2>
+
+            {/* Lista de productos */}
+            <FilteredProductsList
+                filteredProducts={filteredProducts}
+                onEdit={handleEdit}
+                onToggleFeatured={toggleFeatured}
+                onDelete={handleDelete}
+                onReactivate={handleReactivate}
+                cotizacion={cotizacion}
+                loadingCotizacion={loadingCotizacion}
+                errorCotizacion={errorCotizacion}
+                editingProductId={editingProductId}
+                onStartEditing={startEditing}
+                onCancelEditing={cancelEditing}
+            />
+
+            {/* Modal de confirmación */}
             <ConfirmDeleteProduct
                 open={showConfirm}
                 title="Confirmar eliminación"

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaEye, FaEyeSlash, FaFilter, FaSearch, FaListAlt, FaBox } from 'react-icons/fa';
+import { FaFilter, FaSearch, FaBox } from 'react-icons/fa';
 
 export default function ProductFilters({
     showActivos,
@@ -8,12 +8,10 @@ export default function ProductFilters({
     setSearch,
     stockFilter,
     setStockFilter,
-    showList,
-    setShowList
 }) {
 
     return (
-        <div className="flex flex-col gap-4 mt-4 p-4 bg-white rounded-xl shadow-lg border border-gray-300">
+        <div className="flex flex-col gap-4 p-4 bg-white rounded-xl shadow-lg border border-gray-300">
             <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 w-full">
                     <SearchInput 
@@ -27,10 +25,6 @@ export default function ProductFilters({
                     <StockFilter 
                         stockFilter={stockFilter}
                         setStockFilter={setStockFilter}
-                    />
-                    <VisibilityToggle 
-                        showList={showList}
-                        setShowList={setShowList}
                     />
                 </div>
             </div>
@@ -83,21 +77,6 @@ function StockFilter({ stockFilter, setStockFilter }) {
                 <option value="conStock">Con stock</option>
                 <option value="sinStock">Sin stock</option>
             </select>
-        </div>
-    );
-}
-
-function VisibilityToggle({ showList, setShowList }) {
-    return (
-        <div className="flex items-center gap-2 w-full justify-end">
-            <FaListAlt className="text-gray-600 text-lg" />
-            <button
-                onClick={() => setShowList(v => !v)}
-                className={"flex items-center gap-1 px-3 py-2 rounded-lg font-medium border border-gray-300 bg-gray-100 text-gray-900 text-sm transition-all duration-300 w-full"}
-            >
-                {showList ? <FaEyeSlash className="text-gray-600" /> : <FaEye className="text-gray-600" />}
-                {showList ? 'Ocultar' : 'Mostrar'}
-            </button>
         </div>
     );
 }

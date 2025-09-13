@@ -29,22 +29,6 @@ export default function FilteredProductCard({
             setFormHeight(0);
         }
     }, [isEditing, product]);
-
-     const handleDeleteClick = () => {
-        setShowDeleteConfirmation(true);
-    };
-    
-    const handleCancelDelete = () => {
-        setShowDeleteConfirmation(false);
-        setIsDeleting(false);
-    };
-    
-    const handleConfirmDelete = async (id) => {
-        setIsDeleting(true);
-        await onDelete(id);
-        setShowDeleteConfirmation(false);
-        setIsDeleting(false);
-    };
     
     return (
         <li className="bg-white p-4 rounded-xl border border-gray-300 shadow-md transition-all duration-300 hover:shadow-lg">
