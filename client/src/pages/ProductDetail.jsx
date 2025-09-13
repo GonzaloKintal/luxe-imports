@@ -76,12 +76,12 @@ export default function ProductDetail() {
       const history = await historyRes.json();
       if (!historyRes.ok) throw new Error(history.error || 'Error al obtener historial de carritos');
 
-      // Buscar carrito en progreso
-      const carritoEnProgreso = history.find(c => c.status !== 'paid');
-      
-      // Obtener productos del carrito
-      if (carritoEnProgreso) {
-        const cartRes = await fetch(`${API_URL}/api/carts/${carritoEnProgreso._id}`, {
+      // Buscar carrito abierto
+      const carritoAbierto = history.find(c => c.status === 'abierto');
+
+      // Obtener productos del carrito abierto
+      if (carritoAbierto) {
+        const cartRes = await fetch(`${API_URL}/api/carts/${carritoAbierto._id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const cartProducts = await cartRes.json();
@@ -97,7 +97,7 @@ export default function ProductDetail() {
           if (!prodId) prodId = p._id;
           items[prodId] = p.quantity;
         }
-        setCartInfo({ cartId: carritoEnProgreso._id, items });
+        setCartInfo({ cartId: carritoAbierto._id, items });
       }
     } catch (err) {
       // No mostrar error si no hay carrito

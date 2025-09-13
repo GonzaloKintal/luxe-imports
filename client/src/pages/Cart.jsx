@@ -421,10 +421,16 @@ export default function Cart() {
 
                                         const mensaje = `Hola, mi nombre es ${nombreUsuario}, acabo de realizar una compra:%0A${productos}%0A%0AMuchas gracias`;
 
-                                        // número de WhatsApp del vendedor
-                                        const telefonoVendedor = '5491127079848';
-
-                                        const url = `https://wa.me/${telefonoVendedor}?text=${mensaje}`;
+                                        // Usar el número dinámico del admin
+                                        let phone = adminPhone ? adminPhone.replace(/\D/g, '') : '';
+                                        if (phone && !phone.startsWith('549')) {
+                                            if (phone.startsWith('54')) {
+                                                phone = '549' + phone.slice(2);
+                                            } else {
+                                                phone = '549' + phone;
+                                            }
+                                        }
+                                        const url = `https://wa.me/${phone}?text=${mensaje}`;
 
                                         // Limpiar carrito en frontend
                                         setProducts([]);

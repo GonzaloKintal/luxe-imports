@@ -213,7 +213,6 @@ class CartManager {
   async getPurchaseHistoryByUserId(userId) {
     return await Cart.find({
       userId,
-      status: { $in: ["confirmado", "pendiente de confirmacion"] },
     }).populate("products.productId");
   }
 }

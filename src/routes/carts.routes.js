@@ -39,13 +39,12 @@ router.post('/', authenticateToken, async (req, res, next) => {
   }
 });
 
-// GET /api/carts/history => Obtener historial de pedidos pagados del usuario
-// GET /api/carts/history => Obtener historial de pedidos confirmados y pendientes del usuario
+// GET /api/carts/history => Obtener historial de pedidos del usuario
 router.get('/history', authenticateToken, async (req, res, next) => {
   try {
     const userId = req.user._id || req.user.id;
-    const history = await manager.getPurchaseHistoryByUserId(userId);
-    res.json(history);
+    const carts = await manager.getPurchaseHistoryByUserId(userId);
+    res.json(carts);
   } catch (error) {
     next(error);
   }
