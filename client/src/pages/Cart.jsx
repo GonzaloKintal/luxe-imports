@@ -21,6 +21,27 @@ export default function Cart() {
     const token = localStorage.getItem('token');
     const API_URL = import.meta.env.VITE_API_URL;
     const cartCreatedRef = useRef(false); // Ref para controlar creación de carrito
+	
+	const [userInfo, setUserInfo] = useState(null);
+
+	useEffect(() => {
+	    async function fetchUserInfo() {
+		try {
+		    const res = await fetch(`${API_URL}/api/users/me`, {
+		        headers: { Authorization: `Bearer ${token}` },
+		    });
+		    const data = await res.json();
+		    if (!res.ok) throw new Error(data.error || 'Error al obtener info del usuario');
+		    console.log("Respuesta /me:", data);
+		    setUserInfo(data);
+		} catch (err) {
+		    console.error("Error al obtener /me:", err);
+		}
+	    }
+
+	    if (token) fetchUserInfo();
+	}, [token, API_URL]);
+
 
     useEffect(() => {
         // Redirigir si no hay usuario o si es admin
@@ -267,7 +288,6 @@ export default function Cart() {
         );
     }
 
-    // ...existing code...
 
 
     return (
@@ -416,8 +436,12 @@ export default function Cart() {
                                             .map(p => `- ${p.title} x${p.quantity} ($${(p.price * p.quantity).toFixed(2)})`)
                                             .join('%0A'); // salto de línea en URL
 
-                                        let nombreUsuario = `${user.firstName || ''} ${user.lastName || ''}`.trim();
-                                        if (!nombreUsuario) nombreUsuario = user.name || user.username || 'Cliente';
+					console.log("Contenido de userInfo en Cart:", userInfo);
+
+
+
+					let nombreUsuario = userInfo?.nombre || userInfo?.email || 'Cliente';
+
 
                                         const mensaje = `Hola, mi nombre es ${nombreUsuario}, acabo de realizar una compra:%0A${productos}%0A%0AMuchas gracias`;
 

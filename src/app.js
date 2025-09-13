@@ -9,6 +9,7 @@ import productsRouter from './routes/products.routes.js';
 import cartsRouter from './routes/carts.routes.js';
 import loginRouter from './routes/login.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import userRoutes from "./routes/user.routes.js";
 import { errorHandler } from './middlewares/error-handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -18,11 +19,13 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 
+
 // Middleware
 app.use(cors()); 
 app.use(express.json());
 
 // Rutas API
+app.use("/api/users", userRoutes);
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 app.use('/api/auth', loginRouter);
