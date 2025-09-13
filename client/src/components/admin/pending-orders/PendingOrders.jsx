@@ -1,0 +1,158 @@
+import React from 'react';
+import { FaClock } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import PendingOrdersList from './PendingOrdersList';
+import ConfirmOrderAction from './ConfirmOrderAction';
+
+export default function PendingOrders({ loading, onClose }) {
+
+    const [orders, setOrders] = React.useState([]);
+    const [loadingOrders, setLoadingOrders] = React.useState(true);
+    const [error, setError] = React.useState(null);
+    const [confirmDialog, setConfirmDialog] = React.useState({
+        open: false,
+        type: null, // 'confirm' or 'delete'
+        orderId: null,
+        orderInfo: null
+    });
+    
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    React.useEffect(() => {
+        async function fetchOrders() {
+            setLoadingOrders(true);
+            setError(null);
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/api/carts/pendientes`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) throw new Error('Error al obtener pedidos pendientes');
+                const data = await res.json();
+                setOrders(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoadingOrders(false);
+            }
+        }
+        fetchOrders();
+    }, []);
+
+    function handleConfirmClick(cartId) {
+        const order = orders.find(o => o._id === cartId);
+        setConfirmDialog({
+            open: true,
+            type: 'confirm',
+            orderId: cartId,
+            orderInfo: {
+                id: cartId,
+                userName: order?.userId ? `${order.userId.firstName} ${order.userId.lastName}` : '',
+                date: order?.createdAt ? new Date(order.createdAt).toLocaleDateString("es-AR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                }) : ''
+            }
+        });
+    }
+
+    function handleDeleteClick(cartId) {
+        const order = orders.find(o => o._id === cartId);
+        setConfirmDialog({
+            open: true,
+            type: 'delete',
+            orderId: cartId,
+            orderInfo: {
+                id: cartId,
+                userName: order?.userId ? `${order.userId.firstName} ${order.userId.lastName}` : '',
+                date: order?.createdAt ? new Date(order.createdAt).toLocaleDateString("es-AR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                }) : ''
+            }
+        });
+    }
+
+    async function handleConfirmAction() {
+        const { type, orderId } = confirmDialog;
+        
+        try {
+            const token = localStorage.getItem('token');
+            let res;
+
+            if (type === 'confirm') {
+                res = await fetch(`${API_URL}/api/carts/${orderId}/confirmar`, {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) throw new Error('Error al confirmar el pedido');
+                toast.success('Pedido confirmado exitosamente');
+
+            } else if (type === 'delete') {
+                res = await fetch(`${API_URL}/api/carts/${orderId}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) throw new Error('Error al eliminar el pedido');
+                toast.success('Pedido eliminado exitosamente');
+            }
+
+            // Actualizar la lista de pedidos
+            setOrders(orders.filter(o => o._id !== orderId));
+            
+            // Cerrar el dialog
+            setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
+            
+        } catch (err) {
+            toast.error(err.message || 'Error al procesar la solicitud');
+            setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
+        }
+    }
+
+    function handleCancelAction() {
+        setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
+    }
+
+    return (
+        <>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="p-6">
+                    <div className="mb-6">
+                        <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                            <FaClock className="text-orange-500" />
+                            Pedidos Pendientes
+                        </h3>
+                        <p className="text-gray-600 mt-1">
+                            Revisa los pedidos que aún no han sido completados
+                        </p>
+                    </div>
+
+                    <PendingOrdersList
+                        orders={orders}
+                        loading={loadingOrders}
+                        error={error}
+                        onConfirm={handleConfirmClick}
+                        onDelete={handleDeleteClick}
+                    />
+                </div>
+            </div>
+
+            <ConfirmOrderAction
+                open={confirmDialog.open}
+                title={confirmDialog.type === 'confirm' ? '¿Confirmar Pedido?' : '¿Eliminar Pedido?'}
+                message={
+                    confirmDialog.type === 'confirm' 
+                        ? 'Esta acción marcará el pedido como completado y lo removerá de la lista de pendientes.'
+                        : 'Esta acción eliminará permanentemente el pedido. No se puede deshacer.'
+                }
+                onConfirm={handleConfirmAction}
+                onCancel={handleCancelAction}
+                orderInfo={confirmDialog.orderInfo}
+                actionType={confirmDialog.type}
+            />
+        </>
+    );
+
+}

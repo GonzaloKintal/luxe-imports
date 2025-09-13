@@ -1,20 +1,22 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaBolt, FaList, FaCog, FaHistory, FaClock } from 'react-icons/fa';
+import { FaBolt, FaList, FaHistory, FaClock } from 'react-icons/fa';
 import AdminActions from '../components/admin/actions/AdminActions';
 import AdminProducts from '../components/admin/products/AdminProducts';
-import HistoryAdmin from '../components/admin/actions/HistoryAdmin';
-import PendingOrders from '../components/admin/actions/PendingOrders';
+import HistoryOrders from '../components/admin/history/HistoryOrders';
+import PendingOrders from '../components/admin/pending-orders/PendingOrders';
 
 export default function AdminPanel() {
     const [user, setUser] = useState(null);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('products');
+    const [activeTab, setActiveTab] = useState(
+        localStorage.getItem("activeTab") || "products"
+    );
 
     const [history, setHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
@@ -45,6 +47,11 @@ export default function AdminPanel() {
             icon: FaHistory,
         },
     ];
+
+    function handleTabChange(tabId) {
+        setActiveTab(tabId);
+        localStorage.setItem("activeTab", tabId);
+    }
 
     useEffect(() => {
         // Obtener usuario desde el token
@@ -86,7 +93,7 @@ export default function AdminPanel() {
             setLoadingHistory(true);
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${API_URL}/api/carts/paid`, {
+                const res = await fetch(`${API_URL}/api/carts/confirmados`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
@@ -108,14 +115,14 @@ export default function AdminPanel() {
     if (error) return <div className="p-6 text-center text-red-600">{error}</div>;
 
     return (
-        <main className="bg-gray-100 px-12 pt-12 relative overflow-hidden min-h-screen w-full">
+        <main className="bg-gray-100 px-6 md:px-12 pt-12 relative overflow-hidden min-h-screen w-full">
             <ToastContainer
                 position="top-right"
                 autoClose={2500}
                 theme="light"
             />
 
-            <div className="flex flex-col relative z-10 px-6 py-20">                 
+            <div className="flex flex-col relative z-10 md:px-6 py-20">                 
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-extrabold text-black mb-2 text-center animate-fadeInDown drop-shadow-lg">
@@ -128,22 +135,22 @@ export default function AdminPanel() {
 
                 {/* Tabs Navigation */}
                 <div className="mb-8">
-                    <nav className="flex border-b border-gray-200">
+                    <nav className="flex overflow-x-auto border-b border-gray-200 no-scrollbar">
                         {tabs.map((tab) => {
                         const Icon = tab.icon;
                         return (
                             <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors duration-200
-                                ${
-                                activeTab === tab.id
-                                    ? "border-b-2 border-blue-600 text-blue-600"
-                                    : "text-gray-600 hover:text-gray-900 hover:border-gray-300"
-                                }`}
+                                key={tab.id}
+                                onClick={() => handleTabChange(tab.id)}
+                                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors duration-200
+                                    ${
+                                    activeTab === tab.id
+                                        ? "border-b-2 border-blue-600 text-blue-600"
+                                        : "text-gray-600 hover:text-gray-900 hover:border-gray-300"
+                                    }`}
                             >
-                            <Icon className="w-4 h-4" />
-                            <span>{tab.label}</span>
+                                <Icon className="w-4 h-4" />
+                                <span>{tab.label}</span>
                             </button>
                         );
                         })}
@@ -177,7 +184,7 @@ export default function AdminPanel() {
 
 
                     {activeTab === 'history' && (
-                        <HistoryAdmin
+                        <HistoryOrders
                             history={history}
                             loading={loadingHistory}
                             onClose={() => {}}

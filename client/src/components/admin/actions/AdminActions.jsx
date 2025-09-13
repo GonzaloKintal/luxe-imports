@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import { FaPlus, FaUserShield } from 'react-icons/fa';
+import { FaPlus, FaUserShield, FaTag } from 'react-icons/fa';
 import CreateProductForm from './CreateProductForm';
 import CreateAdminForm from './CreateAdminForm';
+import CreateCategoryForm from './CreateCategoryForm';
 
 export default function AdminActions({ products, setProducts, API_URL }) {
     const [openForm, setOpenForm] = useState(null); // 'product' | 'admin' | null
@@ -60,6 +61,12 @@ export default function AdminActions({ products, setProducts, API_URL }) {
         }
     }
 
+    function handleCreateCategory(form) {
+        // Placeholder para la funcionalidad futura
+        toast.info('Funcionalidad de creación de categorías próximamente');
+        handleCloseForm();
+    }
+
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="p-6">
@@ -78,6 +85,14 @@ export default function AdminActions({ products, setProducts, API_URL }) {
                     >
                         <FaUserShield className="text-lg" />
                         <span>Crear Admin</span>
+                    </button>
+
+                    <button
+                        onClick={() => handleOpenForm('category')} 
+                        className="flex items-center gap-3 px-6 py-4 rounded-lg font-medium bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition-all duration-200"
+                    >
+                        <FaTag className="text-lg" />
+                        <span>Crear Categoría</span>
                     </button>
                 </div>
 
@@ -107,6 +122,22 @@ export default function AdminActions({ products, setProducts, API_URL }) {
                         <div className="border-t border-gray-200 pt-4">
                             <CreateAdminForm
                                 onSave={handleCreateAdmin}
+                                onCancel={handleCloseForm}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Formulario de Crear Categoría */}
+                {openForm === 'category' && (
+                    <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            showForm ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+                        }`}
+                    >
+                        <div className="border-t border-gray-200 pt-4">
+                            <CreateCategoryForm
+                                onSave={handleCreateCategory}
                                 onCancel={handleCloseForm}
                             />
                         </div>
