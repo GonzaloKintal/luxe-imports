@@ -324,25 +324,48 @@ export default function Cart() {
                     <div className="animate-fadeInDown mt-8 flex justify-between items-center max-w-3xl mx-auto">
                         <p className="text-xl font-bold text-black">Total: ${total.toFixed(2)}</p>
                         <button
-                            onClick={async () => {
-                                try {
-                                    const res = await fetch(`${API_URL}/api/carts/${cartId}/pay`, {
-                                        method: 'POST',
-                                        headers: { Authorization: `Bearer ${token}` },
-                                    });
-                                    const data = await res.json();
-                                    if (!res.ok) throw new Error(data.error || 'Error al pagar carrito. Por Favor, refresca la página e intenta nuevamente.');
-                                    toast.success('Compra realizada con éxito');
-                                    setProducts([]);
-                                    setCartId(null);
-                                } catch (err) {
-                                    toast.error(err.message);
-                                }
-                            }}
-                            className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded font-semibold"
-                        >
-                            Pagar
-                        </button>
+			  onClick={async () => {
+			    try {
+			      //  Confirmar el pago con el backend
+			      const res = await fetch(`${API_URL}/api/carts/${cartId}/pay`, {
+				method: 'POST',
+				headers: { Authorization: `Bearer ${token}` },
+			      });
+			      const data = await res.json();
+			      if (!res.ok) throw new Error(data.error || 'Error al pagar carrito. Por favor, refresca la página e intenta nuevamente.');
+
+			      toast.success('Compra realizada con éxito');
+
+			      // Preparar mensaje de WhatsApp
+			      const productos = products
+				.map(p => `- ${p.title} x${p.quantity} ($${(p.price * p.quantity).toFixed(2)})`)
+				.join('%0A'); // salto de línea en URL
+
+			      let nombreUsuario = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+			      if (!nombreUsuario) nombreUsuario = user.name || user.username || 'Cliente';
+
+			      const mensaje = `Hola, mi nombre es ${nombreUsuario}, acabo de realizar una compra:%0A${productos}%0A%0AMuchas gracias`;
+
+			      //  número de WhatsApp del vendedor
+			      const telefonoVendedor = '5491127079848'; 
+
+			      const url = `https://wa.me/${telefonoVendedor}?text=${mensaje}`;
+
+			      // Limpiar carrito en frontend
+			      setProducts([]);
+			      setCartId(null);
+
+			      // Abrir WhatsApp en nueva pestaña
+			      window.open(url, '_blank');
+			    } catch (err) {
+			      toast.error(err.message);
+			    }
+			  }}
+			  className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded font-semibold"
+			>
+			  Pagar
+			</button>
+
                     </div>
                 </>
             ) : (
