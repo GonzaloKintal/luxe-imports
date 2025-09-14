@@ -22,10 +22,6 @@ export default function CategoryManager({ onClose }) {
                 toast.error(`Error del servidor (${res.status}): ${res.statusText}`);
                 return;
             }
-            if (!contentType || !contentType.includes('application/json')) {
-                toast.error('La respuesta del servidor no es JSON. Puede que el backend esté caído o la ruta no exista.');
-                return;
-            }
             const data = await res.json();
             setCategories(data);
         } catch (err) {
@@ -100,7 +96,19 @@ export default function CategoryManager({ onClose }) {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            if (!res.ok) throw new Error('Error al eliminar categoría');
+            if (!res.ok) {
+                let errorMsg = 'Error al eliminar categoría';
+                try {
+                    const error = await res.json();
+                    if (error?.error?.includes('productos asociados')) {
+                        errorMsg = 'No se puede eliminar la categoría porque tiene productos asociados. Reasigna los productos antes.';
+                    } else if (error?.error) {
+                        errorMsg = error.error;
+                    }
+                } catch {}
+                toast.error(errorMsg);
+                return;
+            }
             toast.success('Categoría eliminada');
             fetchCategories();
         } catch (err) {
