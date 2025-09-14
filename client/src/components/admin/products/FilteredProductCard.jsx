@@ -52,12 +52,12 @@ export default function FilteredProductCard({
                 <div className="flex justify-start md:justify-end">
                     <div className="flex gap-2">
                         <ProductActions 
-                    product={product}
-                    onEdit={onStartEditing}
-                    onToggleFeatured={onToggleFeatured}
-                    onDelete={onDelete}
-                    onReactivate={onReactivate}
-                />
+                            product={product}
+                            onEdit={onStartEditing}
+                            onToggleFeatured={onToggleFeatured}
+                            onDelete={onDelete}
+                            onReactivate={onReactivate}
+                        />
                     </div>
                 </div>
 

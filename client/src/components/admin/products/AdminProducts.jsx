@@ -11,6 +11,7 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
     const [cotizacion, setCotizacion] = useState(null);
     const [loadingCotizacion, setLoadingCotizacion] = useState(true);
     const [errorCotizacion, setErrorCotizacion] = useState(null);
+    const [categoryFilter, setCategoryFilter] = useState('');
     const [showActivos, setShowActivos] = useState(true);
     const [search, setSearch] = useState("");
     const [stockFilter, setStockFilter] = useState('todos');
@@ -141,12 +142,24 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
 
     const filteredProducts = products
         .filter(p => showActivos ? p.status : !p.status)
+
         .filter(p => {
             if (stockFilter === 'conStock') return p.stock > 0;
             if (stockFilter === 'sinStock') return p.stock === 0;
             return true;
         })
-        .filter(p => !search || p.title.toLowerCase().includes(search.toLowerCase()));
+
+        .filter(p => !search || p.title.toLowerCase().includes(search.toLowerCase()))
+        
+        .filter(p => {
+            if (!categoryFilter) return true;
+            if (!p.category) return false;
+            
+            if (typeof p.category === 'object' && p.category._id) {
+                return p.category._id === categoryFilter;
+            }
+            return p.category === categoryFilter;
+        });
 
     // Si está cargando productos
     if (loading) {
@@ -203,6 +216,9 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
                 setSearch={setSearch}
                 stockFilter={stockFilter}
                 setStockFilter={setStockFilter}
+                categoryFilter={categoryFilter}
+                setCategoryFilter={setCategoryFilter}
+                products={products}
             />
 
             {/* Subtítulo */}

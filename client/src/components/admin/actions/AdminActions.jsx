@@ -8,18 +8,13 @@ import PageTransition from '../../PageTransition';
 import ActionButtonsList from './ActionButtonsList';
 
 export default function AdminActions({ products, setProducts, API_URL }) {
-    const [openForm, setOpenForm] = useState(null); // 'product' | 'admin' | 'category' | null
+    const [openForm, setOpenForm] = useState('product');
     const [showForm, setShowForm] = useState(false);
 
     function handleOpenForm(form) {
-        if (openForm === form) return; // si clickeo el mismo, no hace nada
+        if (openForm === form) return; 
         setOpenForm(form);
         requestAnimationFrame(() => setShowForm(true));
-    }
-
-    function handleCloseForm() {
-        setShowForm(false);
-        setTimeout(() => setOpenForm(null), 300); // 300ms = duración de la transición
     }
 
     async function handleCreateAdmin(form) {
@@ -63,8 +58,6 @@ export default function AdminActions({ products, setProducts, API_URL }) {
         }
     }
 
-    // Ya no se necesita handleCreateCategory, CategoryManager gestiona todo
-
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
@@ -82,8 +75,7 @@ export default function AdminActions({ products, setProducts, API_URL }) {
                         <PageTransition key="product-form">
                             <div className="border-t border-gray-200 pt-5 mt-3">
                                 <CreateProductForm
-                                onSave={saveCreate}
-                                onCancel={handleCloseForm}
+                                    onSave={saveCreate}
                                 />
                             </div>
                         </PageTransition>
@@ -93,8 +85,7 @@ export default function AdminActions({ products, setProducts, API_URL }) {
                         <PageTransition key="admin-form">
                             <div className="border-t border-gray-200 pt-5 mt-3">
                                 <CreateAdminForm
-                                onSave={handleCreateAdmin}
-                                onCancel={handleCloseForm}
+                                    onSave={handleCreateAdmin}
                                 />
                             </div>
                         </PageTransition>
@@ -103,7 +94,7 @@ export default function AdminActions({ products, setProducts, API_URL }) {
                     {openForm === 'category' && (
                         <PageTransition key="category-form">
                             <div className="border-t border-gray-200 pt-5 mt-3">
-                                <CategoryManager onClose={handleCloseForm} />
+                                <CategoryManager />
                             </div>
                         </PageTransition>
                     )}

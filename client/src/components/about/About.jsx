@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 
 const About = () => {
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  });
+
   return (
     <main className="bg-gray-100 px-0 pt-12 relative overflow-hidden min-h-screen">
       <div className="relative z-10 px-6 py-20 max-w-6xl mx-auto">
@@ -38,7 +43,7 @@ const About = () => {
               un proyecto nacido de nuestra pasión por acercar a la gente productos exclusivos 
               de calidad internacional. Nos especializamos en traer los mejores 
               <span className="font-medium"> iPhones, accesorios premium y perfumes importados </span> 
-              directamente hasta vos, con la confianza y cercanía que merecés.
+              directamente hacia vos, con la confianza y cercanía que merecés.
             </p>
 
             <p className="text-gray-700 text-lg leading-relaxed">

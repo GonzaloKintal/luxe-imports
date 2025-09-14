@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { FaPlus, FaTimes } from 'react-icons/fa';
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function CreateCategoryForm({ onSave, onCancel }) {
+export default function CreateCategoryForm({ onSave }) {
 
     const [form, setForm] = useState({
         name: '',
@@ -46,13 +46,6 @@ export default function CreateCategoryForm({ onSave, onCancel }) {
                     <FaPlus className="text-gray-600" />
                     Crear nueva categoría
                 </h3>
-                <button
-                    onClick={onCancel}
-                    className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors duration-200"
-                    title="Cerrar formulario"
-                >
-                    <FaTimes className="text-lg" />
-                </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -83,13 +76,6 @@ export default function CreateCategoryForm({ onSave, onCancel }) {
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        className="px-5 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold border border-gray-300 transition-colors duration-200 text-sm"
-                    >
-                        Cancelar
-                    </button>
                     <button
                         type="submit"
                         className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 text-sm shadow-md"
