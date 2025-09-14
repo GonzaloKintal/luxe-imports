@@ -62,6 +62,7 @@ router.post("/", authenticateToken, isAdmin, async (req, res, next) => {
       price,
       status,
       stock,
+      stockCritico,
       category,
       thumbnails,
     } = req.body;
@@ -73,6 +74,7 @@ router.post("/", authenticateToken, isAdmin, async (req, res, next) => {
       price == null ||
       status == null ||
       stock == null ||
+      stockCritico == null ||
       !category
     ) {
       return res.status(400).json({ error: "Faltan campos requeridos" });
@@ -85,6 +87,7 @@ router.post("/", authenticateToken, isAdmin, async (req, res, next) => {
       price,
       status,
       stock,
+      stockCritico,
       category,
       thumbnails,
     });

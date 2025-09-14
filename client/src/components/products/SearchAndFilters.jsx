@@ -30,8 +30,21 @@ export default function SearchAndFilters({
     const ordenPrecio = externalOrdenPrecio !== undefined ? externalOrdenPrecio : internalOrdenPrecio;
     const setOrdenPrecio = externalSetOrdenPrecio !== undefined ? externalSetOrdenPrecio : internalSetOrdenPrecio;
 
-    // Obtener categorías únicas
-    const categorias = Array.from(new Set(productos.map(p => p.category).filter(Boolean)));
+    // Obtener categorías únicas (soportando objetos populados)
+    const categorias = Array.from(
+        new Map(
+            productos
+                .map(p => {
+                    if (p.category && typeof p.category === 'object') {
+                        return [p.category._id, p.category];
+                    } else if (typeof p.category === 'string') {
+                        return [p.category, { _id: p.category, name: p.category }];
+                    }
+                    return null;
+                })
+                .filter(Boolean)
+        ).values()
+    );
 
     return (
         <section className="max-w-7xl mx-auto mb-10 animate-fadeInUp">
@@ -64,7 +77,7 @@ export default function SearchAndFilters({
                         >
                             <option value="">Todas las categorías</option>
                             {categorias.map(cat => (
-                                <option key={cat} value={cat}>{cat}</option>
+                                <option key={cat._id} value={cat._id}>{cat.name}</option>
                             ))}
                         </select>
                     </div>

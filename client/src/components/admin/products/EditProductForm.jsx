@@ -1,15 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaCheck } from 'react-icons/fa';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function EditProductForm({ product, onSave, onCancel }) {
 
     const [form, setForm] = useState(product || {});
     const [hasChanges, setHasChanges] = useState(false);
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         setForm(product || {});
         setHasChanges(false);
     }, [product]);
+
+    useEffect(() => {
+        async function fetchCategories() {
+            try {
+                const res = await fetch(`${API_URL}/api/categories`);
+                if (!res.ok) throw new Error('Error al obtener categorías');
+                const data = await res.json();
+                setCategories(data);
+            } catch {
+                setCategories([]);
+            }
+        }
+        fetchCategories();
+    }, []);
 
     useEffect(() => {
         if (!product) return;
@@ -121,19 +137,34 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                         />
                     </div>
 
-                    <div>
-                        <label className="block text-gray-700 mb-1 font-semibold text-xs">
-                            Stock <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            name="stock"
-                            type="number"
-                            min="0"
-                            value={form.stock === 0 ? 0 : form.stock || ''}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-2 py-1 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        />
+                    <div className="flex gap-2">
+                        <div className="flex-1">
+                            <label className="block text-gray-700 mb-1 font-semibold text-xs">
+                                Stock <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                name="stock"
+                                type="number"
+                                min="0"
+                                value={form.stock === 0 ? 0 : form.stock || ''}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-2 py-1 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <label className="block text-gray-700 mb-1 font-semibold text-xs">
+                                Stock crítico
+                            </label>
+                            <input
+                                name="stockCritico"
+                                type="number"
+                                min="0"
+                                value={form.stockCritico === 0 ? 0 : form.stockCritico || ''}
+                                onChange={handleChange}
+                                className="w-full px-2 py-1 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -152,12 +183,24 @@ export default function EditProductForm({ product, onSave, onCancel }) {
 
                 <div>
                     <label className="block text-gray-700 mb-1 font-semibold text-xs">Categoría</label>
-                    <input
+                    <select
                         name="category"
-                        value={form.category || ''}
-                        onChange={handleChange}
+                        value={form.category?._id || form.category || ''}
+                        onChange={e => {
+                            const selected = categories.find(cat => cat._id === e.target.value);
+                            setForm({ ...form, category: selected ? selected._id : '' });
+                        }}
                         className="w-full px-2 py-1 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    />
+                    >
+                        <option value="">Selecciona una categoría</option>
+                        {categories.map(cat => (
+                            <option key={cat._id} value={cat._id}>{cat.name}</option>
+                        ))}
+                    </select>
+                    {/* Mostrar el nombre actual si la categoría está populada */}
+                    {form.category && typeof form.category === 'object' && form.category.name && (
+                        <div className="text-xs text-gray-500 mt-1">Actual: {form.category.name}</div>
+                    )}
                 </div>
 
                 <div>

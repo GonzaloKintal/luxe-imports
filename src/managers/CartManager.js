@@ -199,6 +199,12 @@ class CartManager {
       const product = await Product.findById(item.productId);
       product.stock -= item.quantity;
       await product.save();
+      // Notificar si el stock baja a stock crítico
+      const stockCritico = typeof product.stockCritico === 'number' ? product.stockCritico : 3;
+      if (typeof product.stock === 'number' && product.stock <= stockCritico) {
+        const { notifyAdminLowStock } = await import('../utils/notifyAdmin.js');
+        await notifyAdminLowStock(product);
+      }
     }
     cart.status = "confirmado";
     cart.paidAt = new Date();

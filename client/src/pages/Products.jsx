@@ -90,9 +90,16 @@ export default function Products() {
             .filter(producto =>
                 producto.title.toLowerCase().includes(busqueda.toLowerCase())
             )
-            .filter(producto =>
-                filtroCategoria ? producto.category === filtroCategoria : true
-            )
+            .filter(producto => {
+                if (!filtroCategoria) return true;
+                if (!producto.category) return false;
+                // Si la categoría está populada como objeto
+                if (typeof producto.category === 'object' && producto.category._id) {
+                    return producto.category._id === filtroCategoria;
+                }
+                // Si la categoría es string (id)
+                return producto.category === filtroCategoria;
+            })
             .filter(producto =>
                 filtroStock === 'all' ? true : filtroStock === 'in' ? Number(producto.stock) > 0 : Number(producto.stock) <= 0
             );

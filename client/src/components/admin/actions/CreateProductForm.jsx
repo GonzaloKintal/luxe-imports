@@ -1,6 +1,7 @@
 
 
 import { useState, useEffect } from 'react';
+const API_URL = import.meta.env.VITE_API_URL;
 import { FaPlus, FaTimes } from 'react-icons/fa';
 
 export default function CreateProductForm({ onSave, onCancel }) {
@@ -11,22 +12,33 @@ export default function CreateProductForm({ onSave, onCancel }) {
         price: '',
         status: true,
         stock: '',
+        stockCritico: '',
         category: '',
         thumbnails: []
     };
     const [form, setForm] = useState(initialForm);
+    const [categories, setCategories] = useState([]);
 
-    // Limpiar formulario al cerrar
     useEffect(() => {
         setForm(initialForm);
+        fetchCategories();
     }, []);
+
+    async function fetchCategories() {
+        try {
+            const res = await fetch(`${API_URL}/api/categories`);
+            if (!res.ok) return;
+            const data = await res.json();
+            setCategories(data);
+        } catch {}
+    }
 
     function handleChange(e) {
         const { name, value } = e.target;
         let newValue = value;
         if (name === 'status') {
             newValue = value === 'true';
-        } else if (name === 'stock' || name === 'price') {
+        } else if (name === 'stock' || name === 'price' || name === 'stockCritico') {
             if (value === '') {
                 newValue = '';
             } else {
@@ -106,7 +118,7 @@ export default function CreateProductForm({ onSave, onCancel }) {
                 />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                 <label className="block text-gray-700 mb-1 font-semibold text-sm">
                     Precio (USD)<span className="text-red-500">*</span>
@@ -125,19 +137,34 @@ export default function CreateProductForm({ onSave, onCancel }) {
                 </div>
 
                 <div>
-                <label className="block text-gray-700 mb-1 font-semibold text-sm">
-                    Stock <span className="text-red-500">*</span>
-                </label>
-                <input
-                    name="stock"
-                    type="number"
-                    min="0"
-                    value={form.stock === 0 ? 0 : form.stock || ''}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
-                    placeholder="0"
-                />
+                    <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                        Stock <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        name="stock"
+                        type="number"
+                        min="0"
+                        value={form.stock === 0 ? 0 : form.stock || ''}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                        placeholder="0"
+                    />
+                </div>
+                <div>
+                    <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                        Stock crítico
+                        <span className="text-xs text-gray-500 font-normal ml-1">(alerta de bajo stock)</span>
+                    </label>
+                    <input
+                        name="stockCritico"
+                        type="number"
+                        min="0"
+                        value={form.stockCritico === 0 ? 0 : form.stockCritico || ''}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 text-sm"
+                        placeholder="Ej: 5"
+                    />
                 </div>
 
                 <div>
@@ -156,13 +183,18 @@ export default function CreateProductForm({ onSave, onCancel }) {
 
             <div>
                 <label className="block text-gray-700 mb-1 font-semibold text-sm">Categoría</label>
-                <input
-                name="category"
-                value={form.category}
-                onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
-                placeholder="Categoría del producto"
-                />
+                <select
+                    name="category"
+                    value={form.category}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                    required
+                >
+                    <option value="">Selecciona una categoría</option>
+                    {categories.map(cat => (
+                        <option key={cat._id} value={cat._id}>{cat.name}</option>
+                    ))}
+                </select>
             </div>
 
             <div>

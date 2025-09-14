@@ -245,7 +245,9 @@ export default function ProductDetail() {
                   </h1>
                   {product.category && (
                     <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                      {product.category}
+                      {typeof product.category === 'object' && product.category.name
+                        ? product.category.name
+                        : product.category}
                     </span>
                   )}
                 </div>
