@@ -1,7 +1,7 @@
 import { FaTags, FaShoppingCart } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 
-export default function ProductCard({ title, price, thumbnails, onClick }) {
+export default function ProductCard({ title, price, thumbnails, category, stock, onClick }) {
   const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
   const [cotizacion, setCotizacion] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,16 +27,34 @@ export default function ProductCard({ title, price, thumbnails, onClick }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-md border border-gray-100 hover:border-gray-200 w-full max-w-sm mx-auto flex flex-col hover:shadow-lg transition-all duration-300">
-      <img 
-        src={thumbnails[0]} 
-        alt={title} 
-        className="w-full aspect-square object-cover rounded-t-2xl" 
-      />
+      
+      {/* Contenedor de imagen con categoría superpuesta */}
+      <div className="relative">
+        <img 
+          src={thumbnails[0]} 
+          alt={title} 
+          className="w-full aspect-square object-cover rounded-t-2xl" 
+        />
+
+        {/* Badge de categoría en esquina superior derecha */}
+        {category && (
+          <div className="absolute flex justify-center items-center flex-row top-2 right-2 bg-black/80 text-white text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
+            <FaTags className="text-white text-sm mr-1 flex-shrink-0" />
+            {typeof category === 'object' ? category.name : category}
+          </div>
+        )}
+
+        {/* Badge de "Sin stock" */}
+        {stock === 0 && (
+          <div className="absolute top-10 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow">
+            Sin stock
+          </div>
+        )}
+      </div>
 
       <div className="p-4 sm:p-5 flex flex-col flex-grow">
         {/* Título y tag */}
         <div className="flex items-start gap-2 mb-3">
-          <FaTags className="text-gray-400 text-sm mt-1 flex-shrink-0" />
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 line-clamp-2 leading-tight">{title}</h3>
         </div>
 
