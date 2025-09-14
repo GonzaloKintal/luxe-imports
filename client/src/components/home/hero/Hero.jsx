@@ -5,7 +5,7 @@ export default function Hero() {
     return (
         <section className="relative h-screen w-full flex items-center justify-center bg-black overflow-hidden">
             {/* Luz de fondo */}
-            <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 z-0 w-full h-full">
               <LightRays
                 raysOrigin="top-center"
                 raysColor="#ffffff"
@@ -16,7 +16,8 @@ export default function Hero() {
                 mouseInfluence={0.1}
                 noiseAmount={0.1}
                 distortion={0.05}
-                className="custom-rays"
+                mobileScale={3.8} // Escala aumentada para mobile
+                className="w-full h-full"
               />
             </div>
 
@@ -35,7 +36,6 @@ export default function Hero() {
                 </span>{" "}
                 <span className="text-gray-400">IMPORTS</span>
               </h1>
-
 
               <p className="text-xl md:text-2xl mb-8 font-light text-gray-300 animate-fade-in-up">
                 iPhones & Perfumes Importados

@@ -39,11 +39,12 @@ const LightRays = ({
   pulsating = false,
   fadeDistance = 1.0,
   saturation = 1.0,
-  followMouse = true,
-  mouseInfluence = 0.1,
+  followMouse = false,
+  mouseInfluence = 0.0,
   noiseAmount = 0.0,
   distortion = 0.0,
-  className = ''
+  className = '',
+  mobileScale = 1.5 // Nuevo prop para escalar en mobile
 }) => {
   const containerRef = useRef(null);
   const uniformsRef = useRef(null);
@@ -54,7 +55,24 @@ const LightRays = ({
   const meshRef = useRef(null);
   const cleanupFunctionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const observerRef = useRef(null);
+  const resizeTimeoutRef = useRef(null);
+  const resizeObserverRef = useRef(null);
+
+  // Detectar si es mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -94,14 +112,20 @@ const LightRays = ({
 
       const renderer = new Renderer({
         dpr: Math.min(window.devicePixelRatio, 2),
-        alpha: true
+        alpha: true,
+        powerPreference: 'high-performance'
       });
       rendererRef.current = renderer;
 
       const gl = renderer.gl;
       gl.canvas.style.width = '100%';
       gl.canvas.style.height = '100%';
+      gl.canvas.style.display = 'block';
+      gl.canvas.style.position = 'absolute';
+      gl.canvas.style.top = '0';
+      gl.canvas.style.left = '0';
 
+      // Limpiar contenedor antes de agregar el canvas
       while (containerRef.current.firstChild) {
         containerRef.current.removeChild(containerRef.current.firstChild);
       }
@@ -133,6 +157,7 @@ uniform vec2  mousePos;
 uniform float mouseInfluence;
 uniform float noiseAmount;
 uniform float distortion;
+uniform float mobileScale; // Nuevo uniforme
 
 varying vec2 vUv;
 
@@ -151,10 +176,10 @@ float rayStrength(vec2 raySource, vec2 rayRefDirection, vec2 coord,
   float spreadFactor = pow(max(distortedAngle, 0.0), 1.0 / max(lightSpread, 0.001));
 
   float distance = length(sourceToCoord);
-  float maxDistance = iResolution.x * rayLength;
+  float maxDistance = iResolution.x * rayLength * mobileScale; // Aplicar escala mobile
   float lengthFalloff = clamp((maxDistance - distance) / maxDistance, 0.0, 1.0);
   
-  float fadeFalloff = clamp((iResolution.x * fadeDistance - distance) / (iResolution.x * fadeDistance), 0.5, 1.0);
+  float fadeFalloff = clamp((iResolution.x * fadeDistance * mobileScale - distance) / (iResolution.x * fadeDistance * mobileScale), 0.5, 1.0);
   float pulse = pulsating > 0.5 ? (0.8 + 0.2 * sin(iTime * speed * 3.0)) : 1.0;
 
   float baseStrength = clamp(
@@ -212,10 +237,8 @@ void main() {
       const uniforms = {
         iTime: { value: 0 },
         iResolution: { value: [1, 1] },
-
         rayPos: { value: [0, 0] },
         rayDir: { value: [0, 1] },
-
         raysColor: { value: hexToRgb(raysColor) },
         raysSpeed: { value: raysSpeed },
         lightSpread: { value: lightSpread },
@@ -226,7 +249,8 @@ void main() {
         mousePos: { value: [0.5, 0.5] },
         mouseInfluence: { value: mouseInfluence },
         noiseAmount: { value: noiseAmount },
-        distortion: { value: distortion }
+        distortion: { value: distortion },
+        mobileScale: { value: isMobile ? mobileScale : 1.0 } // Aplicar escala solo en mobile
       };
       uniformsRef.current = uniforms;
 
@@ -238,9 +262,10 @@ void main() {
       const updatePlacement = () => {
         if (!containerRef.current || !renderer) return;
 
-        renderer.dpr = Math.min(window.devicePixelRatio, 2);
-
         const { clientWidth: wCSS, clientHeight: hCSS } = containerRef.current;
+        
+        if (wCSS === 0 || hCSS === 0) return;
+
         renderer.setSize(wCSS, hCSS);
 
         const dpr = renderer.dpr;
@@ -252,6 +277,10 @@ void main() {
         const { anchor, dir } = getAnchorAndDir(raysOrigin, w, h);
         uniforms.rayPos.value = anchor;
         uniforms.rayDir.value = dir;
+
+        // Actualizar escala mobile
+        setIsMobile(window.innerWidth <= 768);
+        uniforms.mobileScale.value = isMobile ? mobileScale : 1.0;
       };
 
       const loop = t => {
@@ -260,15 +289,6 @@ void main() {
         }
 
         uniforms.iTime.value = t * 0.001;
-
-        if (followMouse && mouseInfluence > 0.0) {
-          const smoothing = 0.92;
-
-          smoothMouseRef.current.x = smoothMouseRef.current.x * smoothing + mouseRef.current.x * (1 - smoothing);
-          smoothMouseRef.current.y = smoothMouseRef.current.y * smoothing + mouseRef.current.y * (1 - smoothing);
-
-          uniforms.mousePos.value = [smoothMouseRef.current.x, smoothMouseRef.current.y];
-        }
 
         try {
           renderer.render({ scene: mesh });
@@ -279,8 +299,24 @@ void main() {
         }
       };
 
-      window.addEventListener('resize', updatePlacement);
-      updatePlacement();
+      const handleResize = () => {
+        if (resizeTimeoutRef.current) {
+          clearTimeout(resizeTimeoutRef.current);
+        }
+        resizeTimeoutRef.current = setTimeout(() => {
+          updatePlacement();
+        }, 150);
+      };
+
+      if (typeof ResizeObserver !== 'undefined') {
+        resizeObserverRef.current = new ResizeObserver(handleResize);
+        resizeObserverRef.current.observe(containerRef.current);
+      }
+
+      window.addEventListener('resize', handleResize);
+      
+      setTimeout(updatePlacement, 50);
+      
       animationIdRef.current = requestAnimationFrame(loop);
 
       cleanupFunctionRef.current = () => {
@@ -289,7 +325,17 @@ void main() {
           animationIdRef.current = null;
         }
 
-        window.removeEventListener('resize', updatePlacement);
+        if (resizeTimeoutRef.current) {
+          clearTimeout(resizeTimeoutRef.current);
+          resizeTimeoutRef.current = null;
+        }
+
+        if (resizeObserverRef.current) {
+          resizeObserverRef.current.disconnect();
+          resizeObserverRef.current = null;
+        }
+
+        window.removeEventListener('resize', handleResize);
 
         if (renderer) {
           try {
@@ -331,10 +377,11 @@ void main() {
     pulsating,
     fadeDistance,
     saturation,
-    followMouse,
     mouseInfluence,
     noiseAmount,
-    distortion
+    distortion,
+    isMobile,
+    mobileScale
   ]);
 
   useEffect(() => {
@@ -353,6 +400,7 @@ void main() {
     u.mouseInfluence.value = mouseInfluence;
     u.noiseAmount.value = noiseAmount;
     u.distortion.value = distortion;
+    u.mobileScale.value = isMobile ? mobileScale : 1.0;
 
     const { clientWidth: wCSS, clientHeight: hCSS } = containerRef.current;
     const dpr = renderer.dpr;
@@ -370,28 +418,20 @@ void main() {
     saturation,
     mouseInfluence,
     noiseAmount,
-    distortion
+    distortion,
+    isMobile,
+    mobileScale
   ]);
-
-  useEffect(() => {
-    const handleMouseMove = e => {
-      if (!containerRef.current || !rendererRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-      mouseRef.current = { x, y };
-    };
-
-    if (followMouse) {
-      window.addEventListener('mousemove', handleMouseMove);
-      return () => window.removeEventListener('mousemove', handleMouseMove);
-    }
-  }, [followMouse]);
 
   return (
     <div
       ref={containerRef}
       className={`w-full h-full pointer-events-none z-[3] overflow-hidden relative ${className}`.trim()}
+      style={{ 
+        position: 'relative', 
+        overflow: 'hidden',
+        minHeight: '100px'
+      }}
     />
   );
 };
