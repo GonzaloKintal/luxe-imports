@@ -160,15 +160,39 @@ export default function Auth() {
 		                : 'opacity-0 -translate-x-4 pointer-events-none z-0'
 		                }`}
 		        >
-		            {/* Elemento decorativo minimalista */}
-		            <div className="w-full flex justify-center mb-8">
-		                <div className="relative w-32 h-32 flex items-center justify-center">
-		                    <div className="absolute inset-0 rounded-full border-2 border-gray-900"></div>
-		                    <span className="text-gray-900 text-xl font-medium">
-		                        Luxe
-		                    </span>
-		                </div>
-		            </div>
+			{/* Elemento decorativo minimalista con animación giratoria */}
+			<div className="w-full flex justify-center mb-8">
+			  <div className="relative w-40 h-40 flex items-center justify-center">
+			    {/* Borde circular giratorio en blanco y negro */}
+			    <div className="absolute inset-0 rounded-full rotating-circle"></div>
+
+			    {/* Imagen fija */}
+			    <img 
+			      src="/assets/luxe-ico.svg" 
+			      alt="Luxe Icon" 
+			      className="w-40 h-40 object-contain"
+			    />
+			  </div>
+
+			  {/* Animación y estilo dentro del mismo archivo */}
+			  <style jsx>{`
+			    .rotating-circle {
+			      border-radius: 50%;
+			      border: 6px solid transparent; /* base transparente */
+			      border-top: 6px solid #000000; /* negro */
+			      border-right: 6px solid #ffffff; /* blanco */
+			      border-bottom: 6px solid #000000;
+			      border-left: 6px solid #ffffff;
+			      animation: slowSpin 2s linear infinite;
+			    }
+
+			    @keyframes slowSpin {
+			      0% { transform: rotate(0deg); }
+			      100% { transform: rotate(360deg); }
+			    }
+			  `}</style>
+			</div>
+
 
 		            <LoginForm
 		                formData={loginForm}
