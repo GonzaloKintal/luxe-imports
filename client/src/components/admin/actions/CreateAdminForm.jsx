@@ -4,7 +4,7 @@ import ConfirmDeleteAdmin from './ConfirmDeleteAdmin.jsx';
 import { toast } from 'react-toastify';
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function CreateAdminForm({ onSave, onCancel }) {
+export default function CreateAdminForm({ onSave }) {
 
     const initialForm = {
         firstName: '',
@@ -97,13 +97,6 @@ export default function CreateAdminForm({ onSave, onCancel }) {
                     <FaUserShield className="text-gray-600" />
                     Crear nuevo admin
                 </h3>
-                <button
-                    onClick={onCancel}
-                    className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors duration-200"
-                    title="Cerrar formulario"
-                >
-                    <FaTimes className="text-lg" />
-                </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -169,16 +162,6 @@ export default function CreateAdminForm({ onSave, onCancel }) {
 
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                     <button
-                        type="button"
-                        onClick={() => {
-                            setForm(initialForm);
-                            onCancel();
-                        }}
-                        className="px-5 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold border border-gray-300 transition-colors duration-200 text-sm"
-                    >
-                        Cancelar
-                    </button>
-                    <button
                         type="submit"
                         className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 text-sm shadow-md"
                     >
@@ -210,11 +193,11 @@ export default function CreateAdminForm({ onSave, onCancel }) {
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => !isSelf && openDeleteModal(admin)}
-                                            className={`p-2 rounded-lg ${isSelf ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-red-100 hover:bg-red-200 text-red-700'}`}
+                                            className={`p-2 rounded-lg ${isSelf ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-red-500/60 hover:bg-red-600 text-white transition-all duration-300 shadow-md flex items-center justify-center'}`}
                                             title={isSelf ? 'No puedes eliminarte a ti mismo' : 'Eliminar'}
                                             disabled={isSelf}
                                         >
-                                            <FaTrash />
+                                            <FaTrash size={16} />
                                         </button>
                                     </div>
                                 </li>

@@ -8,23 +8,50 @@ export default function ActionButtonCard({
     colorScheme 
 }) {
     
+    // Mapear esquemas de color a clases de Tailwind
+    const colorClasses = {
+        blue: {
+            bg: 'bg-blue-50',
+            border: 'border-blue-200',
+            iconBg: 'bg-blue-100',
+            iconText: 'text-blue-600'
+        },
+        green: {
+            bg: 'bg-green-50',
+            border: 'border-green-200',
+            iconBg: 'bg-green-100',
+            iconText: 'text-green-600'
+        },
+        purple: {
+            bg: 'bg-purple-50',
+            border: 'border-purple-200',
+            iconBg: 'bg-purple-100',
+            iconText: 'text-purple-600'
+        }
+    };
+
+    const activeClasses = isActive ? colorClasses[colorScheme] : {
+        bg: 'bg-white',
+        border: 'border-gray-200',
+        iconBg: 'bg-gray-100',
+        iconText: 'text-gray-600'
+    };
+
     return (
         <button
             onClick={() => onClick(id)} 
             className={`flex flex-col items-center justify-center p-5 rounded-xl transition-all duration-200 border ${
                 isActive 
-                    ? `bg-${colorScheme}-50 border-${colorScheme}-200 shadow-inner` 
+                    ? `${activeClasses.bg} ${activeClasses.border} shadow-inner` 
                     : 'bg-white border-gray-200 hover:bg-gray-50 hover:shadow-sm'
             }`}
         >
-            <div className={`p-3 rounded-full mb-3 ${
-                isActive ? `bg-${colorScheme}-100 text-${colorScheme}-600` : 'bg-gray-100 text-gray-600'
-            }`}>
+            <div className={`p-3 rounded-full mb-3 ${activeClasses.iconBg} ${activeClasses.iconText}`}>
                 <Icon className="text-lg" />
             </div>
             <span className="font-medium text-gray-700">{title}</span>
             <p className="text-xs text-gray-500 mt-1 text-center">{description}</p>
         </button>
     );
-
+    
 }

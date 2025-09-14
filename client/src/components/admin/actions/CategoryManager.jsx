@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
-import { FaEdit, FaTrash, FaEye, FaPlus, FaTimes } from 'react-icons/fa';
-import Swal from 'sweetalert2';
+import { FaEdit, FaTrash, FaEye, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import ConfirmDeleteCategory from './ConfirmDeleteCategory';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function CategoryManager({ onClose }) {
+export default function CategoryManager() {
     const [categories, setCategories] = useState([]);
     const [form, setForm] = useState({ name: '', description: '' });
     const [editingId, setEditingId] = useState(null);
+
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [categoryToDelete, setCategoryToDelete] = useState(null);
 
     useEffect(() => {
         fetchCategories();
@@ -76,43 +79,28 @@ export default function CategoryManager({ onClose }) {
         }
     }
 
-    async function handleDelete(id) {
-        const result = await Swal.fire({
-            title: '¿Eliminar esta categoría?',
-            text: 'Esta acción no se puede deshacer.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        });
-        if (!result.isConfirmed) return;
+    function handleDeleteRequest(cat) {
+        setCategoryToDelete(cat);
+        setConfirmOpen(true);
+    }
+
+    async function confirmDelete() {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/categories/${id}`, {
+            const res = await fetch(`${API_URL}/api/categories/${categoryToDelete._id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            if (!res.ok) {
-                let errorMsg = 'Error al eliminar categoría';
-                try {
-                    const error = await res.json();
-                    if (error?.error?.includes('productos asociados')) {
-                        errorMsg = 'No se puede eliminar la categoría porque tiene productos asociados. Reasigna los productos antes.';
-                    } else if (error?.error) {
-                        errorMsg = error.error;
-                    }
-                } catch {}
-                toast.error(errorMsg);
-                return;
-            }
+            if (!res.ok) throw new Error('Error al eliminar categoría');
             toast.success('Categoría eliminada');
             fetchCategories();
         } catch (err) {
             toast.error(err.message);
+        } finally {
+            setConfirmOpen(false);
+            setCategoryToDelete(null);
         }
     }
 
@@ -133,13 +121,6 @@ export default function CategoryManager({ onClose }) {
                     <FaEye className="text-gray-600" />
                     Administrar categorías
                 </h3>
-                <button
-                    onClick={onClose}
-                    className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors duration-200"
-                    title="Cerrar"
-                >
-                    <FaTimes className="text-lg" />
-                </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 mb-6">
@@ -203,17 +184,17 @@ export default function CategoryManager({ onClose }) {
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => handleEdit(cat)}
-                                        className="p-2 rounded-lg bg-yellow-100 hover:bg-yellow-200 text-yellow-700"
+                                        className="p-2 rounded-lg bg-blue-500/60 hover:bg-blue-600 text-white transition-all duration-300 shadow-md flex items-center justify-center"
                                         title="Editar"
                                     >
-                                        <FaEdit />
+                                        <FaEdit size={18} />
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(cat._id)}
-                                        className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700"
+                                        onClick={() => handleDeleteRequest(cat)}
+                                        className="p-2 rounded-lg bg-red-500/60 hover:bg-red-600 text-white transition-all duration-300 shadow-md flex items-center justify-center"
                                         title="Eliminar"
                                     >
-                                        <FaTrash />
+                                        <FaTrash size={16} />
                                     </button>
                                 </div>
                             </li>
@@ -221,6 +202,14 @@ export default function CategoryManager({ onClose }) {
                     </ul>
                 )}
             </div>
+
+            <ConfirmDeleteCategory
+                open={confirmOpen}
+                categoryName={categoryToDelete?.name}
+                onConfirm={confirmDelete}
+                onCancel={() => setConfirmOpen(false)}
+            />
+
         </div>
     );
 }
