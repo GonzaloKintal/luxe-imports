@@ -96,189 +96,124 @@ export default function Auth() {
         }
     }
 
-    return (
-        <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8 md:py-16">
-            {/* Luces suaves flotantes */}
-            <div className="absolute inset-0 pointer-events-none z-0">
-                <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-float" />
-                <div className="absolute bottom-0 right-0 w-96 h-96 bg-gray-500/10 rounded-full blur-3xl animate-float2" />
-            </div>
+	return (
+	    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8 md:py-16">
+		{/* Luces sutiles de fondo */}
+		<div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+		    <div className="absolute top-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-xl animate-pulse-slow" />
+		    <div className="absolute bottom-0 right-0 w-96 h-96 bg-gray-500/5 rounded-full blur-xl animate-pulse-slower" />
+		</div>
 
-            <ToastContainer
-                position="top-right"
-                autoClose={2500}
-                hideProgressBar={false}
-                newestOnTop
-                closeOnClick
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="colored"
-            />
+		<ToastContainer
+		    position="top-right"
+		    autoClose={2500}
+		    hideProgressBar={false}
+		    newestOnTop
+		    closeOnClick
+		    pauseOnFocusLoss
+		    draggable
+		    pauseOnHover
+		    theme="colored"
+		/>
 
-            <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 border border-gray-200 animate-fadeInDown relative z-10 mt-8 min-h-[750px]">
-                {/* Header con logo y bienvenida */}
-                <div className="flex flex-col items-center mb-6">
-                    <FaStore className="text-4xl text-black mb-2" />
-                    <h2 className="text-xl font-bold text-black mb-1 text-center">Bienvenido a Luxe Imports</h2>
-                    <p className="text-gray-600 text-sm text-center">
-                        Inicia sesión o crea tu cuenta para comenzar a comprar
-                    </p>
-                </div>
+		<div className="w-full max-w-md bg-white rounded-lg shadow-sm p-6 border border-gray-100 relative z-10 mt-8 min-h-[750px]">
+		    {/* Header con logo y bienvenida */}
+		    <div className="flex flex-col items-center mb-8">
+		        <div className="w-12 h-12 rounded-full bg-black flex items-center justify-center mb-3">
+		            <FaStore className="text-xl text-white" />
+		        </div>
+		        <h2 className="text-xl font-semibold text-gray-900 mb-1 text-center">Bienvenido a Luxe Imports</h2>
+		        <p className="text-gray-500 text-sm text-center">
+		            Inicia sesión o crea tu cuenta para comenzar
+		        </p>
+		    </div>
 
-                {/* Tabs */}
-                <div className="flex mb-6 rounded-lg overflow-hidden border border-gray-200">
-                    <button
-                        className={`flex-1 py-3 font-medium transition-all duration-300 flex items-center justify-center gap-2 ${tab === 'login'
-                            ? 'bg-black text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                        onClick={() => setTab('login')}
-                    >
-                        Iniciar sesión
-                    </button>
-                    <button
-                        className={`flex-1 py-3 font-medium transition-all duration-300 flex items-center justify-center gap-2 ${tab === 'register'
-                            ? 'bg-black text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                        onClick={() => setTab('register')}
-                    >
-                        Registrarse
-                    </button>
-                </div>
+		    {/* Tabs */}
+		    <div className="flex mb-6 rounded-md overflow-hidden border border-gray-100 bg-gray-50 p-1">
+		        <button
+		            className={`flex-1 py-2.5 text-sm font-medium transition-all duration-200 rounded-md ${tab === 'login'
+		                ? 'bg-white text-gray-900 shadow-sm'
+		                : 'text-gray-600 hover:text-gray-900'
+		                }`}
+		            onClick={() => setTab('login')}
+		        >
+		            Iniciar sesión
+		        </button>
+		        <button
+		            className={`flex-1 py-2.5 text-sm font-medium transition-all duration-200 rounded-md ${tab === 'register'
+		                ? 'bg-white text-gray-900 shadow-sm'
+		                : 'text-gray-600 hover:text-gray-900'
+		                }`}
+		            onClick={() => setTab('register')}
+		        >
+		            Registrarse
+		        </button>
+		    </div>
 
-                {/* Formularios */}
-                <div className="relative min-h-[320px] md:min-h-[380px]">
-                    {/* Formulario de Login */}
-                    <div
-                        key={tab}
-                        className={`absolute inset-0 transition-all duration-400 ease-in-out px-4 py-25 ${tab === 'login'
-                            ? 'opacity-100 translate-x-0 z-10'
-                            : 'opacity-0 -translate-x-4 pointer-events-none z-0'
-                            }`}
-                    >
-                        {/* Aro giratorio blanco y negro */}
-                        <div className="w-full flex justify-center mb-12 -mt-20">
-                            <div className="relative w-48 h-48 flex items-center justify-center">
-                                {/* Aro animado */}
-                                <div className="absolute inset-0 rounded-full border-8 border-black border-t-white animate-spin"></div>
-                                {/* Texto centrado */}
-                                <span className="text-black text-4xl font-serif font-bold">
-                                    Luxe  {/* ACA IRIA EL ICONO DE LUXE IMPORTS */}
-                                </span>
-                            </div>
-                        </div>
+		    {/* Formularios */}
+		    <div className="relative min-h-[320px] md:min-h-[380px]">
+		        {/* Formulario de Login */}
+		        <div
+		            key={tab}
+		            className={`absolute inset-0 transition-all duration-300 ease-in-out ${tab === 'login'
+		                ? 'opacity-100 translate-x-0 z-10'
+		                : 'opacity-0 -translate-x-4 pointer-events-none z-0'
+		                }`}
+		        >
+		            {/* Elemento decorativo minimalista */}
+		            <div className="w-full flex justify-center mb-8">
+		                <div className="relative w-32 h-32 flex items-center justify-center">
+		                    <div className="absolute inset-0 rounded-full border-2 border-gray-900"></div>
+		                    <span className="text-gray-900 text-xl font-medium">
+		                        Luxe
+		                    </span>
+		                </div>
+		            </div>
 
-                        <LoginForm
-                            formData={loginForm}
-                            onFormChange={handleLoginChange}
-                            touchedFields={loginTouched}
-                            onBlurField={handleLoginBlur}
-                            onSubmit={handleLogin}
-                        />
+		            <LoginForm
+		                formData={loginForm}
+		                onFormChange={handleLoginChange}
+		                touchedFields={loginTouched}
+		                onBlurField={handleLoginBlur}
+		                onSubmit={handleLogin}
+		            />
+		        </div>
 
-                        <style>{`
-			@keyframes spin {
-			    0% { transform: rotate(0deg); }
-			    100% { transform: rotate(360deg); }
-			}
-			.animate-spin {
-			    animation: spin 2s linear infinite;
-			}
-		    `}</style>
-                    </div>
+		        {/* Formulario de Registro */}
+		        <div
+		            key={tab + '-register'}
+		            className={`absolute inset-0 transition-all duration-300 ease-in-out ${tab === 'register'
+		                ? 'opacity-100 translate-x-0 z-10'
+		                : 'opacity-0 translate-x-4 pointer-events-none z-0'
+		                }`}
+		        >
+		            <RegisterForm
+		                formData={registerForm}
+		                onFormChange={handleRegisterChange}
+		                touchedFields={registerTouched}
+		                onBlurField={handleRegisterBlur}
+		                onSubmit={handleRegister}
+		            />
+		        </div>
+		    </div>
+		</div>
 
-                    {/* Formulario de Registro */}
-                    <div
-                        key={tab + '-register'}
-                        className={`absolute inset-0 transition-all duration-400 ease-in-out ${tab === 'register'
-                            ? 'opacity-100 translate-x-0 z-10'
-                            : 'opacity-0 translate-x-4 pointer-events-none z-0'
-                            }`}
-                    >
-                        {/* Barra negra minimalista con luz en movimiento */}
-                        <div className="flex justify-center mb-16">
-                            <div className="relative w-48 h-4 bg-black rounded-full overflow-hidden">
-                                {/* Línea blanca en movimiento */}
-                                <div className="absolute top-0 left-0 h-4 w-8 bg-white animate-light"></div>
-                                <div className="absolute top-0 left-0 h-4 w-6 bg-white/50 animate-light delay-300"></div>
-                            </div>
-                        </div>
-
-                        <RegisterForm
-                            formData={registerForm}
-                            onFormChange={handleRegisterChange}
-                            touchedFields={registerTouched}
-                            onBlurField={handleRegisterBlur}
-                            onSubmit={handleRegister}
-                        />
-
-                        <style>{`
-			@keyframes lightMove {
-			    0% { transform: translateX(-100%); opacity: 0.2; }
-			    50% { transform: translateX(100%); opacity: 0.7; }
-			    100% { transform: translateX(200%); opacity: 0.2; }
-			}
-			.animate-light {
-			    animation: lightMove 2s linear infinite;
-			}
-			.delay-300 { animation-delay: 0.3s; }
-		    `}</style>
-                    </div>
-
-
-
-                </div>
-            </div>
-
-            <style>{`
-                .animate-fadeInDown { 
-                    animation: fadeInDown 0.7s cubic-bezier(.39,.575,.565,1) both; 
-                }
-                @keyframes fadeInDown { 
-                    0% { opacity: 0; transform: translateY(-20px); } 
-                    100% { opacity: 1; transform: translateY(0); } 
-                }
-                @keyframes float { 
-                    0% { transform: translateY(0); } 
-                    50% { transform: translateY(-15px); } 
-                    100% { transform: translateY(0); } 
-                }
-                .animate-float { animation: float 6s ease-in-out infinite; }
-                @keyframes float2 { 
-                    0% { transform: translateY(0); } 
-                    50% { transform: translateY(20px); } 
-                    100% { transform: translateY(0); } 
-                }
-                .animate-float2 { animation: float2 8s ease-in-out infinite; }
-                @keyframes float-slow {
-		  0%, 100% { transform: translateY(0px); }
-		  50% { transform: translateY(-15px); }
-		}
-
-		@keyframes float-fast {
-		  0%, 100% { transform: translateY(0px); }
-		  50% { transform: translateY(-8px); }
-		}
-
-		.animate-float-slow {
-		  animation: float-slow 4s ease-in-out infinite;
-		}
-
-		.animate-float-fast {
-		  animation: float-fast 2.5s ease-in-out infinite;
-		}
-
-		.delay-200 {
-		  animation-delay: 0.2s;
-		}
-
-		.delay-150 {
-		  animation-delay: 0.15s;
-		}
-
-            `}</style>
-        </main>
-    );
+		<style>{`
+		    @keyframes pulse-slow {
+		        0%, 100% { opacity: 0.5; }
+		        50% { opacity: 0.8; }
+		    }
+		    @keyframes pulse-slower {
+		        0%, 100% { opacity: 0.3; }
+		        50% { opacity: 0.6; }
+		    }
+		    .animate-pulse-slow {
+		        animation: pulse-slow 8s ease-in-out infinite;
+		    }
+		    .animate-pulse-slower {
+		        animation: pulse-slower 12s ease-in-out infinite;
+		    }
+		`}</style>
+	    </main>
+	);
 }
