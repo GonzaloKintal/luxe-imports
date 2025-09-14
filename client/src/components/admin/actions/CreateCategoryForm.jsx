@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import { FaPlus, FaTimes } from 'react-icons/fa';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CreateCategoryForm({ onSave, onCancel }) {
 
@@ -13,9 +15,28 @@ export default function CreateCategoryForm({ onSave, onCancel }) {
         setForm({ ...form, [name]: value });
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
-        onSave(form);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/api/categories`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(form)
+            });
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error || 'Error al crear categoría');
+            }
+            const data = await res.json();
+            toast.success('Categoría creada correctamente');
+            if (onSave) onSave(data);
+        } catch (err) {
+            toast.error(err.message);
+        }
     }
 
     return (
@@ -34,27 +55,7 @@ export default function CreateCategoryForm({ onSave, onCancel }) {
                 </button>
             </div>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                        <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v6a1 1 0 102 0V5zm-1 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                        </svg>
-                    </div>
-                    <div className="ml-3">
-                        <h3 className="text-sm font-medium text-yellow-800">
-                            Functionality coming soon
-                        </h3>
-                        <div className="mt-2 text-sm text-yellow-700">
-                            <p>
-                                La creación de categorías estará disponible en una próxima actualización.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4 opacity-50 pointer-events-none">
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-gray-700 mb-1 font-semibold text-sm">
                         Nombre de la categoría <span className="text-red-500">*</span>

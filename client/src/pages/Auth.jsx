@@ -97,7 +97,7 @@ export default function Auth() {
     }
 
     return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8 md:py-16">
+        <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8 md:py-16">
             {/* Luces suaves flotantes */}
             <div className="absolute inset-0 pointer-events-none z-0">
                 <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-float" />
@@ -129,21 +129,19 @@ export default function Auth() {
                 {/* Tabs */}
                 <div className="flex mb-6 rounded-lg overflow-hidden border border-gray-200">
                     <button
-                        className={`flex-1 py-3 font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                            tab === 'login'
-                                ? 'bg-black text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
+                        className={`flex-1 py-3 font-medium transition-all duration-300 flex items-center justify-center gap-2 ${tab === 'login'
+                            ? 'bg-black text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
                         onClick={() => setTab('login')}
                     >
                         Iniciar sesión
                     </button>
                     <button
-                        className={`flex-1 py-3 font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                            tab === 'register'
-                                ? 'bg-black text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
+                        className={`flex-1 py-3 font-medium transition-all duration-300 flex items-center justify-center gap-2 ${tab === 'register'
+                            ? 'bg-black text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
                         onClick={() => setTab('register')}
                     >
                         Registrarse
@@ -152,36 +150,35 @@ export default function Auth() {
 
                 {/* Formularios */}
                 <div className="relative min-h-[320px] md:min-h-[380px]">
-		{/* Formulario de Login */}
-		<div
-		    key={tab}
-		    className={`absolute inset-0 transition-all duration-400 ease-in-out px-4 py-25 ${
-			tab === 'login' 
-			    ? 'opacity-100 translate-x-0 z-10' 
-			    : 'opacity-0 -translate-x-4 pointer-events-none z-0'
-		    }`}
-		>
-		    {/* Aro giratorio blanco y negro */}
-		    <div className="w-full flex justify-center mb-12 -mt-20">
-			<div className="relative w-48 h-48 flex items-center justify-center">
-			    {/* Aro animado */}
-			    <div className="absolute inset-0 rounded-full border-8 border-black border-t-white animate-spin"></div>
-			    {/* Texto centrado */}
-			    <span className="text-black text-4xl font-serif font-bold"> 
-				Luxe  {/* ACA IRIA EL ICONO DE LUXE IMPORTS */}
-			    </span>
-			</div>
-		    </div>
+                    {/* Formulario de Login */}
+                    <div
+                        key={tab}
+                        className={`absolute inset-0 transition-all duration-400 ease-in-out px-4 py-25 ${tab === 'login'
+                            ? 'opacity-100 translate-x-0 z-10'
+                            : 'opacity-0 -translate-x-4 pointer-events-none z-0'
+                            }`}
+                    >
+                        {/* Aro giratorio blanco y negro */}
+                        <div className="w-full flex justify-center mb-12 -mt-20">
+                            <div className="relative w-48 h-48 flex items-center justify-center">
+                                {/* Aro animado */}
+                                <div className="absolute inset-0 rounded-full border-8 border-black border-t-white animate-spin"></div>
+                                {/* Texto centrado */}
+                                <span className="text-black text-4xl font-serif font-bold">
+                                    Luxe  {/* ACA IRIA EL ICONO DE LUXE IMPORTS */}
+                                </span>
+                            </div>
+                        </div>
 
-		    <LoginForm
-			formData={loginForm}
-			onFormChange={handleLoginChange}
-			touchedFields={loginTouched}
-			onBlurField={handleLoginBlur}
-			onSubmit={handleLogin}
-		    />
+                        <LoginForm
+                            formData={loginForm}
+                            onFormChange={handleLoginChange}
+                            touchedFields={loginTouched}
+                            onBlurField={handleLoginBlur}
+                            onSubmit={handleLogin}
+                        />
 
-		    <style jsx>{`
+                        <style>{`
 			@keyframes spin {
 			    0% { transform: rotate(0deg); }
 			    100% { transform: rotate(360deg); }
@@ -190,35 +187,34 @@ export default function Auth() {
 			    animation: spin 2s linear infinite;
 			}
 		    `}</style>
-		</div>
+                    </div>
 
-		{/* Formulario de Registro */}
-		<div
-		    key={tab + '-register'}
-		    className={`absolute inset-0 transition-all duration-400 ease-in-out ${
-			tab === 'register' 
-			    ? 'opacity-100 translate-x-0 z-10' 
-			    : 'opacity-0 translate-x-4 pointer-events-none z-0'
-		    }`}
-		>
-		    {/* Barra negra minimalista con luz en movimiento */}
-		    <div className="flex justify-center mb-16">
-			<div className="relative w-48 h-4 bg-black rounded-full overflow-hidden">
-			    {/* Línea blanca en movimiento */}
-			    <div className="absolute top-0 left-0 h-4 w-8 bg-white animate-light"></div>
-			    <div className="absolute top-0 left-0 h-4 w-6 bg-white/50 animate-light delay-300"></div>
-			</div>
-		    </div>
+                    {/* Formulario de Registro */}
+                    <div
+                        key={tab + '-register'}
+                        className={`absolute inset-0 transition-all duration-400 ease-in-out ${tab === 'register'
+                            ? 'opacity-100 translate-x-0 z-10'
+                            : 'opacity-0 translate-x-4 pointer-events-none z-0'
+                            }`}
+                    >
+                        {/* Barra negra minimalista con luz en movimiento */}
+                        <div className="flex justify-center mb-16">
+                            <div className="relative w-48 h-4 bg-black rounded-full overflow-hidden">
+                                {/* Línea blanca en movimiento */}
+                                <div className="absolute top-0 left-0 h-4 w-8 bg-white animate-light"></div>
+                                <div className="absolute top-0 left-0 h-4 w-6 bg-white/50 animate-light delay-300"></div>
+                            </div>
+                        </div>
 
-		    <RegisterForm
-			formData={registerForm}
-			onFormChange={handleRegisterChange}
-			touchedFields={registerTouched}
-			onBlurField={handleRegisterBlur}
-			onSubmit={handleRegister}
-		    />
+                        <RegisterForm
+                            formData={registerForm}
+                            onFormChange={handleRegisterChange}
+                            touchedFields={registerTouched}
+                            onBlurField={handleRegisterBlur}
+                            onSubmit={handleRegister}
+                        />
 
-		    <style jsx>{`
+                        <style>{`
 			@keyframes lightMove {
 			    0% { transform: translateX(-100%); opacity: 0.2; }
 			    50% { transform: translateX(100%); opacity: 0.7; }
@@ -229,7 +225,7 @@ export default function Auth() {
 			}
 			.delay-300 { animation-delay: 0.3s; }
 		    `}</style>
-		</div>
+                    </div>
 
 
 

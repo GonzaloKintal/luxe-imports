@@ -10,6 +10,7 @@ import cartsRouter from './routes/carts.routes.js';
 import loginRouter from './routes/login.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import userRoutes from "./routes/user.routes.js";
+import categoriesRouter from './routes/categories.routes.js';
 import { errorHandler } from './middlewares/error-handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -30,6 +31,7 @@ app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 app.use('/api/auth', loginRouter);
 app.use('/api/admin', adminRoutes);
+app.use('/api/categories', categoriesRouter);
 
 // Servir front
 const clientBuildPath = path.join(__dirname, '../client/dist');

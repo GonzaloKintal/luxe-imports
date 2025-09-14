@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import CreateProductForm from './CreateProductForm';
 import CreateAdminForm from './CreateAdminForm';
-import CreateCategoryForm from './CreateCategoryForm';
+import CategoryManager from './CategoryManager';
 import { AnimatePresence } from "framer-motion";
 import PageTransition from '../../PageTransition';
 import ActionButtonsList from './ActionButtonsList';
@@ -63,11 +63,7 @@ export default function AdminActions({ products, setProducts, API_URL }) {
         }
     }
 
-    function handleCreateCategory(form) {
-        // Placeholder para la funcionalidad futura
-        toast.info('Funcionalidad de creación de categorías próximamente');
-        handleCloseForm();
-    }
+    // Ya no se necesita handleCreateCategory, CategoryManager gestiona todo
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -107,10 +103,7 @@ export default function AdminActions({ products, setProducts, API_URL }) {
                     {openForm === 'category' && (
                         <PageTransition key="category-form">
                             <div className="border-t border-gray-200 pt-5 mt-3">
-                                <CreateCategoryForm
-                                onSave={handleCreateCategory}
-                                onCancel={handleCloseForm}
-                                />
+                                <CategoryManager onClose={handleCloseForm} />
                             </div>
                         </PageTransition>
                     )}
