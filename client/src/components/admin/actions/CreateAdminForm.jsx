@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaUserShield, FaTimes, FaTrash, FaEye } from 'react-icons/fa';
-import Swal from 'sweetalert2';
+import ConfirmDeleteAdmin from './ConfirmDeleteAdmin.jsx';
 import { toast } from 'react-toastify';
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -15,6 +15,7 @@ export default function CreateAdminForm({ onSave, onCancel }) {
     const [form, setForm] = useState(initialForm);
     const [admins, setAdmins] = useState([]);
     const [currentUserId, setCurrentUserId] = useState(null);
+    const [deleteModal, setDeleteModal] = useState({ open: false, admin: null });
 
     useEffect(() => {
         setForm(initialForm);
@@ -62,21 +63,19 @@ export default function CreateAdminForm({ onSave, onCancel }) {
         fetchAdmins();
     }
 
-    async function handleDelete(id) {
-        const result = await Swal.fire({
-            title: '¿Eliminar este admin?',
-            text: 'Esta acción no se puede deshacer.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        });
-        if (!result.isConfirmed) return;
+    function openDeleteModal(admin) {
+        setDeleteModal({ open: true, admin });
+    }
+
+    function closeDeleteModal() {
+        setDeleteModal({ open: false, admin: null });
+    }
+
+    async function confirmDeleteAdmin() {
+        if (!deleteModal.admin) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/admin/admins/${id}`, {
+            const res = await fetch(`${API_URL}/api/admin/admins/${deleteModal.admin._id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -88,6 +87,7 @@ export default function CreateAdminForm({ onSave, onCancel }) {
         } catch (err) {
             toast.error(err.message);
         }
+        closeDeleteModal();
     }
 
     return (
@@ -209,7 +209,7 @@ export default function CreateAdminForm({ onSave, onCancel }) {
                                     </div>
                                     <div className="flex gap-2">
                                         <button
-                                            onClick={() => !isSelf && handleDelete(admin._id)}
+                                            onClick={() => !isSelf && openDeleteModal(admin)}
                                             className={`p-2 rounded-lg ${isSelf ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-red-100 hover:bg-red-200 text-red-700'}`}
                                             title={isSelf ? 'No puedes eliminarte a ti mismo' : 'Eliminar'}
                                             disabled={isSelf}
@@ -223,6 +223,14 @@ export default function CreateAdminForm({ onSave, onCancel }) {
                     </ul>
                 )}
             </div>
-        </div>
+        {/* Modal de confirmación de eliminación de admin */}
+        <ConfirmDeleteAdmin
+            open={deleteModal.open}
+            adminName={deleteModal.admin ? `${deleteModal.admin.firstName} ${deleteModal.admin.lastName}` : ''}
+            adminEmail={deleteModal.admin ? deleteModal.admin.email : ''}
+            onConfirm={confirmDeleteAdmin}
+            onCancel={closeDeleteModal}
+        />
+    </div>
     );
 }
