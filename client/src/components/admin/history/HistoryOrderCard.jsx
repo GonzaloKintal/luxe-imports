@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaWhatsapp } from 'react-icons/fa';
 
 export default function HistoryOrderCard({ 
@@ -48,7 +47,7 @@ export default function HistoryOrderCard({
                             </div>
                             
                             <div className="text-sm text-gray-600">
-                                <span className="font-medium">Fecha:</span>{" "}
+                                <span className="font-medium">Fecha de confirmación:</span>{" "}
                                 {order.createdAt ? (
                                     <>
                                     {new Date(order.createdAt).toLocaleDateString("es-AR", {
@@ -79,7 +78,7 @@ export default function HistoryOrderCard({
                 <div className="flex mt-2 justify-start md:justify-end md:mt-0">
                     <div className="flex gap-2">
                         <button
-                            className="px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium transition-colors duration-200"
+                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 shadow-md"
                             onClick={handleToggleExpand}
                         >
                             {expanded ? 'Ocultar productos' : 'Ver productos'}
@@ -90,25 +89,25 @@ export default function HistoryOrderCard({
                 {expanded && Array.isArray(details) && (
                     <div className="mt-4 border-t border-gray-200 pt-4">
                         <div className="space-y-3">
-                            {details.map((p, idx) => (
-                                <div key={p._id || p.id || idx} className="flex justify-between items-center py-3 px-4 bg-white rounded-lg border border-gray-100">
-                                    <div className="flex-1">
-                                        <span className="font-medium text-gray-900">{p.title}</span>
+                            {details.map((p, idx) => {
+                                const price = typeof p.price === 'number' ? p.price : 0;
+                                const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
+                                const subtotal = price * quantity;
+                                return (
+                                    <div key={p._id || p.id || idx} className="flex flex-col md:flex-row justify-between items-center py-3 px-4 bg-white rounded-lg border border-gray-100">
+                                        <div className="flex-1 font-medium text-gray-900">{p.title}</div>
+                                        <div className="flex flex-col md:flex-row md:items-center gap-2 text-sm">
+                                            <span className="text-gray-600">Precio unitario: <span className="font-semibold text-gray-900">${price.toFixed(2)}</span></span>
+                                            <span className="text-gray-600">Cantidad: <span className="font-semibold">x{quantity}</span></span>
+                                            <span className="text-gray-600">Subtotal: <span className="font-semibold text-blue-700">${subtotal.toFixed(2)}</span></span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-4 text-sm">
-                                        <span className="text-gray-600">
-                                            Cantidad: <span className="font-semibold">x{p.quantity}</span>
-                                        </span>
-                                        <span className="font-semibold text-gray-900">
-                                            ${typeof p.price === 'number' ? p.price.toFixed(2) : 'N/A'}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                         <div className="mt-4 pt-4 border-t border-gray-200 text-right">
                             <span className="text-lg font-bold text-gray-900">
-                                Total: ${details.reduce((acc, p) => acc + (p.price || 0) * (p.quantity || 0), 0).toFixed(2)}
+                                Total: ${details.reduce((acc, p) => acc + ((typeof p.price === 'number' ? p.price : 0) * (typeof p.quantity === 'number' ? p.quantity : 0)), 0).toFixed(2)}
                             </span>
                         </div>
                     </div>
