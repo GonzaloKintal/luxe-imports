@@ -67,4 +67,32 @@ router.post("/create-admin", authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
+// Listar todos los admins
+router.get("/admins", authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const admins = await User.find({ role: "admin" }).select("_id email firstName lastName role");
+    res.json(admins);
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener admins" });
+  }
+});
+
+// Eliminar un admin por ID
+router.delete("/admins/:id", authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    // No permitir que el admin se elimine a sí mismo
+    if (req.user._id === id) {
+      return res.status(400).json({ error: "No puedes eliminarte a ti mismo" });
+    }
+    const deleted = await User.findOneAndDelete({ _id: id, role: "admin" });
+    if (!deleted) {
+      return res.status(404).json({ error: "Admin no encontrado" });
+    }
+    res.json({ message: "Admin eliminado correctamente" });
+  } catch (error) {
+    res.status(500).json({ error: "Error al eliminar admin" });
+  }
+});
+
 export default router;

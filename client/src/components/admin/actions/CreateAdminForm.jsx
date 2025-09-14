@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-import { FaUserShield, FaTimes } from 'react-icons/fa';
+import { FaUserShield, FaTimes, FaTrash, FaEye } from 'react-icons/fa';
+import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CreateAdminForm({ onSave, onCancel }) {
 
@@ -10,11 +13,42 @@ export default function CreateAdminForm({ onSave, onCancel }) {
         password: ''
     };
     const [form, setForm] = useState(initialForm);
+    const [admins, setAdmins] = useState([]);
+    const [currentUserId, setCurrentUserId] = useState(null);
 
-    // Limpiar formulario al cerrar
     useEffect(() => {
         setForm(initialForm);
+        fetchAdmins();
+        // Obtener el id del usuario actual del token
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                setCurrentUserId(payload.id || payload._id);
+            } catch {
+                setCurrentUserId(null);
+            }
+        }
     }, []);
+
+    async function fetchAdmins() {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/api/admin/admins`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!res.ok) {
+                toast.error(`Error al obtener admins (${res.status})`);
+                return;
+            }
+            const data = await res.json();
+            setAdmins(data);
+        } catch (err) {
+            toast.error('Error de red o inesperado: ' + err.message);
+        }
+    }
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -25,6 +59,35 @@ export default function CreateAdminForm({ onSave, onCancel }) {
         e.preventDefault();
         onSave(form);
         setForm(initialForm);
+        fetchAdmins();
+    }
+
+    async function handleDelete(id) {
+        const result = await Swal.fire({
+            title: '¿Eliminar este admin?',
+            text: 'Esta acción no se puede deshacer.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+        if (!result.isConfirmed) return;
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/api/admin/admins/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!res.ok) throw new Error('Error al eliminar admin');
+            toast.success('Admin eliminado');
+            fetchAdmins();
+        } catch (err) {
+            toast.error(err.message);
+        }
     }
 
     return (
@@ -123,7 +186,43 @@ export default function CreateAdminForm({ onSave, onCancel }) {
                     </button>
                 </div>
             </form>
+
+            <div className="mt-8">
+                <h4 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                    <FaEye className="text-gray-600" />
+                    Administrar admins
+                </h4>
+                {admins.length === 0 ? (
+                    <div className="text-gray-500 text-sm py-6 text-center">No hay admins creados.</div>
+                ) : (
+                    <ul className="divide-y divide-gray-200">
+                        {admins.map(admin => {
+                            const isSelf = currentUserId === admin._id;
+                            return (
+                                <li key={admin._id} className="py-3 flex items-center justify-between">
+                                    <div>
+                                        <span className="font-bold text-gray-800">{admin.firstName} {admin.lastName}</span>
+                                        <span className="ml-2 text-gray-500 text-sm">{admin.email}</span>
+                                        {isSelf && (
+                                            <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">(Tú)</span>
+                                        )}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => !isSelf && handleDelete(admin._id)}
+                                            className={`p-2 rounded-lg ${isSelf ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-red-100 hover:bg-red-200 text-red-700'}`}
+                                            title={isSelf ? 'No puedes eliminarte a ti mismo' : 'Eliminar'}
+                                            disabled={isSelf}
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    </div>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                )}
+            </div>
         </div>
     );
-    
 }
