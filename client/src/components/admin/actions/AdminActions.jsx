@@ -31,30 +31,33 @@ export default function AdminActions({ products, setProducts, API_URL }) {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al crear admin');
             toast.success('Admin creado correctamente');
-            handleCloseForm();
         } catch (err) {
             toast.error(err.message || 'Error al crear admin');
         }
     }
 
-    async function saveCreate(form) {
+    async function saveCreate(formData) {
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_URL}/api/products/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(form),
+                body: formData,
             });
-            if (!res.ok) throw new Error('Error al crear producto');
+            
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'Error al crear producto');
+            }
+            
             const created = await res.json();
             setProducts([...products, created]);
-            handleCloseForm();
             toast.success('Producto creado correctamente');
-        } catch {
-            toast.error('No se pudo crear el producto');
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error(error.message || 'No se pudo crear el producto');
         }
     }
 

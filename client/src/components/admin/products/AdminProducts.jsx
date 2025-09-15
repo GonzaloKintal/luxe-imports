@@ -130,31 +130,33 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
         setEditingProductId(null);
     }
 
-    async function handleEdit(form) {
+    async function handleEdit({ id: productId, formData }) {
         try {
             const token = localStorage.getItem('token');
-            const productId = form.id;
             
             const res = await fetch(`${API_URL}/api/products/${productId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(form.body),
+                body: formData,
             });
-            
-            if (!res.ok) throw new Error('Error al editar producto');
-            
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'Error al editar producto');
+            }
+
             const updated = await res.json();
             setProducts(products.map(p => (p._id === productId || p.id === productId) ? updated : p));
-            setEditingProductId(null);
             toast.success('Producto editado correctamente');
+            setEditingProductId(null);
         } catch (err) {
             console.error('AdminProducts: handleEdit error:', err);
-            toast.error('No se pudo editar el producto');
+            toast.error(err.message || 'No se pudo editar el producto');
         }
     }
+
 
     const filteredProducts = products
         .filter(p => showActivos ? p.status : !p.status)

@@ -63,7 +63,6 @@ export default function FilteredProductCard({
 
                 <div 
                     className="overflow-hidden transition-all duration-500 ease-in-out"
-                    style={{ maxHeight: `${formHeight}px` }}
                     ref={formRef}
                 >
                     {isEditing && (
