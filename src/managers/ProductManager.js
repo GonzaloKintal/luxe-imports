@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import { io } from "../app.js";
 
 class ProductManager {
   // Obtiene productos destacados
@@ -31,11 +32,33 @@ class ProductManager {
 
   // Actualiza un producto existente, lanza error si no lo encuentra
   async updateProduct(id, updates) {
+    const prevProduct = await Product.findById(id);
     const product = await Product.findByIdAndUpdate(id, updates, { new: true });
     if (!product) {
       const error = new Error("Producto no encontrado");
       error.status = 404;
       throw error;
+    }
+    // Emitir evento de actualización de precio si el precio cambió
+    if (prevProduct && typeof updates.price === "number" && updates.price !== prevProduct.price) {
+      io.emit("priceUpdate", {
+        productId: product._id.toString(),
+        newPrice: updates.price
+      });
+    }
+    // Emitir evento de actualización de stock si el stock cambió
+    if (prevProduct && typeof updates.stock === "number" && updates.stock !== prevProduct.stock) {
+      io.emit("stockUpdate", {
+        productId: product._id.toString(),
+        newStock: updates.stock
+      });
+    }
+    // Emitir evento de actualización de status si el status cambió
+    if (prevProduct && typeof updates.status === "boolean" && updates.status !== prevProduct.status) {
+      io.emit("statusUpdate", {
+        productId: product._id.toString(),
+        newStatus: updates.status
+      });
     }
     // Notificar si el stock es bajo o igual al stock crítico
     const stockCritico =

@@ -1,4 +1,6 @@
 import express from 'express';
+import http from 'http';
+import { Server as SocketIO } from 'socket.io';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -19,6 +21,24 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
+const server = http.createServer(app);
+const io = new SocketIO(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
+
+// WebSocket connection handler
+io.on('connection', (socket) => {
+  console.log('🟢 Cliente conectado vía WebSocket:', socket.id);
+  socket.on('disconnect', () => {
+    console.log('🔴 Cliente desconectado:', socket.id);
+  });
+});
+
+// Export io for use in managers/routes
+export { io };
 
 
 // Middleware
@@ -51,7 +71,8 @@ app.use(errorHandler);
 // Arrancar servidor
 const PORT = process.env.PORT || 3000;
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`🟢 WebSocket activo en http://localhost:${PORT}`);
   });
 });

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { io as socketIOClient } from 'socket.io-client';
 import { toast } from 'react-toastify';
 import { FaWhatsapp } from 'react-icons/fa';
 import Swal from 'sweetalert2';
@@ -13,6 +14,8 @@ export default function ActualCart({
     userInfo,
     API_URL 
 }) {
+    // WebSocket client setup
+    const socketRef = useRef(null);
     
     const [adminPhone, setAdminPhone] = useState('');
     const [adminName, setAdminName] = useState('');
@@ -34,6 +37,38 @@ export default function ActualCart({
         }
         if (products.length && token) fetchAdminInfo();
     }, [products.length, token, API_URL]);
+
+    // WebSocket connection and price update listener
+    useEffect(() => {
+        // Connect only once
+        if (!socketRef.current) {
+            socketRef.current = socketIOClient(API_URL);
+        }
+        const socket = socketRef.current;
+        // Listen for priceUpdate events
+        socket.on('priceUpdate', ({ productId, newPrice }) => {
+            setProducts(prevProducts => prevProducts.map(p =>
+                p._id === productId ? { ...p, price: newPrice } : p
+            ));
+        });
+        // Listen for stockUpdate events
+        socket.on('stockUpdate', ({ productId, newStock }) => {
+            setProducts(prevProducts => prevProducts.map(p =>
+                p._id === productId ? { ...p, stock: newStock } : p
+            ));
+        });
+        // Listen for statusUpdate events
+        socket.on('statusUpdate', ({ productId, newStatus }) => {
+            setProducts(prevProducts => prevProducts.map(p =>
+                p._id === productId ? { ...p, status: newStatus } : p
+            ));
+        });
+        return () => {
+            socket.off('priceUpdate');
+            socket.off('stockUpdate');
+            socket.off('statusUpdate');
+        };
+    }, [API_URL, setProducts]);
 
     const total = products.reduce((acc, p) => acc + (p.price || 0) * p.quantity, 0);
 

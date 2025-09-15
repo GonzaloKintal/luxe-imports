@@ -16,6 +16,13 @@ class CartManager {
       error.status = 404;
       throw error;
     }
+    // Actualizar stock y status en cada producto del carrito
+    cart.products.forEach(item => {
+      if (item.productId) {
+        item.stock = item.productId.stock;
+        item.status = item.productId.status;
+      }
+    });
     return cart;
   }
 
