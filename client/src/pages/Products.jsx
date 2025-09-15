@@ -7,32 +7,30 @@ import ProductList from '../components/products/ProductList';
 
 export default function Products() {
     const [productos, setProductos] = useState([]);
-    const [busqueda, setBusqueda] = useState(sessionStorage.getItem('productosBusqueda') || '');
-    const [filtroCategoria, setFiltroCategoria] = useState(sessionStorage.getItem('productosCategoria') || '');
-    const [filtroStock, setFiltroStock] = useState(sessionStorage.getItem('productosStock') || 'all');
-    const [ordenPrecio, setOrdenPrecio] = useState(sessionStorage.getItem('productosOrden') || '');
+
+    const filtrosGuardados = JSON.parse(sessionStorage.getItem('productosFiltros') || '{}');
+    const [busqueda, setBusqueda] = useState(filtrosGuardados.busqueda || '');
+    const [filtroCategoria, setFiltroCategoria] = useState(filtrosGuardados.filtroCategoria || '');
+    const [filtroStock, setFiltroStock] = useState(filtrosGuardados.filtroStock || 'all');
+    const [ordenPrecio, setOrdenPrecio] = useState(filtrosGuardados.ordenPrecio || '');
+
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
 
 
-    // Guardar filtros en sessionStorage cuando cambien
+    // Persistencia de filtros en sessionStorage
     useEffect(() => {
-        sessionStorage.setItem('productosBusqueda', busqueda);
-    }, [busqueda]);
+        sessionStorage.setItem('productosFiltros', JSON.stringify({
+            busqueda,
+            filtroCategoria,
+            filtroStock,
+            ordenPrecio
+        }));
+    }, [busqueda, filtroCategoria, filtroStock, ordenPrecio]);
 
-    useEffect(() => {
-        sessionStorage.setItem('productosCategoria', filtroCategoria);
-    }, [filtroCategoria]);
-
-    useEffect(() => {
-        sessionStorage.setItem('productosStock', filtroStock);
-    }, [filtroStock]);
-
-    useEffect(() => {
-        sessionStorage.setItem('productosOrden', ordenPrecio);
-    }, [ordenPrecio]);
 
     // 1️⃣ Fetch de productos
     useEffect(() => {

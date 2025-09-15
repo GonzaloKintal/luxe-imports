@@ -138,7 +138,7 @@ return (
         <button
           className={`flex-1 py-2.5 text-sm font-medium transition-all duration-200 rounded-md ${
             tab === "login"
-              ? "bg-white text-gray-900 shadow-sm"
+              ? "bg-gray-800 text-white shadow-sm"
               : "text-gray-600 hover:text-gray-900"
           }`}
           onClick={() => setTab("login")}
@@ -148,7 +148,7 @@ return (
         <button
           className={`flex-1 py-2.5 text-sm font-medium transition-all duration-200 rounded-md ${
             tab === "register"
-              ? "bg-white text-gray-900 shadow-sm"
+              ? "bg-gray-800 text-white shadow-sm"
               : "text-gray-600 hover:text-gray-900"
           }`}
           onClick={() => setTab("register")}
@@ -156,6 +156,7 @@ return (
           Registrarse
         </button>
       </div>
+
 
       {/* Formularios */}
       <div className="relative">

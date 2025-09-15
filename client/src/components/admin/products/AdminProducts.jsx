@@ -11,14 +11,29 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
     const [cotizacion, setCotizacion] = useState(null);
     const [loadingCotizacion, setLoadingCotizacion] = useState(true);
     const [errorCotizacion, setErrorCotizacion] = useState(null);
-    const [categoryFilter, setCategoryFilter] = useState('');
-    const [showActivos, setShowActivos] = useState(true);
-    const [search, setSearch] = useState("");
-    const [stockFilter, setStockFilter] = useState('todos');
+
+    const filtrosGuardados = JSON.parse(sessionStorage.getItem('adminProductosFiltros') || '{}');
+    const [categoryFilter, setCategoryFilter] = useState(filtrosGuardados.categoryFilter || '');
+    const [showActivos, setShowActivos] = useState(
+        filtrosGuardados.showActivos !== undefined ? filtrosGuardados.showActivos : true
+    );
+    const [search, setSearch] = useState(filtrosGuardados.search || '');
+    const [stockFilter, setStockFilter] = useState(filtrosGuardados.stockFilter || 'todos');
+    
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
     const [editingProductId, setEditingProductId] = useState(null);
     const [deleteProductName, setDeleteProductName] = useState('');
+
+    // Persistencia de filtros en sessionStorage
+    useEffect(() => {
+        sessionStorage.setItem('adminProductosFiltros', JSON.stringify({
+            categoryFilter,
+            showActivos,
+            search,
+            stockFilter
+        }));
+    }, [categoryFilter, showActivos, search, stockFilter]);
 
     useEffect(() => {
         async function fetchDolar() {
