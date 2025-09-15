@@ -87,10 +87,10 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ status: false, stock: 0 }),
+                body: JSON.stringify({ status: false }),
             });
             if (!res.ok) throw new Error('Error al eliminar');
-            setProducts(products.map(p => (p._id === deleteId || p.id === deleteId) ? { ...p, status: false, stock: 0 } : p));
+            setProducts(products.map(p => (p._id === deleteId || p.id === deleteId) ? { ...p, status: false } : p));
             toast.success('Producto eliminado correctamente');
         } catch {
             toast.error('No se pudo eliminar el producto');
