@@ -34,7 +34,23 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
             }
         }
         fetchDolar();
-    }, [DOLAR_API_URL]);
+
+        // Al montar el componente, obtener productos actualizados
+        async function fetchProducts() {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/api/products`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Error al obtener productos');
+                const data = await res.json();
+                setProducts(data);
+            } catch (err) {
+                // Opcional: mostrar error
+            }
+        }
+        fetchProducts();
+    }, [DOLAR_API_URL, API_URL, setProducts]);
 
     async function toggleFeatured(product) {
         try {

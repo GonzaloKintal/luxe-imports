@@ -1,6 +1,7 @@
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 import User from "../models/User.js";
+import { io } from "../app.js";
 
 class CartManager {
   // Obtiene todos los carritos
@@ -17,7 +18,7 @@ class CartManager {
       throw error;
     }
     // Actualizar stock y status en cada producto del carrito
-    cart.products.forEach(item => {
+    cart.products.forEach((item) => {
       if (item.productId) {
         item.stock = item.productId.stock;
         item.status = item.productId.status;
@@ -172,6 +173,7 @@ class CartManager {
       error.status = 404;
       throw error;
     }
+    // Permitir siempre eliminar el producto, sin importar el stock
     cart.products.splice(index, 1);
     await cart.save();
     return cart;
@@ -189,8 +191,18 @@ class CartManager {
     if (!item) return null;
     const product = await Product.findById(productId);
     if (!product) throw new Error("Producto no encontrado");
-    if (quantity > product.stock)
+    // Permitir descontar cantidad si la nueva cantidad es menor o igual al stock
+    // Si la cantidad es 0, se debe eliminar el producto (esto lo maneja removeProductFromCart)
+    if (quantity > product.stock) {
+      // Si la operación es para reducir la cantidad, permitir si la nueva cantidad es menor que la actual
+      if (quantity < item.quantity) {
+        item.quantity = quantity;
+        await cart.save();
+        return cart;
+      }
+      // Si la cantidad es mayor, bloquear
       throw new Error("Cantidad supera stock disponible");
+    }
     item.quantity = quantity;
     await cart.save();
     return cart;
@@ -224,6 +236,7 @@ class CartManager {
     if (!cart.products || cart.products.length === 0) {
       throw new Error("El carrito está vacío.");
     }
+    // Importar io para emitir eventos WebSocket
     for (const item of cart.products) {
       const product = await Product.findById(item.productId);
       if (!product)
@@ -237,6 +250,11 @@ class CartManager {
       const product = await Product.findById(item.productId);
       product.stock -= item.quantity;
       await product.save();
+      // Emitir evento de actualización de stock por WebSocket
+      io.emit("stockUpdate", {
+        productId: product._id.toString(),
+        newStock: product.stock,
+      });
       // Notificar si el stock baja a stock crítico
       const stockCritico =
         typeof product.stockCritico === "number" ? product.stockCritico : 3;
