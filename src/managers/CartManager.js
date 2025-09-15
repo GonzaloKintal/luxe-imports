@@ -58,9 +58,9 @@ class CartManager {
     await newCart.save();
     return newCart;
   }
-  // Marcar carrito como pendiente de confirmación
+  // Marcar carrito como pendiente de confirmación y guardar snapshot en products
   async markAsPendingConfirmation(cartId) {
-    const cart = await Cart.findById(cartId);
+    const cart = await Cart.findById(cartId).populate("products.productId");
     if (!cart) {
       const error = new Error("Carrito no encontrado");
       error.status = 404;
@@ -73,6 +73,11 @@ class CartManager {
       error.status = 400;
       throw error;
     }
+    // Guardar snapshot de productos (titulo, precio) en cada item
+    cart.products.forEach(p => {
+      p.title = p.productId?.title || '';
+      p.price = typeof p.productId?.price === 'number' ? p.productId.price : 0;
+    });
     cart.status = "pendiente de confirmacion";
     await cart.save();
     return cart;

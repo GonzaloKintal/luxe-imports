@@ -1,10 +1,9 @@
-
 export default function HistoryItem({ carrito: order, expanded, onToggleExpanded }) {
-    
     const id = order._id || order.id;
-    const productCount = order.products?.length || order.productos?.length || 0;
+    const products = order.products || order.productos || [];
+    const productCount = products.length;
 
-    const total = (order.productos || []).reduce((acc, p) => {
+    const total = products.reduce((acc, p) => {
         const price = typeof p.price === 'number' ? p.price : 0;
         const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
         return acc + price * quantity;
@@ -22,20 +21,20 @@ export default function HistoryItem({ carrito: order, expanded, onToggleExpanded
                         <p className="text-sm text-gray-600">
                             <span className="font-medium">Fecha de creación:</span>{' '}
                             {new Date(order.createdAt).toLocaleDateString('es-AR', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
                             })}{' '}
                             {new Date(order.createdAt).toLocaleTimeString('es-AR', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: false,
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false,
                             })}hs
                         </p>
                     )}
                 </div>
 
-                 <div className="flex mt-2 justify-end">
+                <div className="flex mt-2 justify-end">
                     <div className="flex gap-2">
                         <button
                             onClick={() => onToggleExpanded(id)}
@@ -46,26 +45,31 @@ export default function HistoryItem({ carrito: order, expanded, onToggleExpanded
                     </div>
                 </div>
             </div>
-            
+
             {expanded && (
                 <ul className="mt-4 space-y-2 list-none">
-                    {(order.productos || []).map((p, idx) => (
-                        <li 
-                            key={p._id || idx} 
-                            className="flex items-center gap-3 border-b border-gray-300 pb-2"
-                        >
-                            <img
-                                src={p.thumbnails?.[0] || 'https://placehold.co/80x80'}
-                                alt={p.title}
-                                className="w-16 h-16 object-cover rounded-md shadow bg-gray-200 flex-shrink-0"
-                            />
-                            <span className="font-semibold text-black truncate">{p.title}</span>
-                            <span className="ml-2 text-gray-700">x{p.quantity}</span>
-                            <span className="ml-2 text-gray-700">
-                                ${typeof p.price === 'number' ? p.price.toFixed(2) : 'N/A'}
-                            </span>
-                        </li>
-                    ))}
+                    {products.map((p, idx) => {
+                        const title = p.title || (p.productId && (p.productId.title || p.productId.name)) || 'Producto';
+                        const price = typeof p.price === 'number' ? p.price : (p.productId && typeof p.productId.price === 'number' ? p.productId.price : 0);
+                        const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
+                        const subtotal = price * quantity;
+                        return (
+                            <li
+                                key={p._id || idx}
+                                className="flex items-center gap-3 border-b border-gray-300 pb-2"
+                            >
+                                <img
+                                    src={p.thumbnails?.[0] || 'https://placehold.co/80x80'}
+                                    alt={title}
+                                    className="w-16 h-16 object-cover rounded-md shadow bg-gray-200 flex-shrink-0"
+                                />
+                                <span className="font-semibold text-black truncate">{title}</span>
+                                <span className="ml-2 text-gray-700">x{quantity}</span>
+                                <span className="ml-2 text-gray-700">${price.toFixed(2)}</span>
+                                <span className="ml-2 text-blue-700 font-semibold">Subtotal: ${subtotal.toFixed(2)}</span>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
 
@@ -77,5 +81,4 @@ export default function HistoryItem({ carrito: order, expanded, onToggleExpanded
 
         </div>
     );
-
 }

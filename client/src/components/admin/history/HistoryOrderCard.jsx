@@ -86,16 +86,17 @@ export default function HistoryOrderCard({
                     </div>
                 </div>
 
-                {expanded && Array.isArray(details) && (
+                {expanded && Array.isArray(order.products) && (
                     <div className="mt-4 border-t border-gray-200 pt-4">
                         <div className="space-y-3">
-                            {details.map((p, idx) => {
-                                const price = typeof p.price === 'number' ? p.price : 0;
+                            {order.products.map((p, idx) => {
+                                const title = p.title || (p.productId && (p.productId.title || p.productId.name)) || 'Producto';
+                                const price = typeof p.price === 'number' ? p.price : (p.productId && typeof p.productId.price === 'number' ? p.productId.price : 0);
                                 const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
                                 const subtotal = price * quantity;
                                 return (
                                     <div key={p._id || p.id || idx} className="flex flex-col md:flex-row justify-between items-center py-3 px-4 bg-white rounded-lg border border-gray-100">
-                                        <div className="flex-1 font-medium text-gray-900">{p.title}</div>
+                                        <div className="flex-1 font-medium text-gray-900">{title}</div>
                                         <div className="flex flex-col md:flex-row md:items-center gap-2 text-sm">
                                             <span className="text-gray-600">Precio unitario: <span className="font-semibold text-gray-900">${price.toFixed(2)}</span></span>
                                             <span className="text-gray-600">Cantidad: <span className="font-semibold">x{quantity}</span></span>
@@ -107,7 +108,11 @@ export default function HistoryOrderCard({
                         </div>
                         <div className="mt-4 pt-4 border-t border-gray-200 text-right">
                             <span className="text-lg font-bold text-gray-900">
-                                Total: ${details.reduce((acc, p) => acc + ((typeof p.price === 'number' ? p.price : 0) * (typeof p.quantity === 'number' ? p.quantity : 0)), 0).toFixed(2)}
+                                Total: {order.products.reduce((acc, p) => {
+                                    const price = typeof p.price === 'number' ? p.price : (p.productId && typeof p.productId.price === 'number' ? p.productId.price : 0);
+                                    const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
+                                    return acc + price * quantity;
+                                }, 0).toFixed(2)}
                             </span>
                         </div>
                     </div>
