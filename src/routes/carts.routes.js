@@ -29,7 +29,9 @@ router.post('/:cid/confirm-request', authenticateToken, async (req, res, next) =
 router.get('/pendientes', authenticateToken, isAdmin, async (req, res, next) => {
   try {
     const allCarts = await manager.getCarts();
-    const pendingCarts = allCarts.filter(cart => cart.status === 'pendiente de confirmacion');
+    const pendingCarts = allCarts
+      .filter(cart => cart.status === 'pendiente de confirmacion')
+      .sort((a, b) => (b.pendingAt ? new Date(b.pendingAt) : 0) - (a.pendingAt ? new Date(a.pendingAt) : 0));
     res.json(pendingCarts);
   } catch (error) {
     next(error);
@@ -55,7 +57,12 @@ router.get('/history', authenticateToken, async (req, res, next) => {
   try {
     const userId = req.user._id || req.user.id;
     const carts = await manager.getPurchaseHistoryByUserId(userId);
-    res.json(carts);
+    // Ordenar: confirmados por confirmedAt, pendientes por pendingAt, ambos descendente
+    const sorted = carts.sort((a, b) => {
+      const getDate = cart => cart.status === 'confirmado' ? new Date(cart.confirmedAt || 0) : new Date(cart.pendingAt || 0);
+      return getDate(b) - getDate(a);
+    });
+    res.json(sorted);
   } catch (error) {
     next(error);
   }
@@ -65,7 +72,9 @@ router.get('/history', authenticateToken, async (req, res, next) => {
 router.get('/confirmados', authenticateToken, isAdmin, async (req, res, next) => {
   try {
     const allCarts = await manager.getCarts();
-    const confirmedCarts = allCarts.filter(cart => cart.status === 'confirmado');
+    const confirmedCarts = allCarts
+      .filter(cart => cart.status === 'confirmado')
+      .sort((a, b) => (b.confirmedAt ? new Date(b.confirmedAt) : 0) - (a.confirmedAt ? new Date(a.confirmedAt) : 0));
     res.json(confirmedCarts);
   } catch (error) {
     next(error);
