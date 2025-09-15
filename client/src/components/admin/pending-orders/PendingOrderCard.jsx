@@ -55,6 +55,34 @@ export default function PendingOrderCard({ order, onConfirm, onDelete }) {
                                     'N/A'
                                 )}
                             </div>
+                            {order.pendingAt && (
+                                <span className="text-sm text-gray-600">
+                                    <span className="font-medium">Pendiente de confirmación:</span>{' '}
+                                    {`${new Date(order.pendingAt).toLocaleDateString('es-AR', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                    })} ${new Date(order.pendingAt).toLocaleTimeString('es-AR', {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: false,
+                                    })}hs`}
+                                </span>
+                            )}
+                            {order.confirmedAt && (
+                                <span className="text-sm text-gray-600">
+                                    <span className="font-medium">Confirmado:</span>{' '}
+                                    {`${new Date(order.confirmedAt).toLocaleDateString('es-AR', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                    })} ${new Date(order.confirmedAt).toLocaleTimeString('es-AR', {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: false,
+                                    })}hs`}
+                                </span>
+                            )}
                             <div>
                                 <span className="font-medium">Estado:</span>{' '}
                                 <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">

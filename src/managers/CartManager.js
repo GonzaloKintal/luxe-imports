@@ -74,11 +74,12 @@ class CartManager {
       throw error;
     }
     // Guardar snapshot de productos (titulo, precio) en cada item
-    cart.products.forEach(p => {
-      p.title = p.productId?.title || '';
-      p.price = typeof p.productId?.price === 'number' ? p.productId.price : 0;
+    cart.products.forEach((p) => {
+      p.title = p.productId?.title || "";
+      p.price = typeof p.productId?.price === "number" ? p.productId.price : 0;
     });
     cart.status = "pendiente de confirmacion";
+    cart.pendingAt = new Date();
     await cart.save();
     return cart;
   }
@@ -205,14 +206,15 @@ class CartManager {
       product.stock -= item.quantity;
       await product.save();
       // Notificar si el stock baja a stock crítico
-      const stockCritico = typeof product.stockCritico === 'number' ? product.stockCritico : 3;
-      if (typeof product.stock === 'number' && product.stock <= stockCritico) {
-        const { notifyAdminLowStock } = await import('../utils/notifyAdmin.js');
+      const stockCritico =
+        typeof product.stockCritico === "number" ? product.stockCritico : 3;
+      if (typeof product.stock === "number" && product.stock <= stockCritico) {
+        const { notifyAdminLowStock } = await import("../utils/notifyAdmin.js");
         await notifyAdminLowStock(product);
       }
     }
     cart.status = "confirmado";
-    cart.paidAt = new Date();
+    cart.confirmedAt = new Date();
     await cart.save();
   }
 

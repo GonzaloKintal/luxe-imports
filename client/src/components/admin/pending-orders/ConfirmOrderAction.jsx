@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { FaTimes, FaCheck, FaTrash } from 'react-icons/fa';
 
-export default function ConfirmOrderAction({ 
-    open, 
-    title, 
-    message, 
-    onConfirm, 
-    onCancel, 
+export default function ConfirmOrderAction({
+    open,
+    title,
+    message,
+    onConfirm,
+    onCancel,
     orderInfo,
     actionType = 'confirm' // 'confirm' o 'delete'
 }) {
@@ -27,7 +27,7 @@ export default function ConfirmOrderAction({
     }, [open]);
 
     if (!open) return null;
-    
+
     const isDelete = actionType === 'delete';
     const actionColor = isDelete ? 'red' : 'green';
     const ActionIcon = isDelete ? FaTrash : FaCheck;
@@ -39,11 +39,11 @@ export default function ConfirmOrderAction({
                 <h2 className="text-lg font-bold mb-3 text-gray-900 text-center">
                     {title}
                 </h2>
-                
+
                 <p className="mb-4 text-gray-700 text-center text-sm font-medium">
                     {message}
                 </p>
-                
+
                 {orderInfo && (
                     <div className={`mb-6 p-3 bg-${actionColor}-50 border border-${actionColor}-200 rounded-md text-${actionColor}-700 text-center`}>
                         <p className="font-semibold text-sm">
@@ -56,12 +56,22 @@ export default function ConfirmOrderAction({
                         )}
                         {orderInfo.date && (
                             <p className="text-xs mt-1">
-                                Fecha: {orderInfo.date}
+                                Fecha de creación: {orderInfo.date}
+                            </p>
+                        )}
+                        {orderInfo.pendingAt && (
+                            <p className="text-xs mt-1">
+                                Pendiente de confirmación: {orderInfo.pendingAt}
+                            </p>
+                        )}
+                        {orderInfo.confirmedAt && (
+                            <p className="text-xs mt-1">
+                                Confirmado: {orderInfo.confirmedAt}
                             </p>
                         )}
                     </div>
                 )}
-                
+
                 <div className="flex justify-center gap-3 pt-3 border-t border-gray-200">
                     <button
                         onClick={onCancel}
@@ -70,7 +80,7 @@ export default function ConfirmOrderAction({
                         <FaTimes className="text-xs" />
                         Cancelar
                     </button>
-                    
+
                     <button
                         onClick={onConfirm}
                         className={`px-4 py-2 text-sm rounded-md bg-${actionColor}-600 hover:bg-${actionColor}-700 text-white font-semibold transition-colors duration-200 flex items-center gap-1`}
@@ -82,5 +92,5 @@ export default function ConfirmOrderAction({
             </div>
         </div>
     );
-    
+
 }

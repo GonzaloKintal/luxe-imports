@@ -20,16 +20,43 @@ export default function HistoryItem({ carrito: order, expanded, onToggleExpanded
                     {order.createdAt && (
                         <p className="text-sm text-gray-600">
                             <span className="font-medium">Fecha de creación:</span>{' '}
-                            {new Date(order.createdAt).toLocaleDateString('es-AR', {
+                            {`${new Date(order.createdAt).toLocaleDateString('es-AR', {
                                 day: '2-digit',
                                 month: '2-digit',
                                 year: 'numeric',
-                            })}{' '}
-                            {new Date(order.createdAt).toLocaleTimeString('es-AR', {
+                            })} ${new Date(order.createdAt).toLocaleTimeString('es-AR', {
                                 hour: '2-digit',
                                 minute: '2-digit',
                                 hour12: false,
-                            })}hs
+                            })}hs`}
+                        </p>
+                    )}
+                    {order.pendingAt && (
+                        <p className="text-sm text-gray-600">
+                            <span className="font-medium">Pendiente de confirmación:</span>{' '}
+                            {`${new Date(order.pendingAt).toLocaleDateString('es-AR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                            })} ${new Date(order.pendingAt).toLocaleTimeString('es-AR', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false,
+                            })}hs`}
+                        </p>
+                    )}
+                    {order.confirmedAt && (
+                        <p className="text-sm text-gray-600">
+                            <span className="font-medium">Confirmado:</span>{' '}
+                            {`${new Date(order.confirmedAt).toLocaleDateString('es-AR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                            })} ${new Date(order.confirmedAt).toLocaleTimeString('es-AR', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false,
+                            })}hs`}
                         </p>
                     )}
                 </div>

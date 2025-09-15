@@ -15,7 +15,7 @@ export default function PendingOrders() {
         orderId: null,
         orderInfo: null
     });
-    
+
     const API_URL = import.meta.env.VITE_API_URL;
 
     React.useEffect(() => {
@@ -48,11 +48,9 @@ export default function PendingOrders() {
             orderInfo: {
                 id: cartId,
                 userName: order?.userId ? `${order.userId.firstName} ${order.userId.lastName}` : '',
-                date: order?.createdAt ? new Date(order.createdAt).toLocaleDateString("es-AR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                }) : ''
+                date: order?.createdAt ? `${new Date(order.createdAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.createdAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : '',
+                pendingAt: order?.pendingAt ? `${new Date(order.pendingAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.pendingAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : '',
+                confirmedAt: order?.confirmedAt ? `${new Date(order.confirmedAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.confirmedAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : ''
             }
         });
     }
@@ -66,18 +64,16 @@ export default function PendingOrders() {
             orderInfo: {
                 id: cartId,
                 userName: order?.userId ? `${order.userId.firstName} ${order.userId.lastName}` : '',
-                date: order?.createdAt ? new Date(order.createdAt).toLocaleDateString("es-AR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                }) : ''
+                date: order?.createdAt ? `${new Date(order.createdAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.createdAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : '',
+                pendingAt: order?.pendingAt ? `${new Date(order.pendingAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.pendingAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : '',
+                confirmedAt: order?.confirmedAt ? `${new Date(order.confirmedAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.confirmedAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : ''
             }
         });
     }
 
     async function handleConfirmAction() {
         const { type, orderId } = confirmDialog;
-        
+
         try {
             const token = localStorage.getItem('token');
             let res;
@@ -101,10 +97,10 @@ export default function PendingOrders() {
 
             // Actualizar la lista de pedidos
             setOrders(orders.filter(o => o._id !== orderId));
-            
+
             // Cerrar el dialog
             setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
-            
+
         } catch (err) {
             toast.error(err.message || 'Error al procesar la solicitud');
             setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
@@ -143,7 +139,7 @@ export default function PendingOrders() {
                 open={confirmDialog.open}
                 title={confirmDialog.type === 'confirm' ? '¿Confirmar Pedido?' : '¿Eliminar Pedido?'}
                 message={
-                    confirmDialog.type === 'confirm' 
+                    confirmDialog.type === 'confirm'
                         ? 'Esta acción marcará el pedido como completado y lo removerá de la lista de pendientes.'
                         : 'Esta acción eliminará permanentemente el pedido. No se puede deshacer.'
                 }

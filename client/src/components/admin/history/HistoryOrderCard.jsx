@@ -1,11 +1,11 @@
 import { FaWhatsapp } from 'react-icons/fa';
 
-export default function HistoryOrderCard({ 
-    order, 
-    expanded, 
-    details, 
-    onToggleExpand, 
-    onFetchDetails 
+export default function HistoryOrderCard({
+    order,
+    expanded,
+    details,
+    onToggleExpand,
+    onFetchDetails
 }) {
 
     const cartId = order._id;
@@ -31,38 +31,63 @@ export default function HistoryOrderCard({
                                 {order.userId?.firstName} {order.userId?.lastName}
                                 {order.userId?.email && (
                                     <span className="text-gray-500 ml-1">
-                                    ({order.userId.email})
+                                        ({order.userId.email})
                                     </span>
                                 )}
                                 {order.userId?.telefono && (
                                     <a
-                                    href={`https://wa.me/${order.userId.telefono.replace(/[^\d]/g, '')}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="ml-2 text-green-600 hover:text-green-800"
+                                        href={`https://wa.me/${order.userId.telefono.replace(/[^\d]/g, '')}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="ml-2 text-green-600 hover:text-green-800"
                                     >
                                         <FaWhatsapp className="inline-block text-lg" />
                                     </a>
                                 )}
                             </div>
-                            
-                            <div className="text-sm text-gray-600">
-                                <span className="font-medium">Fecha de confirmación:</span>{" "}
-                                {order.createdAt ? (
-                                    <>
-                                    {new Date(order.createdAt).toLocaleDateString("es-AR", {
-                                        day: "2-digit",
-                                        month: "2-digit",
-                                        year: "numeric",
-                                    })}{" "}
-                                    {new Date(order.createdAt).toLocaleTimeString("es-AR", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        hour12: false,
-                                    })}hs
-                                    </>
-                                ) : (
-                                    "N/A"
+
+                            <div className="flex flex-col gap-1 text-sm text-gray-600">
+                                {order.createdAt && (
+                                    <span>
+                                        <span className="font-medium">Fecha de creación:</span>{' '}
+                                        {`${new Date(order.createdAt).toLocaleDateString('es-AR', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                        })} ${new Date(order.createdAt).toLocaleTimeString('es-AR', {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false,
+                                        })}hs`}
+                                    </span>
+                                )}
+                                {order.pendingAt && (
+                                    <span>
+                                        <span className="font-medium">Pendiente de confirmación:</span>{' '}
+                                        {`${new Date(order.pendingAt).toLocaleDateString('es-AR', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                        })} ${new Date(order.pendingAt).toLocaleTimeString('es-AR', {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false,
+                                        })}hs`}
+                                    </span>
+                                )}
+                                {order.confirmedAt && (
+                                    <span>
+                                        <span className="font-medium">Confirmado:</span>{' '}
+                                        {`${new Date(order.confirmedAt).toLocaleDateString('es-AR', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                        })} ${new Date(order.confirmedAt).toLocaleTimeString('es-AR', {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false,
+                                        })}hs`}
+                                    </span>
                                 )}
                             </div>
 

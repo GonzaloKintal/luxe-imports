@@ -12,7 +12,8 @@ const cartSchema = new mongoose.Schema({
   products: [cartProductSchema],
   status: { type: String, default: 'abierto' }, // 'abierto', 'pendiente de confirmacion', 'confirmado'
   createdAt: { type: Date, default: Date.now },
-  paidAt: { type: Date },
+  pendingAt: { type: Date }, // fecha cuando pasa a pendiente
+  confirmedAt: { type: Date }, // fecha cuando pasa a confirmado
 });
 
 const Cart = mongoose.model('Cart', cartSchema);
