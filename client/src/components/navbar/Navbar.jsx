@@ -178,14 +178,14 @@ function Navbar() {
                             className={`block py-3 transition-all duration-300 transform hover:translate-x-2 ${isActive('/') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                             onClick={() => setIsOpen(false)}
                         >
-                            Home
+                            Inicio
                         </Link>
                         <Link
                             to="/products"
                             className={`block py-3 transition-all duration-300 transform hover:translate-x-2 ${isActive('/products') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                             onClick={() => setIsOpen(false)}
                         >
-                            Products
+                            Productos
                         </Link>
                         {!user && (
                             <Link
