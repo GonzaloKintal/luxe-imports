@@ -17,13 +17,6 @@ export default function Auth() {
     const { user, setUser } = useContext(UserContext);
     const API_URL = import.meta.env.VITE_API_URL;
 
-    // Si ya está logueado, redirigir a home
-    useEffect(() => {
-        if (user) {
-            navigate('/');
-        }
-    }, [user, navigate]);
-
     // Handlers para cambios en formularios
     const handleLoginChange = (e) => {
         const { name, value } = e.target;
@@ -44,32 +37,42 @@ export default function Auth() {
         setRegisterTouched(prev => ({ ...prev, [field]: true }));
     };
 
-    async function handleLogin(e) {
-        e.preventDefault();
-        setLoginTouched({ email: true, password: true });
-        if (!loginForm.email || !loginForm.password) return;
-        try {
-            const res = await fetch(`${API_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginForm),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Error al iniciar sesión');
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            try {
-                const payload = JSON.parse(atob(data.token.split('.')[1]));
-                setUser(payload);
-            } catch {
-                setUser(null);
-            }
-            toast.success('Sesión iniciada');
-            navigate('/');
-        } catch (err) {
-            toast.error(err.message);
-        }
-    }
+	async function handleLogin(e) {
+	  e.preventDefault();
+	  setLoginTouched({ email: true, password: true });
+	  if (!loginForm.email || !loginForm.password) return;
+
+	  try {
+	    const res = await fetch(`${API_URL}/api/auth/login`, {
+	      method: 'POST',
+	      headers: { 'Content-Type': 'application/json' },
+	      body: JSON.stringify(loginForm),
+	    });
+
+	    const data = await res.json();
+	    if (!res.ok) throw new Error(data.error || 'Error al iniciar sesión');
+
+	    localStorage.setItem('token', data.token);
+	    localStorage.setItem('user', JSON.stringify(data.user));
+
+	    try {
+	      const payload = JSON.parse(atob(data.token.split('.')[1]));
+	      setUser(payload);
+	    } catch {
+	      setUser(null);
+	    }
+
+	    // Mostrar toast y navegar solo cuando se cierre
+	    toast.success('Sesión iniciada', {
+	      autoClose: 1000,
+	      onClose: () => navigate('/'),
+	    });
+
+	  } catch (err) {
+	    toast.error(err.message, { autoClose: 3500 });
+	  }
+	}
+
 
     async function handleRegister(e) {
         e.preventDefault();
@@ -116,7 +119,7 @@ return (
       theme="colored"
     />
 
-    <div className="w-full max-w-md bg-white rounded-lg shadow-sm p-6 border border-gray-100 relative z-10 mt-8">
+    <div className="w-full max-w-md bg-white rounded-lg shadow-sm p-6 border border-gray-100 relative z-10 mt-8 transition-all duration-500 ease-in-out">
       {/* Header con logo y bienvenida */}
       <div className="flex flex-col items-center mb-8">
         <div className="w-12 h-12 rounded-full bg-black flex items-center justify-center mb-3">
@@ -236,6 +239,8 @@ return (
       .animate-pulse-slower {
         animation: pulse-slower 12s ease-in-out infinite;
       }
+
+	
     `}</style>
   </main>
 );
