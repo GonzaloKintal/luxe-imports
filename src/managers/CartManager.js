@@ -73,6 +73,31 @@ class CartManager {
       error.status = 400;
       throw error;
     }
+    // Validar stock y status antes de pasar a pendiente
+    for (const item of cart.products) {
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        const error = new Error(
+          `Producto con ID ${item.productId} no encontrado.`
+        );
+        error.status = 404;
+        throw error;
+      }
+      if (product.status === false) {
+        const error = new Error(
+          `El producto ${product.title} está inactivo y no puede ser comprado.`
+        );
+        error.status = 400;
+        throw error;
+      }
+      if (product.stock < item.quantity) {
+        const error = new Error(
+          `Stock insuficiente para el producto ${product.title}.`
+        );
+        error.status = 400;
+        throw error;
+      }
+    }
     // Guardar snapshot de productos (titulo, precio) en cada item
     cart.products.forEach((p) => {
       p.title = p.productId?.title || "";
