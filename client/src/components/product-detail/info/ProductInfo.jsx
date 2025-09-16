@@ -1,0 +1,138 @@
+import { FaShoppingCart } from 'react-icons/fa';
+
+export default function ProductInfo({
+  product,
+  cartInfo,
+  cotizacion,
+  loadingCotizacion,
+  errorCotizacion,
+  loadingAddToCart,
+  onAddToCart
+}) {
+    
+  const getCategoryName = (category) => {
+    if (typeof category === 'object' && category?.name) {
+      return category.name;
+    }
+    return category || '';
+  };
+
+  const formatPrice = (price, currency = 'USD') => {
+    const locale = currency === 'USD' ? 'en-US' : 'es-AR';
+    return price.toLocaleString(locale, { minimumFractionDigits: 2 });
+  };
+
+  const getPesosPrice = () => {
+    if (loadingCotizacion) return 'Cargando cotización...';
+    if (errorCotizacion) return errorCotizacion;
+    if (!cotizacion) return 'Sin cotización';
+    return `AR$ ${formatPrice(product.price * cotizacion, 'ARS')}`;
+  };
+
+  const cartQuantity = cartInfo.items[product._id] || 0;
+  const isDisabled = product.stock === 0 || loadingAddToCart;
+  const buttonText = product.stock > 0 
+    ? (loadingAddToCart ? 'Agregando...' : 'Agregar al carrito')
+    : 'Sin stock';
+
+  return (
+    <div className="p-6 lg:p-8 lg:border-l lg:border-gray-200">
+      <div className="space-y-6">
+        
+        {/* Título y categoría */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {product.title}
+          </h1>
+          {product.category && (
+            <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+              {getCategoryName(product.category)}
+            </span>
+          )}
+        </div>
+
+        {/* Precios */}
+        <div className="flex flex-col gap-1 mb-2">
+          <div className="text-4xl font-bold text-gray-900">
+            {getPesosPrice()}
+          </div>
+          <div className="text-xl text-gray-700">
+            USD ${formatPrice(product.price)}
+          </div>
+          <div className="text-[10px] text-gray-400 mt-1">
+            * Los precios en pesos argentinos se calculan automáticamente según la cotización oficial y pueden variar al momento de la compra.
+          </div>
+        </div>
+
+        {/* Descripción */}
+        {product.description && (
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Descripción
+            </h3>
+            <p className="text-gray-700 leading-relaxed">
+              {product.description}
+            </p>
+          </div>
+        )}
+
+        {/* Código y stock */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <span className="text-sm text-gray-500">Código:</span>
+            <p className="font-semibold text-gray-900">{product.code}</p>
+          </div>
+          <div>
+            <span className="text-sm text-gray-500">Stock:</span>
+            <p className={`font-semibold ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {product.stock > 0 ? `${product.stock} disponibles` : 'Sin stock'}
+            </p>
+          </div>
+        </div>
+
+        {/* Estado del carrito */}
+        {cartQuantity > 0 && (
+          <div className="flex items-center justify-between bg-gray-100 p-3 rounded-lg">
+            <span className="text-sm text-gray-700">En tu carrito:</span>
+            <span className="font-semibold text-gray-900">{cartQuantity} unidades</span>
+          </div>
+        )}
+
+        {/* Botón agregar al carrito */}
+        <button
+          onClick={onAddToCart}
+          disabled={isDisabled}
+          className={`flex items-center justify-center cursor-pointer w-full py-3 px-6 rounded-lg font-semibold text-lg transition ${
+            !isDisabled
+              ? 'bg-gray-900 text-white hover:bg-gray-800'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+          style={loadingAddToCart ? { opacity: 0.6, pointerEvents: 'none' } : {}}
+        >
+          {product.stock > 0 ? (
+            <span className="flex items-center gap-1">
+              <FaShoppingCart className="text-xl mr-3" />
+              {buttonText}
+            </span>
+          ) : (
+            buttonText
+          )}
+        </button>
+
+        {/* Estado del producto */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">Estado:</span>
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+            product.status 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-red-100 text-red-800'
+          }`}>
+            {product.status ? 'Activo' : 'Inactivo'}
+          </span>
+        </div>
+
+      </div>
+    </div>
+  );
+
+}
