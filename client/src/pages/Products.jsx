@@ -38,7 +38,7 @@ export default function Products() {
             try {
                 setLoading(true);
 
-                const res = await fetch(`${API_URL}/api/products/`);
+                const res = await fetch(`${API_URL}/api/products/active`);
                 if (!res.ok) throw new Error('Error al cargar productos');
                 const data = await res.json();
                 setProductos(data);

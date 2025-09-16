@@ -25,6 +25,17 @@ router.get("/featured", async (req, res, next) => {
   }
 });
 
+// Ruta GET '/active' -> Lista solo productos activos
+router.get("/active", async (req, res, next) => {
+  try {
+    const products = await manager.getProducts();
+    const activeProducts = products.filter(p => p.status === true);
+    res.json(activeProducts);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Ruta GET '/' -> Lista todos los productos
 router.get("/", async (req, res, next) => {
   try {
