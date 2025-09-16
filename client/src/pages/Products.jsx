@@ -100,7 +100,9 @@ export default function Products() {
             })
             .filter(producto =>
                 filtroStock === 'all' ? true : filtroStock === 'in' ? Number(producto.stock) > 0 : Number(producto.stock) <= 0
-            );
+            )
+            // Ordenar por fecha de creación descendente (más reciente primero)
+            .slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         if (ordenPrecio === 'asc') {
             productosFiltrados = productosFiltrados.slice().sort((a, b) => a.price - b.price);
@@ -117,7 +119,7 @@ export default function Products() {
                 </h1>
 
                 {/* Barra de búsqueda y filtros */}
-                <SearchAndFilter 
+                <SearchAndFilter
                     productos={productos}
                     busqueda={busqueda}
                     setBusqueda={setBusqueda}
