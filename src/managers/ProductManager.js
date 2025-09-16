@@ -9,7 +9,9 @@ class ProductManager {
 
   // Obtiene todos los productos desde MongoDB
   async getProducts() {
-    return await Product.find().populate("category");
+    return await Product.find()
+    .populate("category")
+    .sort({ createdAt: -1 });;
   }
 
   // Busca un producto por ID, lanza error si no lo encuentra

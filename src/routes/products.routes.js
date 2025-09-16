@@ -210,7 +210,14 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
     if (updateData.price) updateData.price = parseFloat(updateData.price);
     if (updateData.stock) updateData.stock = parseInt(updateData.stock);
     if (updateData.stockCritico) updateData.stockCritico = parseInt(updateData.stockCritico);
-    if (updateData.status) updateData.status = updateData.status === 'true';
+    if (updateData.status !== undefined) {
+    if (typeof updateData.status === 'string') {
+      updateData.status = updateData.status === 'true';
+    } else {
+      updateData.status = Boolean(updateData.status);
+    }
+  }
+
 
     const updated = await manager.updateProduct(req.params.pid, updateData);
     if (!updated)

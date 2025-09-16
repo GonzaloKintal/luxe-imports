@@ -188,9 +188,7 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
                 return p.category._id === categoryFilter;
             }
             return p.category === categoryFilter;
-        })
-        // Ordenar por fecha de creación descendente (más reciente primero)
-        .slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        });
 
     // Si está cargando productos
     if (loading) {
