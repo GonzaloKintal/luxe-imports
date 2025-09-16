@@ -223,7 +223,7 @@
 
 import { useState, useEffect } from 'react';
 const API_URL = import.meta.env.VITE_API_URL;
-import { FaPlus, FaTimes, FaImage, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaTimes, FaImage, FaTrash, FaSpinner } from 'react-icons/fa';
 
 export default function CreateProductForm({ onSave }) {
     const initialForm = {
@@ -253,7 +253,7 @@ export default function CreateProductForm({ onSave }) {
             if (!res.ok) return;
             const data = await res.json();
             setCategories(data);
-        } catch {}
+        } catch { }
     }
 
     function handleChange(e) {
@@ -274,7 +274,7 @@ export default function CreateProductForm({ onSave }) {
 
     function handleImageSelect(e) {
         const files = Array.from(e.target.files);
-        
+
         // Validar que no excedan 5 imágenes
         if (selectedImages.length + files.length > 5) {
             alert('Máximo 5 imágenes permitidas');
@@ -316,7 +316,7 @@ export default function CreateProductForm({ onSave }) {
 
         try {
             const formData = new FormData();
-            
+
             // Agregar datos del formulario
             Object.keys(form).forEach(key => {
                 formData.append(key, form[key]);
@@ -328,13 +328,13 @@ export default function CreateProductForm({ onSave }) {
             });
 
             await onSave(formData);
-            
+
             // Reset form
             setForm(initialForm);
             // Limpiar previews
             selectedImages.forEach(img => URL.revokeObjectURL(img.preview));
             setSelectedImages([]);
-            
+
         } catch (error) {
             console.error('Error al crear producto:', error);
         } finally {
@@ -427,7 +427,7 @@ export default function CreateProductForm({ onSave }) {
                             placeholder="0"
                         />
                     </div>
-                    
+
                     <div>
                         <label className="block text-gray-700 mb-1 font-semibold text-sm">
                             Stock crítico
@@ -482,7 +482,7 @@ export default function CreateProductForm({ onSave }) {
                             (Máximo 5 imágenes, 5MB c/u)
                         </span>
                     </label>
-                    
+
                     {/* Input de archivos */}
                     <div className="mb-4">
                         <input
@@ -498,10 +498,10 @@ export default function CreateProductForm({ onSave }) {
                             className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300 transition-colors duration-200 text-sm"
                         >
                             <FaImage className="text-gray-600" />
-                            
+
                             {/* Texto en mobile */}
                             <span className="sm:hidden">Seleccionar</span>
-                            
+
                             {/* Texto en sm y más grande */}
                             <span className="hidden sm:inline">Seleccionar imágenes</span>
                         </label>
@@ -535,13 +535,17 @@ export default function CreateProductForm({ onSave }) {
                     <button
                         type="submit"
                         disabled={isUploading}
-                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${
-                            isUploading 
-                                ? 'bg-gray-400 cursor-not-allowed text-gray-700' 
-                                : 'bg-blue-600 hover:bg-blue-700 text-white'
-                        }`}
+                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${isUploading
+                            ? 'bg-gray-400 cursor-not-allowed text-gray-700'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            } flex items-center justify-center gap-2`}
                     >
-                        {isUploading ? 'Creando producto...' : 'Crear producto'}
+                        {isUploading ? (
+                            <>
+                                <FaSpinner className="animate-spin mr-2 text-gray-500" />
+                                Creando producto...
+                            </>
+                        ) : 'Crear producto'}
                     </button>
                 </div>
             </form>

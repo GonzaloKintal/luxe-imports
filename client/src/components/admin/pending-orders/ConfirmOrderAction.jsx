@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { FaTimes, FaCheck, FaTrash } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { FaTimes, FaCheck, FaTrash, FaSpinner } from 'react-icons/fa';
 
 export default function ConfirmOrderAction({
     open,
@@ -26,12 +26,24 @@ export default function ConfirmOrderAction({
         };
     }, [open]);
 
+
+    const [loading, setLoading] = useState(false);
+
     if (!open) return null;
 
     const isDelete = actionType === 'delete';
     const actionColor = isDelete ? 'red' : 'green';
     const ActionIcon = isDelete ? FaTrash : FaCheck;
     const actionText = isDelete ? 'Eliminar' : 'Confirmar';
+
+    const handleConfirm = async () => {
+        setLoading(true);
+        try {
+            await onConfirm();
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50 px-4">
@@ -75,6 +87,7 @@ export default function ConfirmOrderAction({
                 <div className="flex justify-center gap-3 pt-3 border-t border-gray-200">
                     <button
                         onClick={onCancel}
+                        disabled={loading}
                         className="px-4 py-2 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold border border-gray-300 transition-colors duration-200 flex items-center gap-1"
                     >
                         <FaTimes className="text-xs" />
@@ -82,11 +95,21 @@ export default function ConfirmOrderAction({
                     </button>
 
                     <button
-                        onClick={onConfirm}
+                        onClick={handleConfirm}
+                        disabled={loading}
                         className={`px-4 py-2 text-sm rounded-md bg-${actionColor}-600 hover:bg-${actionColor}-700 text-white font-semibold transition-colors duration-200 flex items-center gap-1`}
                     >
-                        <ActionIcon className="text-xs" />
-                        {actionText}
+                        {loading ? (
+                            <>
+                                <FaSpinner className="animate-spin mr-2 text-white" />
+                                {isDelete ? 'Eliminando...' : 'Confirmando...'}
+                            </>
+                        ) : (
+                            <>
+                                <ActionIcon className="text-xs" />
+                                {actionText}
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

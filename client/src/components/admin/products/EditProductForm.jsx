@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { FaPlus, FaTimes, FaImage, FaTrash, FaCheck } from 'react-icons/fa';
+import { FaPlus, FaTimes, FaImage, FaTrash, FaCheck, FaSpinner } from 'react-icons/fa';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function EditProductForm({ product, onSave, onCancel }) {
@@ -14,7 +14,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
         stockCritico: '',
         category: '',
     };
-    
+
     const [form, setForm] = useState(initialForm);
     const [categories, setCategories] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
@@ -32,7 +32,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                 stockCritico: product.stockCritico || '',
                 category: product.category?._id || product.category || '',
             });
-            
+
             // Si hay imágenes existentes, convertirlas al formato de selectedImages
             if (product.thumbnails && Array.isArray(product.thumbnails)) {
                 const existingImages = product.thumbnails.map(url => ({
@@ -44,7 +44,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                 setSelectedImages(existingImages);
             }
         }
-        
+
         fetchCategories();
     }, [product]);
 
@@ -54,7 +54,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
             if (!res.ok) return;
             const data = await res.json();
             setCategories(data);
-        } catch {}
+        } catch { }
     }
 
     function handleChange(e) {
@@ -75,7 +75,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
 
     function handleImageSelect(e) {
         const files = Array.from(e.target.files);
-        
+
         // Validar que no excedan 5 imágenes
         if (selectedImages.length + files.length > 5) {
             alert('Máximo 5 imágenes permitidas');
@@ -117,7 +117,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
 
         try {
             const formData = new FormData();
-            
+
             // Agregar datos del formulario
             Object.keys(form).forEach(key => {
                 formData.append(key, form[key]);
@@ -127,21 +127,21 @@ export default function EditProductForm({ product, onSave, onCancel }) {
             const existingImages = selectedImages
                 .filter(img => img.isExisting)
                 .map(img => img.preview);
-                
+
             const newImages = selectedImages
                 .filter(img => !img.isExisting)
                 .map(img => img.file);
 
             // Agregar imágenes existentes
             formData.append('existingImages', JSON.stringify(existingImages));
-            
+
             // Agregar nuevas imágenes
             newImages.forEach(imageFile => {
                 formData.append('images', imageFile);
             });
 
             await onSave({ id: product._id, formData });
-            
+
         } catch (error) {
             console.error('Error al actualizar producto:', error);
         } finally {
@@ -240,7 +240,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                             placeholder="0"
                         />
                     </div>
-                    
+
                     <div>
                         <label className="block text-gray-700 mb-1 font-semibold text-sm">
                             Stock crítico
@@ -295,7 +295,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                             (Máximo 5 imágenes, 5MB c/u)
                         </span>
                     </label>
-                    
+
                     {/* Input de archivos */}
                     <div className="mb-4">
                         <input
@@ -311,10 +311,10 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                             className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300 transition-colors duration-200 text-sm"
                         >
                             <FaImage className="text-gray-600" />
-                            
+
                             {/* Texto en mobile */}
                             <span className="sm:hidden">Seleccionar</span>
-                            
+
                             {/* Texto en sm y más grande */}
                             <span className="hidden sm:inline">Seleccionar imágenes</span>
                         </label>
@@ -355,13 +355,17 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                     <button
                         type="submit"
                         disabled={isUploading}
-                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${
-                            isUploading 
-                                ? 'bg-gray-400 cursor-not-allowed text-gray-700' 
-                                : 'bg-blue-600 hover:bg-blue-700 text-white'
-                        }`}
+                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${isUploading
+                            ? 'bg-gray-400 cursor-not-allowed text-gray-700'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            } flex items-center justify-center gap-2`}
                     >
-                        {isUploading ? 'Actualizando producto...' : 'Actualizar producto'}
+                        {isUploading ? (
+                            <>
+                                <FaSpinner className="animate-spin mr-2 text-gray-500" />
+                                Actualizando producto...
+                            </>
+                        ) : 'Actualizar producto'}
                     </button>
                 </div>
             </form>

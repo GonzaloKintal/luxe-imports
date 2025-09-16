@@ -93,7 +93,14 @@ export default function CategoryManager() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            if (!res.ok) throw new Error('Error al eliminar categoría');
+            if (!res.ok) {
+                let errorMsg = 'Error al eliminar categoría';
+                try {
+                    const errorData = await res.json();
+                    errorMsg = errorData.error || errorMsg;
+                } catch {}
+                throw new Error(errorMsg);
+            }
             toast.success('Categoría eliminada');
             fetchCategories();
         } catch (err) {

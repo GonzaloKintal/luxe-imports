@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { FaPlus, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaTimes, FaSpinner } from 'react-icons/fa';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CreateCategoryForm({ onSave }) {
@@ -10,6 +10,8 @@ export default function CreateCategoryForm({ onSave }) {
         description: ''
     });
 
+    const [isUploading, setIsUploading] = useState(false);
+
     function handleChange(e) {
         const { name, value } = e.target;
         setForm({ ...form, [name]: value });
@@ -17,6 +19,7 @@ export default function CreateCategoryForm({ onSave }) {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setIsUploading(true);
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_URL}/api/categories`, {
@@ -36,6 +39,8 @@ export default function CreateCategoryForm({ onSave }) {
             if (onSave) onSave(data);
         } catch (err) {
             toast.error(err.message);
+        } finally {
+            setIsUploading(false);
         }
     }
 
@@ -78,9 +83,18 @@ export default function CreateCategoryForm({ onSave }) {
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                     <button
                         type="submit"
-                        className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 text-sm shadow-md"
+                        disabled={isUploading}
+                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${isUploading
+                            ? 'bg-gray-400 cursor-not-allowed text-gray-700'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            } flex items-center justify-center gap-2`}
                     >
-                        Crear categoría
+                        {isUploading ? (
+                            <>
+                                <FaSpinner className="animate-spin mr-2 text-gray-500" />
+                                Creando categoría...
+                            </>
+                        ) : 'Crear categoría'}
                     </button>
                 </div>
             </form>

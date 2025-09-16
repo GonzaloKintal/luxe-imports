@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { FaUserShield, FaTimes, FaTrash, FaEye } from 'react-icons/fa';
+import { FaUserShield, FaTimes, FaTrash, FaEye, FaSpinner } from 'react-icons/fa';
 import ConfirmDeleteAdmin from './ConfirmDeleteAdmin.jsx';
 import { toast } from 'react-toastify';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CreateAdminForm({ onSave }) {
+    const [isUploading, setIsUploading] = useState(false);
 
     const initialForm = {
         firstName: '',
@@ -56,11 +57,16 @@ export default function CreateAdminForm({ onSave }) {
         setForm({ ...form, [name]: value });
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
-        onSave(form);
-        setForm(initialForm);
-        fetchAdmins();
+        setIsUploading(true);
+        try {
+            await onSave(form);
+            setForm(initialForm);
+            await fetchAdmins();
+        } finally {
+            setIsUploading(false);
+        }
     }
 
     function openDeleteModal(admin) {
@@ -163,9 +169,18 @@ export default function CreateAdminForm({ onSave }) {
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                     <button
                         type="submit"
-                        className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 text-sm shadow-md"
+                        disabled={isUploading}
+                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${isUploading
+                            ? 'bg-gray-400 cursor-not-allowed text-gray-700'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            } flex items-center justify-center gap-2`}
                     >
-                        Crear admin
+                        {isUploading ? (
+                            <>
+                                <FaSpinner className="animate-spin mr-2 text-gray-500" />
+                                Creando admin...
+                            </>
+                        ) : 'Crear admin'}
                     </button>
                 </div>
             </form>
@@ -206,14 +221,14 @@ export default function CreateAdminForm({ onSave }) {
                     </ul>
                 )}
             </div>
-        {/* Modal de confirmación de eliminación de admin */}
-        <ConfirmDeleteAdmin
-            open={deleteModal.open}
-            adminName={deleteModal.admin ? `${deleteModal.admin.firstName} ${deleteModal.admin.lastName}` : ''}
-            adminEmail={deleteModal.admin ? deleteModal.admin.email : ''}
-            onConfirm={confirmDeleteAdmin}
-            onCancel={closeDeleteModal}
-        />
-    </div>
+            {/* Modal de confirmación de eliminación de admin */}
+            <ConfirmDeleteAdmin
+                open={deleteModal.open}
+                adminName={deleteModal.admin ? `${deleteModal.admin.firstName} ${deleteModal.admin.lastName}` : ''}
+                adminEmail={deleteModal.admin ? deleteModal.admin.email : ''}
+                onConfirm={confirmDeleteAdmin}
+                onCancel={closeDeleteModal}
+            />
+        </div>
     );
 }

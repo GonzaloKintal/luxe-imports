@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaCheckCircle, FaBan, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaCheckCircle, FaBan, FaEdit, FaTrash, FaSpinner } from 'react-icons/fa';
 import EditProductForm from './EditProductForm';
 
-export default function FilteredProductCard({ 
-    product, 
-    onEdit, 
-    onToggleFeatured, 
-    onDelete, 
+export default function FilteredProductCard({
+    product,
+    onEdit,
+    onToggleFeatured,
+    onDelete,
     onReactivate,
     cotizacion,
     loadingCotizacion,
@@ -20,7 +20,7 @@ export default function FilteredProductCard({
     const [formHeight, setFormHeight] = useState(0);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    
+
     // Actualizar la altura cuando el formulario cambie
     useEffect(() => {
         if (formRef.current && isEditing) {
@@ -29,29 +29,29 @@ export default function FilteredProductCard({
             setFormHeight(0);
         }
     }, [isEditing, product]);
-    
+
     return (
         <li className="bg-white p-4 rounded-xl border border-gray-300 shadow-md transition-all duration-300 hover:shadow-lg">
             <div className="flex flex-col gap-2">
                 {/* Vista siempre visible */}
                 <div className="flex items-center gap-4">
-                    <ProductImage 
+                    <ProductImage
                         src={product.thumbnails?.[0] || 'https://placehold.co/100x100'}
                         alt={product.title}
                     />
-                    
-                    <ProductInfo 
+
+                    <ProductInfo
                         product={product}
                         cotizacion={cotizacion}
                         loadingCotizacion={loadingCotizacion}
                         errorCotizacion={errorCotizacion}
                     />
-                    
+
                 </div>
 
                 <div className="flex justify-start md:justify-end">
                     <div className="flex gap-2">
-                        <ProductActions 
+                        <ProductActions
                             product={product}
                             onEdit={onStartEditing}
                             onToggleFeatured={onToggleFeatured}
@@ -61,12 +61,12 @@ export default function FilteredProductCard({
                     </div>
                 </div>
 
-                <div 
+                <div
                     className="overflow-hidden transition-all duration-500 ease-in-out"
                     ref={formRef}
                 >
                     {isEditing && (
-                        <EditProductForm 
+                        <EditProductForm
                             product={product}
                             onSave={(updatedProduct) => {
                                 onEdit(updatedProduct);
@@ -77,7 +77,7 @@ export default function FilteredProductCard({
                     )}
                 </div>
 
-                </div>
+            </div>
         </li>
     );
 }
@@ -122,12 +122,12 @@ function ProductActions({ product, onEdit, onToggleFeatured, onDelete, onReactiv
 
             {/* Botón de destacado */}
             <FeaturedButton product={product} onToggleFeatured={onToggleFeatured} />
-            
+
             {/* Botón de editar (solo si está activo) */}
             {product.status && (
                 <EditButton product={product} onEdit={onEdit} />
             )}
-            
+
             {/* Botón de eliminar o reactivar */}
             {product.status ? (
                 <DeleteButton product={product} onDelete={onDelete} />
@@ -140,18 +140,38 @@ function ProductActions({ product, onEdit, onToggleFeatured, onDelete, onReactiv
 }
 
 function FeaturedButton({ product, onToggleFeatured }) {
+    const [loading, setLoading] = useState(false);
+
+    const handleClick = async () => {
+        setLoading(true);
+        try {
+            await onToggleFeatured(product);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <button
-            onClick={() => onToggleFeatured(product)}
-            className={`px-4 py-2 rounded-lg border transition-all duration-300 font-semibold flex items-center gap-2 ${
-                product.featured 
-                    ? 'bg-yellow-100 border-yellow-400 text-yellow-800' 
-                    : 'bg-gray-100 border-gray-300 text-gray-700'
-            }`}
+            onClick={handleClick}
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg border transition-all duration-300 font-semibold flex items-center gap-2 ${product.featured
+                ? 'bg-yellow-100 border-yellow-400 text-yellow-800'
+                : 'bg-gray-100 border-gray-300 text-gray-700'
+                } ${loading ? 'opacity-60 pointer-events-none' : ''}`}
             title={product.featured ? 'Quitar de destacados' : 'Marcar como destacado'}
         >
-            {product.featured ? <FaCheckCircle className="text-yellow-500" /> : <FaBan className="text-gray-400" />}
-            {product.featured ? 'Destacado' : 'No destacado'}
+            {loading ? (
+                <>
+                    <FaSpinner className="animate-spin mr-2 text-gray-400" />
+                    <span className="text-ms text-gray-500">Cargando...</span>
+                </>
+            ) : product.featured ? (
+                <FaCheckCircle className="text-yellow-500" />
+            ) : (
+                <FaBan className="text-gray-400" />
+            )}
+            {!loading && (product.featured ? 'Destacado' : 'No destacado')}
         </button>
     );
 }
