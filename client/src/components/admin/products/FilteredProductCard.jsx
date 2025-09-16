@@ -120,8 +120,10 @@ function ProductActions({ product, onEdit, onToggleFeatured, onDelete, onReactiv
     return (
         <div className="flex gap-3 items-center">
 
-            {/* Botón de destacado */}
-            <FeaturedButton product={product} onToggleFeatured={onToggleFeatured} />
+            {/* Botón de destacado (solo si está activo) */}
+            {product.status && (
+                <FeaturedButton product={product} onToggleFeatured={onToggleFeatured} />
+            )}
 
             {/* Botón de editar (solo si está activo) */}
             {product.status && (
