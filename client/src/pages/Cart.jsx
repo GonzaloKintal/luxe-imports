@@ -15,27 +15,10 @@ export default function Cart() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [userInfo, setUserInfo] = useState(null);
-    
+
     const token = localStorage.getItem('token');
     const API_URL = import.meta.env.VITE_API_URL;
 
-    useEffect(() => {
-        async function fetchUserInfo() {
-            try {
-                const res = await fetch(`${API_URL}/api/users/me`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Error al obtener info del usuario');
-                setUserInfo(data);
-            } catch (err) {
-                console.error("Error al obtener /me:", err);
-            }
-        }
-
-        if (token) fetchUserInfo();
-    }, [token, API_URL]);
 
     useEffect(() => {
         // Redirigir si no hay usuario o si es admin
@@ -151,11 +134,11 @@ export default function Cart() {
                     cartId={cartId}
                     setCartId={setCartId}
                     token={token}
-                    userInfo={userInfo}
+                    userInfo={user}
                     API_URL={API_URL}
                 />
 
-                <CartHistory 
+                <CartHistory
                     token={token}
                     API_URL={API_URL}
                 />

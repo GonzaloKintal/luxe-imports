@@ -92,11 +92,13 @@ router.post("/login", async (req, res, next) => {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
-    // Generar token JWT (payload con id, email y rol)
+    // Generar token JWT (payload con id, email, rol, firstName y lastName)
     const tokenPayload = {
       id: user.id,
       email: user.email,
       role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "2h" });
 

@@ -190,8 +190,8 @@ export default function ActualCart({
                 .map(p => `- ${p.title} x${p.quantity} ($${(p.price * p.quantity).toFixed(2)})`)
                 .join('%0A'); // salto de línea en URL
 
-            let nombreUsuario = userInfo?.nombre || userInfo?.email || 'Cliente';
-            const mensaje = `Hola, mi nombre es ${nombreUsuario}, acabo de realizar una compra:%0A${productos}%0A%0AMuchas gracias`;
+            let nombreUsuario = (userInfo?.firstName || '') + (userInfo?.lastName ? ' ' + userInfo.lastName : '') || userInfo?.email || 'Cliente';
+            const mensaje = `Hola, mi nombre es ${nombreUsuario.trim()}, acabo de realizar una compra:%0A${productos}%0A%0AMuchas gracias`;
 
             // Usar el número dinámico del admin
             let phone = adminPhone ? adminPhone.replace(/\D/g, '') : '';

@@ -56,7 +56,6 @@ export default function Auth() {
 			if (!res.ok) throw new Error(data.error || 'Error al iniciar sesión');
 
 			localStorage.setItem('token', data.token);
-			localStorage.setItem('user', JSON.stringify(data.user));
 
 			try {
 				const payload = JSON.parse(atob(data.token.split('.')[1]));
