@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { FaUserCircle, FaChevronDown, FaSignOutAlt, FaUserShield, FaUser, FaSignInAlt } from 'react-icons/fa';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,6 +11,7 @@ function Navbar() {
     const [profileOpen, setProfileOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -51,14 +52,13 @@ function Navbar() {
         sessionStorage.clear();
         setUser(null);
         setProfileOpen(false);
-        
-        toast.success('Has cerrado sesión con éxito', {
-            autoClose: 1500,
-            onClose: () => {
-                window.location.href = '/';
-            }
-        });
+
+        // Navegamos rápidamente
+        setTimeout(() => {
+            navigate('/auth');
+        }, 100);
     };
+
 
     return (
         <>
