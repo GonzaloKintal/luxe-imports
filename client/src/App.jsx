@@ -17,6 +17,7 @@ export default function App() {
 
   return (
     <>
+      
       <Navbar />
 
       <AnimatePresence mode="wait">
@@ -34,6 +35,8 @@ export default function App() {
         </Routes>
 
       </AnimatePresence>
+
+
 
       <Footer />
     </>
