@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { UserContext } from '../context/UserContext';
 import ProductImageGallery from '../components/product-detail/images/ProductImageGallery';
 import ProductInfo from '../components/product-detail/info/ProductInfo';
+import ProductDetailSkeleton from '../components/product-detail/ProductDetailSkeleton';
 
 export default function ProductDetail() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -160,11 +161,7 @@ export default function ProductDetail() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Cargando producto...</div>
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (error) {
