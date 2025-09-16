@@ -7,7 +7,8 @@ export default function RegisterForm({
     onFormChange,
     touchedFields,
     onBlurField,
-    onSubmit
+    onSubmit,
+    loading
 }) {
     // Validación para teléfono internacional (react-phone-input-2 ya valida formato)
     const telefono = formData.telefono || '';
@@ -152,8 +153,10 @@ export default function RegisterForm({
             <button
                 type="submit"
                 className="w-full py-3 rounded-lg bg-black text-white font-medium hover:bg-gray-800 transition-all duration-200 flex items-center justify-center gap-2 shadow-md mt-2"
+                disabled={loading}
+                style={loading ? { opacity: 0.6, pointerEvents: 'none' } : {}}
             >
-                <FaUserPlus /> Registrarse
+                <FaUserPlus /> {loading ? 'Registrando...' : 'Registrarse'}
             </button>
         </form>
     );

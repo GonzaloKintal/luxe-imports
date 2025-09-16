@@ -1,4 +1,4 @@
-export default function CartItem({ product, onAdd, onRemove, onRemoveInactive }) {
+export default function CartItem({ product, onAdd, onRemove, onRemoveInactive, loading = {} }) {
 
     const isInactiveOrNoStock = product.stock === 0 || product.status === false;
     const superaStock = typeof product.stock === 'number' && product.quantity > product.stock;
@@ -43,6 +43,8 @@ export default function CartItem({ product, onAdd, onRemove, onRemoveInactive })
                         onClick={() => onRemoveInactive(product)}
                         className="bg-gray-300 hover:bg-gray-500 text-black hover:text-white px-3 py-2 rounded-full shadow-md"
                         title="Eliminar producto"
+                        disabled={loading.removeInactive}
+                        style={loading.removeInactive ? { opacity: 0.6, pointerEvents: 'none' } : {}}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -54,6 +56,8 @@ export default function CartItem({ product, onAdd, onRemove, onRemoveInactive })
                             onClick={() => onRemove(product)}
                             className="rounded-full bg-black hover:bg-gray-800 text-white h-9 w-9 flex items-center justify-center shadow-md transition-all duration-200"
                             title={product.quantity > 1 ? "Quitar uno" : "Eliminar producto"}
+                            disabled={loading.remove}
+                            style={loading.remove ? { opacity: 0.6, pointerEvents: 'none' } : {}}
                         >
                             {product.quantity > 1 ? '–' : (
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -70,6 +74,8 @@ export default function CartItem({ product, onAdd, onRemove, onRemoveInactive })
                             onClick={() => onAdd(product)}
                             className="rounded-full bg-black hover:bg-gray-800 text-white h-9 w-9 flex items-center justify-center shadow-md transition-all duration-200"
                             title="Agregar uno"
+                            disabled={loading.add}
+                            style={loading.add ? { opacity: 0.6, pointerEvents: 'none' } : {}}
                         >
                             +
                         </button>

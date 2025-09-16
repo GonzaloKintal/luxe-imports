@@ -5,7 +5,8 @@ export default function LoginForm({
     onFormChange, 
     touchedFields, 
     onBlurField, 
-    onSubmit 
+    onSubmit, 
+    loading
 }) {
     return (
         <form onSubmit={onSubmit} className="space-y-4">
@@ -60,8 +61,10 @@ export default function LoginForm({
             <button 
                 type="submit" 
                 className="w-full py-3 rounded-lg bg-black text-white font-medium hover:bg-gray-800 transition-all duration-200 flex items-center justify-center gap-2 shadow-md mt-4"
+                disabled={loading}
+                style={loading ? { opacity: 0.6, pointerEvents: 'none' } : {}}
             >
-                <FaUserCircle /> Iniciar sesión
+                <FaUserCircle /> {loading ? 'Iniciando...' : 'Iniciar sesión'}
             </button>
         </form>
     );

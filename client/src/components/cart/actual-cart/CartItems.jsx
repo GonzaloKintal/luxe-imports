@@ -4,7 +4,8 @@ export default function CartItems({
     products, 
     onAdd, 
     onRemove, 
-    onRemoveInactive 
+    onRemoveInactive, 
+    loadingById = {}
 }) {
     if (!products.length) {
         return (
@@ -24,6 +25,7 @@ export default function CartItems({
                         onAdd={onAdd}
                         onRemove={onRemove}
                         onRemoveInactive={onRemoveInactive}
+                        loading={loadingById[product._id] || {}}
                     />
                 ))}
             </div>

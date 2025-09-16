@@ -5,7 +5,7 @@ import { FaWhatsapp } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import CartItems from './CartItems';
 
-export default function ActualCart({ 
+export default function ActualCart({
     products, 
     setProducts, 
     cartId, 
@@ -14,12 +14,15 @@ export default function ActualCart({
     userInfo,
     API_URL 
 }) {
+    // Estado de loading por producto (id: {add: bool, remove: bool, removeInactive: bool})
+    const [loadingById, setLoadingById] = useState({});
+    // Estado de loading para confirmar compra
+    const [loadingConfirm, setLoadingConfirm] = useState(false);
     // WebSocket client setup
     const socketRef = useRef(null);
     
     const [adminPhone, setAdminPhone] = useState('');
-    const [adminName, setAdminName] = useState('');
-
+    
     useEffect(() => {
         async function fetchAdminInfo() {
             try {
@@ -74,6 +77,7 @@ export default function ActualCart({
 
     async function handleAddToCart(product) {
         if (!token || !cartId) return;
+        setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), add: true } }));
         try {
             const res = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
                 method: 'POST',
@@ -85,11 +89,14 @@ export default function ActualCart({
             toast.success('Producto agregado al carrito');
         } catch (err) {
             toast.error(err.message);
+        } finally {
+            setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), add: false } }));
         }
     }
 
     async function handleRemoveFromCart(product) {
         if (!token || !cartId || product.quantity === 0) return;
+        setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), remove: true } }));
         try {
             if (product.quantity > 1) {
                 // PUT para actualizar cantidad
@@ -124,7 +131,6 @@ export default function ActualCart({
                         })
                             .then(() => {
                                 setCartId(null);
-                                toast.info('El carrito fue eliminado porque quedó vacío.');
                             });
                     }
                     return updated;
@@ -133,11 +139,14 @@ export default function ActualCart({
             }
         } catch (err) {
             toast.error(err.message);
+        } finally {
+            setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), remove: false } }));
         }
     }
 
     async function handleRemoveInactiveOrNoStock(product) {
         if (!token || !cartId || product.quantity === 0) return;
+        setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), removeInactive: true } }));
         try {
             const res = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
                 method: 'DELETE',
@@ -149,10 +158,13 @@ export default function ActualCart({
             toast.success('Producto quitado del carrito');
         } catch (err) {
             toast.error(err.message);
+        } finally {
+            setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), removeInactive: false } }));
         }
     }
 
     async function handleProcessPurchase() {
+        setLoadingConfirm(true);
         try {
             // Confirmar el pago con el backend
             const res = await fetch(`${API_URL}/api/carts/${cartId}/confirm-request`, {
@@ -200,6 +212,8 @@ export default function ActualCart({
             window.open(url, '_blank');
         } catch (err) {
             toast.error(err.message);
+        } finally {
+            setLoadingConfirm(false);
         }
     }
 
@@ -239,7 +253,7 @@ export default function ActualCart({
                     title="Contactar por WhatsApp"
                 >
                     <span className="font-medium text-gray-800 text-lg">
-                        {adminName || 'Luxe Imports'}
+                        {'Luxe Imports'}
                     </span>
                     <div className="bg-green-100 p-1.5 rounded-full group-hover:bg-green-200 transition-colors">
                         <FaWhatsapp className="text-green-600 text-xl" />
@@ -252,6 +266,7 @@ export default function ActualCart({
                 onAdd={handleAddToCart}
                 onRemove={handleRemoveFromCart}
                 onRemoveInactive={handleRemoveInactiveOrNoStock}
+                loadingById={loadingById}
             />
 
             <div className="mt-8 flex justify-between items-center max-w-3xl mx-auto p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -262,11 +277,13 @@ export default function ActualCart({
                 <button
                     onClick={handleProcessPurchase}
                     className="bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+                    disabled={loadingConfirm}
+                    style={loadingConfirm ? { opacity: 0.6, pointerEvents: 'none' } : {}}
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    Finalizar Compra
+                    {loadingConfirm ? 'Procesando...' : 'Finalizar Compra'}
                 </button>
             </div>
         </>

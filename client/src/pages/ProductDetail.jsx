@@ -20,6 +20,7 @@ export default function ProductDetail() {
   const [cotizacion, setCotizacion] = useState(null);
   const [loadingCotizacion, setLoadingCotizacion] = useState(true);
   const [errorCotizacion, setErrorCotizacion] = useState(null);
+  const [loadingAddToCart, setLoadingAddToCart] = useState(false);
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
   const isAdmin = user?.role === 'admin';
@@ -50,11 +51,11 @@ export default function ProductDetail() {
     try {
       setLoading(true);
       const response = await fetch(`${API_URL}/api/products/${id}`);
-      
+
       if (!response.ok) {
         throw new Error('Producto no encontrado');
       }
-      
+
       const data = await response.json();
       setProduct(data);
     } catch (err) {
@@ -67,7 +68,7 @@ export default function ProductDetail() {
   const fetchCart = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
-    
+
     try {
       // Obtener historial
       const historyRes = await fetch(`${API_URL}/api/carts/history`, {
@@ -109,16 +110,14 @@ export default function ProductDetail() {
       toast.error('Los administradores no pueden agregar productos al carrito');
       return;
     }
-    
     const token = localStorage.getItem('token');
     if (!token) {
       toast.error('Debes iniciar sesión para agregar productos al carrito');
       return;
     }
-    
+    setLoadingAddToCart(true);
     try {
       let cartId = cartInfo.cartId;
-      
       // Si no hay carrito, crear uno
       if (!cartId) {
         const createRes = await fetch(`${API_URL}/api/carts`, {
@@ -129,7 +128,6 @@ export default function ProductDetail() {
         if (!createRes.ok) throw new Error(nuevoCarrito.error || 'Error al crear carrito');
         cartId = nuevoCarrito._id;
       }
-      
       // Agregar producto
       const addRes = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
         method: 'POST',
@@ -137,14 +135,12 @@ export default function ProductDetail() {
       });
       const addData = await addRes.json();
       if (!addRes.ok) throw new Error(addData.error || 'Error al agregar producto al carrito');
-      
       // Sincronizar cantidades con backend
       const cartRes = await fetch(`${API_URL}/api/carts/${cartId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const cartProducts = await cartRes.json();
       if (!cartRes.ok) throw new Error(cartProducts.error || 'Error al obtener productos del carrito');
-      
       const items = {};
       for (const p of cartProducts) {
         let prodId = p.productId;
@@ -154,11 +150,12 @@ export default function ProductDetail() {
         if (!prodId) prodId = p._id;
         items[prodId] = p.quantity;
       }
-      
       setCartInfo({ cartId, items });
       toast.success('Producto agregado al carrito');
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setLoadingAddToCart(false);
     }
   }
 
@@ -220,9 +217,8 @@ export default function ProductDetail() {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                        currentImageIndex === index ? 'border-gray-900' : 'border-gray-200'
-                      }`}
+                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${currentImageIndex === index ? 'border-gray-900' : 'border-gray-200'
+                        }`}
                     >
                       <img
                         src={thumbnail}
@@ -308,29 +304,27 @@ export default function ProductDetail() {
                 {/* Botón de compra */}
                 <button
                   onClick={handleAddToCart}
-                  disabled={product.stock === 0}
-                  className={`flex items-center justify-center cursor-pointer w-full py-3 px-6 rounded-lg font-semibold text-lg transition ${
-                    product.stock > 0
-                      ? 'bg-gray-900 text-white hover:bg-gray-800'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                  disabled={product.stock === 0 || loadingAddToCart}
+                  className={`flex items-center justify-center cursor-pointer w-full py-3 px-6 rounded-lg font-semibold text-lg transition ${product.stock > 0 && !loadingAddToCart
+                    ? 'bg-gray-900 text-white hover:bg-gray-800'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  style={loadingAddToCart ? { opacity: 0.6, pointerEvents: 'none' } : {}}
                 >
-                    {product.stock > 0 ? (
-                        <span className="flex items-center gap-1">
-                          <FaShoppingCart className="text-xl mr-3"/> Agregar al carrito
-                        </span>
-                        ) : (
-                        'Sin stock'
-                    )}
-
+                  {product.stock > 0 ? (
+                    <span className="flex items-center gap-1">
+                      <FaShoppingCart className="text-xl mr-3" /> {loadingAddToCart ? 'Agregando...' : 'Agregar al carrito'}
+                    </span>
+                  ) : (
+                    'Sin stock'
+                  )}
                 </button>
 
                 {/* Estado del producto */}
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">Estado:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    product.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
                     {product.status ? 'Activo' : 'Inactivo'}
                   </span>
                 </div>
