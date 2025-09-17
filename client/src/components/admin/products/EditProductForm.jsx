@@ -99,13 +99,21 @@ export default function EditProductForm({ product, onSave, onCancel }) {
         setSelectedImages(prev => [...prev, ...newImages]);
     }
 
+    // Guardar imágenes eliminadas para informar al backend
+    const [deletedImages, setDeletedImages] = useState([]);
+
     function removeImage(imageId) {
         setSelectedImages(prev => {
             const updated = prev.filter(img => img.id !== imageId);
-            // Limpiar URL del objeto que se elimina para evitar memory leaks
             const imageToRemove = prev.find(img => img.id === imageId);
-            if (imageToRemove && !imageToRemove.isExisting) {
-                URL.revokeObjectURL(imageToRemove.preview);
+            if (imageToRemove) {
+                // Si es una imagen existente, guardar su URL para eliminar en backend
+                if (imageToRemove.isExisting) {
+                    setDeletedImages(d => [...d, imageToRemove.preview]);
+                } else {
+                    // Limpiar URL del objeto que se elimina para evitar memory leaks
+                    URL.revokeObjectURL(imageToRemove.preview);
+                }
             }
             return updated;
         });
@@ -141,7 +149,13 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                 formData.append('images', imageFile);
             });
 
+            // Si hay imágenes eliminadas, informar al backend{
+            formData.append('deletedImages', JSON.stringify(deletedImages));
+
             await onSave({ id: product._id, formData });
+
+            // Limpiar deletedImages después de guardar
+            setDeletedImages([]);
 
         } catch (error) {
             console.error('Error al actualizar producto:', error);

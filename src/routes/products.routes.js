@@ -2,6 +2,7 @@ import express from "express";
 import productManager from "../managers/ProductManager.js";
 import { authenticateToken, isAdmin } from "../middlewares/auth.js";
 import { uploadProductImages } from "../config/cloudinary.js";
+import cloudinary from "../config/cloudinary.js";
 
 const router = express.Router();
 const manager = productManager;
@@ -320,9 +321,9 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
   try {
     const updateData = { ...req.body };
     
+
     // Manejar imágenes
     let finalThumbnails = [];
-    
     // Obtener imágenes actuales que se mantienen
     if (req.body.currentImages) {
       try {
@@ -334,20 +335,51 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
         console.log('Error parsing currentImages:', e);
       }
     }
-    
+
+    // Eliminar imágenes de Cloudinary si corresponde
+    if (req.body.deletedImages) {
+      try {
+        const deletedImages = JSON.parse(req.body.deletedImages);
+        console.log('Intentando eliminar imágenes de Cloudinary:', deletedImages);
+        if (Array.isArray(deletedImages) && deletedImages.length > 0) {
+          // Eliminar cada imagen de Cloudinary
+          for (const url of deletedImages) {
+            // Extraer public_id de la URL de Cloudinary (incluyendo carpeta)
+            const match = url.match(/\/upload\/[^/]+\/(.+)\.[a-zA-Z]+$/);
+            console.log('URL:', url, 'Match:', match);
+            if (match) {
+              const publicId = match[1];
+              console.log('Eliminando publicId:', publicId);
+              try {
+                const result = await cloudinary.uploader.destroy(publicId);
+                console.log('Resultado eliminación:', result);
+              } catch (err) {
+                console.log('Error eliminando imagen de Cloudinary:', err);
+              }
+            } else {
+              console.log('No se pudo extraer publicId de la URL:', url);
+            }
+          }
+        }
+      } catch (e) {
+        console.log('Error parsing deletedImages:', e);
+      }
+    }
+
     // Agregar nuevas imágenes si las hay
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map(file => file.path);
       finalThumbnails = [...finalThumbnails, ...newImages];
     }
-    
+
     // Actualizar thumbnails solo si hay cambios en las imágenes
     if (req.files?.length > 0 || req.body.currentImages) {
       updateData.thumbnails = finalThumbnails;
     }
 
-    // Limpiar currentImages del updateData ya que no es un campo del modelo
+    // Limpiar campos temporales
     delete updateData.currentImages;
+    delete updateData.deletedImages;
 
     // Convertir tipos de datos si es necesario
     if (updateData.price) updateData.price = parseFloat(updateData.price);
