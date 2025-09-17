@@ -1,5 +1,6 @@
 import React from 'react';
 import FilteredProductCard from './FilteredProductCard';
+import FilteredProductCardSkeleton from './FilteredProductCardSkeleton';
 
 export default function FilteredProductsList({ 
     filteredProducts, 
@@ -12,15 +13,16 @@ export default function FilteredProductsList({
     errorCotizacion,
     editingProductId,
     onStartEditing,
-    onCancelEditing
+    onCancelEditing,
+    loading
 }) {
 
-    if (filteredProducts.length === 0) {
+    if (loading) {
         return (
             <ul className="space-y-4 w-full mt-4">
-                <li className="bg-white p-8 rounded-xl border border-gray-300 shadow-md text-center">
-                    <p className="text-gray-500 text-lg">No se encontraron productos con los filtros actuales</p>
-                </li>
+                {[...Array(6)].map((_, index) => (
+                    <FilteredProductCardSkeleton key={index} />
+                ))}
             </ul>
         );
     }

@@ -49,7 +49,7 @@ export default function FilteredProductCard({
 
                 </div>
 
-                <div className="flex justify-start md:justify-end">
+                <div className="flex justify-start mt-4 md:justify-end md:mt-0">
                     <div className="flex gap-2">
                         <ProductActions
                             product={product}
@@ -157,7 +157,7 @@ function FeaturedButton({ product, onToggleFeatured }) {
         <button
             onClick={handleClick}
             disabled={loading}
-            className={`px-4 py-2 rounded-lg border transition-all duration-300 font-semibold flex items-center gap-2 ${product.featured
+            className={`p-3 rounded-lg border transition-all duration-300 font-semibold flex items-center justify-center sm:gap-2 ${product.featured
                 ? 'bg-yellow-100 border-yellow-400 text-yellow-800'
                 : 'bg-gray-100 border-gray-300 text-gray-700'
                 } ${loading ? 'opacity-60 pointer-events-none' : ''}`}
@@ -165,15 +165,20 @@ function FeaturedButton({ product, onToggleFeatured }) {
         >
             {loading ? (
                 <>
-                    <FaSpinner className="animate-spin mr-2 text-gray-400" />
-                    <span className="text-ms text-gray-500">Cargando...</span>
+                    <FaSpinner className="animate-spin text-gray-400" />
+                    <span className="text-ms text-gray-500 hidden sm:inline">Cargando...</span>
                 </>
             ) : product.featured ? (
-                <FaCheckCircle className="text-yellow-500" />
+                <>
+                    <FaCheckCircle className="text-yellow-500" />
+                    <span className="hidden sm:inline">Destacado</span>
+                </>
             ) : (
-                <FaBan className="text-gray-400" />
+                <>
+                    <FaBan className="text-gray-400" />
+                    <span className="hidden sm:inline">No destacado</span>
+                </>
             )}
-            {!loading && (product.featured ? 'Destacado' : 'No destacado')}
         </button>
     );
 }

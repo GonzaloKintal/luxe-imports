@@ -200,20 +200,6 @@ export default function AdminProducts() {
         setShouldApplyFilters(true);
     };
 
-    // Si está cargando productos
-    if (loading) {
-        return (
-            <div className="w-full">
-                <div className="flex justify-center items-center py-20 text-gray-600">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                        <p>Cargando productos...</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     // Si hay error cargando productos
     if (error) {
         return (
@@ -294,7 +280,7 @@ export default function AdminProducts() {
 
             {/* Lista de productos */}
             <FilteredProductsList
-                filteredProducts={products} // Ahora son los productos ya filtrados del backend
+                filteredProducts={products}
                 onEdit={handleEdit}
                 onToggleFeatured={handleToggleFeatured}
                 onDelete={handleDelete}
@@ -305,6 +291,7 @@ export default function AdminProducts() {
                 editingProductId={editingProductId}
                 onStartEditing={startEditing}
                 onCancelEditing={cancelEditing}
+                loading={loading}
             />
 
             {/* Botón "Cargar más" si hay más productos */}

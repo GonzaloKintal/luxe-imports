@@ -57,6 +57,7 @@ const useProductsStore = create((set, get) => ({
 
   // Función para cargar productos con filtros
   fetchProductos: async (filters = {}) => {
+    console.log('fetchProductos llamado con filtros:', filters);
     const { currentFilters } = get();
     
     // Verificar si los filtros cambiaron
