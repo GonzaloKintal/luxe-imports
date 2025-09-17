@@ -8,16 +8,23 @@ import LoginForm from '../components/auth/LoginForm';
 import RegisterForm from '../components/auth/RegisterForm';
 
 export default function Auth() {
-	const [tab, setTab] = useState('login');
-	const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-	const [registerForm, setRegisterForm] = useState({ firstName: '', lastName: '', email: '', password: '', telefono: '' });
-	const [loginTouched, setLoginTouched] = useState({ email: false, password: false });
-	const [registerTouched, setRegisterTouched] = useState({ firstName: false, lastName: false, email: false, password: false, telefono: false });
-	const [loginLoading, setLoginLoading] = useState(false);
-	const [registerLoading, setRegisterLoading] = useState(false);
-	const navigate = useNavigate();
-	const { user, setUser } = useContext(UserContext);
-	const API_URL = import.meta.env.VITE_API_URL;
+		const [tab, setTab] = useState('login');
+		const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+		const [registerForm, setRegisterForm] = useState({ firstName: '', lastName: '', email: '', password: '', telefono: '' });
+		const [loginTouched, setLoginTouched] = useState({ email: false, password: false });
+		const [registerTouched, setRegisterTouched] = useState({ firstName: false, lastName: false, email: false, password: false, telefono: false });
+		const [loginLoading, setLoginLoading] = useState(false);
+		const [registerLoading, setRegisterLoading] = useState(false);
+		const navigate = useNavigate();
+		const { user, setUser } = useContext(UserContext);
+		const API_URL = import.meta.env.VITE_API_URL;
+
+		// Redirigir si ya está autenticado
+		useEffect(() => {
+			if (user) {
+				navigate('/products', { replace: true });
+			}
+		}, [user, navigate]);
 
 	// Handlers para cambios en formularios
 	const handleLoginChange = (e) => {
