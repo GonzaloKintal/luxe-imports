@@ -395,6 +395,10 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
     if (updateData.status === false) {
       updateData.featured = false;
     }
+    // Si el producto queda sin stock, también dejar de destacar
+    if (typeof updateData.stock === 'number' && updateData.stock === 0) {
+      updateData.featured = false;
+    }
   }
 
 
