@@ -25,29 +25,41 @@ router.get("/featured", async (req, res, next) => {
   }
 });
 
-// Ruta GET '/active' -> Lista solo productos activos
+// Ruta GET '/active' -> Lista solo productos activos, paginado
+// /active?page=1&limit=12
 router.get("/active", async (req, res, next) => {
   try {
-    const products = await manager.getProducts();
-    const activeProducts = products.filter(p => p.status === true);
-    res.json(activeProducts);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await Promise.all([
+      manager.getProducts({ skip, limit, filter: { status: true } }),
+      manager.countProducts({ status: true })
+    ]);
+
+    res.json({
+      products,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (error) {
     next(error);
   }
 });
 
-// Ruta GET '/' -> Lista todos los productos
-// Paginación incremental: /products?page=1&limit=12
+// Ruta GET '/' -> Lista todos los productos, paginado (sin filtro de activos)
+// /products?page=1&limit=12
 router.get("/", async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
 
-    // Solo productos activos, ordenados por más reciente
     const [products, total] = await Promise.all([
-      manager.getProducts({ skip, limit, filter: { status: true } }),
-      manager.countProducts({ status: true })
+      manager.getProducts({ skip, limit }),
+      manager.countProducts()
     ]);
 
     res.json({
