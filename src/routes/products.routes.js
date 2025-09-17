@@ -391,6 +391,10 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
     } else {
       updateData.status = Boolean(updateData.status);
     }
+    // Si el producto se desactiva, también dejar de destacar
+    if (updateData.status === false) {
+      updateData.featured = false;
+    }
   }
 
 
