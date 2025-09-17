@@ -123,8 +123,9 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                 formData.append(key, form[key]);
             });
 
+
             // Separar imágenes existentes de las nuevas
-            const existingImages = selectedImages
+            const currentImages = selectedImages
                 .filter(img => img.isExisting)
                 .map(img => img.preview);
 
@@ -132,8 +133,8 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                 .filter(img => !img.isExisting)
                 .map(img => img.file);
 
-            // Agregar imágenes existentes
-            formData.append('existingImages', JSON.stringify(existingImages));
+            // Agregar imágenes existentes (con el nombre esperado por el backend)
+            formData.append('currentImages', JSON.stringify(currentImages));
 
             // Agregar nuevas imágenes
             newImages.forEach(imageFile => {
