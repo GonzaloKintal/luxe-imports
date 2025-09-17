@@ -37,12 +37,27 @@ router.get("/active", async (req, res, next) => {
 });
 
 // Ruta GET '/' -> Lista todos los productos
+// Paginación incremental: /products?page=1&limit=12
 router.get("/", async (req, res, next) => {
   try {
-    const products = await manager.getProducts();
-    res.json(products);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+
+    // Solo productos activos, ordenados por más reciente
+    const [products, total] = await Promise.all([
+      manager.getProducts({ skip, limit, filter: { status: true } }),
+      manager.countProducts({ status: true })
+    ]);
+
+    res.json({
+      products,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (error) {
-    next(error); // En caso de error, pasa al middleware de manejo de errores
+    next(error);
   }
 });
 

@@ -7,11 +7,18 @@ class ProductManager {
     return await Product.find({ featured: true }).populate("category");
   }
 
-  // Obtiene todos los productos desde MongoDB
-  async getProducts() {
-    return await Product.find()
-    .populate("category")
-    .sort({ createdAt: -1 });;
+  // Obtiene productos con paginación y filtro opcional
+  async getProducts({ skip = 0, limit = 0, filter = {} } = {}) {
+    return await Product.find(filter)
+      .populate("category")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+
+  // Cuenta productos según filtro
+  async countProducts(filter = {}) {
+    return await Product.countDocuments(filter);
   }
 
   // Busca un producto por ID, lanza error si no lo encuentra
