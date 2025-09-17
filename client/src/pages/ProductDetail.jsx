@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from "react-icons/fa";
@@ -47,6 +45,15 @@ export default function ProductDetail() {
     fetchProduct();
     fetchCart();
   }, [id]);
+
+  useEffect(() => {
+    if (product && product.status === false) {
+      // Redirigir automáticamente a /products después de un breve delay
+      setTimeout(() => {
+        navigate('/products');
+      }, 5000);
+    }
+  }, [product, navigate]);
 
   const fetchProduct = async () => {
     try {
@@ -176,6 +183,19 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Producto no encontrado</div>
+      </div>
+    );
+  }
+
+  // Si el producto está inactivo, mostrar mensaje y bloquear botón
+  if (product && product.status === false) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Producto inactivo</h2>
+          <p className="text-gray-700 mb-2">Este producto no está disponible para la venta.</p>
+          <p className="text-gray-500">Serás redirigido automáticamente al listado de productos.</p>
+        </div>
       </div>
     );
   }
