@@ -70,8 +70,8 @@ export default function ProductImageGallery({ thumbnails, title }) {
     
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const images = thumbnails || [];
-  const hasMultipleImages = images.length > 1;
+  const images = thumbnails && thumbnails.length > 0 ? thumbnails : ["https://placehold.co/250x250"];
+  const hasMultipleImages = images.length > 1 && thumbnails && thumbnails.length > 0;
 
   // Función para avanzar a la siguiente imagen
   const nextImage = () => {
@@ -92,11 +92,11 @@ export default function ProductImageGallery({ thumbnails, title }) {
       {/* Contenedor de imagen principal con flechas */}
       <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4 max-w-lg mx-auto relative">
         <img
-          src={images[currentImageIndex] || '/placeholder-product.jpg'}
+          src={images[currentImageIndex]}
           alt={title}
           className="w-full h-full object-cover"
           onError={(e) => {
-            e.target.src = '/placeholder-product.jpg';
+            e.target.src = 'https://placehold.co/250x250';
           }}
         />
         
@@ -166,7 +166,7 @@ function ThumbnailButton({ src, alt, isActive, onClick }) {
         alt={alt}
         className="w-full h-full object-cover"
         onError={(e) => {
-          e.target.src = '/placeholder-product.jpg';
+          e.target.src = 'https://placehold.co/250x250';
         }}
       />
     </button>

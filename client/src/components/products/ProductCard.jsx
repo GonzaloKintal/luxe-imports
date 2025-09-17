@@ -31,7 +31,7 @@ export default function ProductCard({ title, price, thumbnails, category, stock,
       {/* Contenedor de imagen con categoría superpuesta */}
       <div className="relative">
         <img 
-          src={thumbnails[0]} 
+          src={thumbnails[0] || "https://placehold.co/250x250"} 
           alt={title} 
           className="w-full aspect-square object-cover rounded-t-2xl" 
         />
