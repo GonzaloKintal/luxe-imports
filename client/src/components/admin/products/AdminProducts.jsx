@@ -4,14 +4,40 @@ import { FaChevronDown, FaList } from 'react-icons/fa';
 import ConfirmDeleteProduct from './ConfirmDeleteProduct';
 import FilteredProductsList from './FilteredProductsList';
 import ProductFilters from './ProductFilters';
+import useAdminProductsStore from '../../../store/adminProductsStore';
+import useProductsStore from '../../../store/productsStore';
 
-export default function AdminProducts({ products, setProducts, API_URL, loading, error }) {
-
+export default function AdminProducts() {
     const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
+    
+    // Estados del store global
+    const {
+        products,
+        loading,
+        loadingMore,
+        error,
+        hasMoreProducts,
+        fetchProductos,
+        cargarMasProductos,
+        toggleFeatured,
+        deleteProduct,
+        reactivateProduct,
+        editProduct,
+        refreshProducts
+    } = useAdminProductsStore();
+
+    const { categorias, fetchCategorias } = useProductsStore();
+
+    useEffect(() => {
+        fetchCategorias();
+    }, [fetchCategorias]);
+
+    // Estado para cotización del dólar
     const [cotizacion, setCotizacion] = useState(null);
     const [loadingCotizacion, setLoadingCotizacion] = useState(true);
     const [errorCotizacion, setErrorCotizacion] = useState(null);
 
+    // Estados locales para filtros
     const filtrosGuardados = JSON.parse(sessionStorage.getItem('adminProductosFiltros') || '{}');
     const [categoryFilter, setCategoryFilter] = useState(filtrosGuardados.categoryFilter || '');
     const [showActivos, setShowActivos] = useState(
@@ -20,10 +46,17 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
     const [search, setSearch] = useState(filtrosGuardados.search || '');
     const [stockFilter, setStockFilter] = useState(filtrosGuardados.stockFilter || 'todos');
 
+    // Estados para modal de confirmación
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
-    const [editingProductId, setEditingProductId] = useState(null);
     const [deleteProductName, setDeleteProductName] = useState('');
+
+    // Estado para edición
+    const [editingProductId, setEditingProductId] = useState(null);
+
+    // Estado para controlar si necesitamos aplicar filtros
+    const [shouldApplyFilters, setShouldApplyFilters] = useState(true);
+    const [esCargaInicial, setEsCargaInicial] = useState(true);
 
     // Persistencia de filtros en sessionStorage
     useEffect(() => {
@@ -35,7 +68,30 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
         }));
     }, [categoryFilter, showActivos, search, stockFilter]);
 
+    // Aplicar filtros cuando cambien
     useEffect(() => {
+        if (shouldApplyFilters) {
+            const filters = {
+                search: search,
+                category: categoryFilter,
+                stock: stockFilter,
+                status: showActivos ? 'active' : 'inactive',
+                sort: 'newest'
+            };
+            
+            fetchProductos(filters);
+            setShouldApplyFilters(false);
+        }
+    }, [search, categoryFilter, stockFilter, showActivos, shouldApplyFilters, fetchProductos]);
+
+    // Cargar datos iniciales al montar el componente
+    useEffect(() => {
+        if (esCargaInicial) {
+            setShouldApplyFilters(true);
+            setEsCargaInicial(false);
+        }
+
+        // Cargar cotización del dólar
         async function fetchDolar() {
             try {
                 setLoadingCotizacion(true);
@@ -49,93 +105,51 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
             }
         }
         fetchDolar();
+    }, [DOLAR_API_URL, esCargaInicial]);
 
-        // Al montar el componente, obtener productos actualizados
-        async function fetchProducts() {
-            try {
-                const token = localStorage.getItem('token');
-                const res = await fetch(`${API_URL}/api/products`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                if (!res.ok) throw new Error('Error al obtener productos');
-                const data = await res.json();
-                setProducts(data);
-            } catch (err) {
-                // Opcional: mostrar error
-            }
-        }
-        fetchProducts();
-    }, [DOLAR_API_URL, API_URL, setProducts]);
-
-    async function toggleFeatured(product) {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/products/${product._id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ featured: !product.featured }),
-            });
-            if (!res.ok) throw new Error('Error al actualizar destacado');
-            const updated = await res.json();
-            setProducts(products.map(p => p._id === updated._id ? updated : p));
-            toast.success(updated.featured ? 'Marcado como destacado' : 'Quitado de destacados');
-        } catch {
-            toast.error('No se pudo actualizar el estado de destacado');
+    // Wrapper para toggleFeatured con toast
+    async function handleToggleFeatured(product) {
+        const result = await toggleFeatured(product);
+        if (result.success) {
+            toast.success(result.message);
+        } else {
+            toast.error(result.message);
         }
     }
 
+    // Función para mostrar modal de confirmación de eliminación
     function handleDelete(id, name) {
         setDeleteId(id);
         setDeleteProductName(name);
         setShowConfirm(true);
     }
 
+    // Confirmar eliminación
     async function confirmDelete() {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/products/${deleteId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ status: false }),
-            });
-            if (!res.ok) throw new Error('Error al eliminar');
-            setProducts(products.map(p => (p._id === deleteId || p.id === deleteId) ? { ...p, status: false } : p));
-            toast.success('Producto eliminado correctamente');
-        } catch {
-            toast.error('No se pudo eliminar el producto');
-        } finally {
-            setShowConfirm(false);
-            setDeleteId(null);
-            setDeleteProductName('');
+        const result = await deleteProduct(deleteId);
+        if (result.success) {
+            toast.success(result.message);
+        } else {
+            toast.error(result.message);
         }
+        
+        // Limpiar estado del modal
+        setShowConfirm(false);
+        setDeleteId(null);
+        setDeleteProductName('');
     }
 
+    // Wrapper para reactivar producto con toast
     async function handleReactivate(id) {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/products/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ status: true }),
-            });
-            if (!res.ok) throw new Error('Error al reactivar');
-            setProducts(products.map(p => (p._id === id || p.id === id) ? { ...p, status: true } : p));
-            toast.success('Producto reactivado');
-        } catch {
-            toast.error('No se pudo reactivar el producto');
+        const result = await reactivateProduct(id);
+        if (result.success) {
+            toast.success(result.message);
+        } else {
+            toast.error(result.message);
         }
     }
 
-    // Función para iniciar edición (cierra cualquier edición previa)
+    // Función para iniciar edición
     function startEditing(productId) {
         setEditingProductId(productId);
     }
@@ -145,50 +159,46 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
         setEditingProductId(null);
     }
 
+    // Wrapper para editar producto con toast
     async function handleEdit({ id: productId, formData }) {
-        try {
-            const token = localStorage.getItem('token');
-
-            const res = await fetch(`${API_URL}/api/products/${productId}`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                body: formData,
-            });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || 'Error al editar producto');
-            }
-
-            const updated = await res.json();
-            setProducts(products.map(p => (p._id === productId || p.id === productId) ? updated : p));
-            toast.success('Producto editado correctamente');
+        const result = await editProduct(productId, formData);
+        if (result.success) {
+            toast.success(result.message);
             setEditingProductId(null);
-        } catch (err) {
-            console.error('AdminProducts: handleEdit error:', err);
-            toast.error(err.message || 'No se pudo editar el producto');
+        } else {
+            toast.error(result.message);
         }
     }
 
+    // Funciones para manejar cambios de filtros
+    const handleSearchChange = (value) => {
+        setSearch(value);
+        setShouldApplyFilters(true);
+    };
 
-    const filteredProducts = products
-        .filter(p => showActivos ? p.status : !p.status)
-        .filter(p => {
-            if (stockFilter === 'conStock') return p.stock > 0;
-            if (stockFilter === 'sinStock') return p.stock === 0;
-            return true;
-        })
-        .filter(p => !search || p.title.toLowerCase().includes(search.toLowerCase()))
-        .filter(p => {
-            if (!categoryFilter) return true;
-            if (!p.category) return false;
-            if (typeof p.category === 'object' && p.category._id) {
-                return p.category._id === categoryFilter;
-            }
-            return p.category === categoryFilter;
-        });
+    const handleCategoryChange = (value) => {
+        setCategoryFilter(value);
+        setShouldApplyFilters(true);
+    };
+
+    const handleStockChange = (value) => {
+        setStockFilter(value);
+        setShouldApplyFilters(true);
+    };
+
+    const handleStatusChange = (value) => {
+        setShowActivos(value);
+        setShouldApplyFilters(true);
+    };
+
+    // Función para limpiar filtros
+    const limpiarFiltros = () => {
+        setSearch('');
+        setCategoryFilter('');
+        setStockFilter('todos');
+        setShowActivos(true);
+        setShouldApplyFilters(true);
+    };
 
     // Si está cargando productos
     if (loading) {
@@ -213,6 +223,12 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
                         <div className="text-6xl mb-4">⚠️</div>
                         <h3 className="text-xl font-semibold mb-2">Error al cargar productos</h3>
                         <p className="text-gray-600">{error}</p>
+                        <button
+                            onClick={refreshProducts}
+                            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                        >
+                            Intentar de nuevo
+                        </button>
                     </div>
                 </div>
             </div>
@@ -220,14 +236,32 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
     }
 
     // Si no hay productos
-    if (products.length === 0) {
+    if (products.length === 0 && !loading) {
         return (
             <div className="w-full">
+                <ProductFilters
+                    showActivos={showActivos}
+                    setShowActivos={handleStatusChange}
+                    search={search}
+                    setSearch={handleSearchChange}
+                    stockFilter={stockFilter}
+                    setStockFilter={handleStockChange}
+                    categoryFilter={categoryFilter}
+                    setCategoryFilter={handleCategoryChange}
+                    categorias={categorias}
+                />
+                
                 <div className="flex justify-center items-center py-20 text-gray-600">
                     <div className="text-center">
                         <div className="text-6xl mb-4">📦</div>
-                        <h3 className="text-xl font-semibold mb-2">No hay productos</h3>
-                        <p className="text-gray-500">Crea tu primer producto para comenzar</p>
+                        <h3 className="text-xl font-semibold mb-2">No se encontraron productos</h3>
+                        <p className="text-gray-500">No hay productos que coincidan con los filtros aplicados</p>
+                        <button
+                            onClick={limpiarFiltros}
+                            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                        >
+                            Limpiar filtros
+                        </button>
                     </div>
                 </div>
             </div>
@@ -240,26 +274,29 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
             {/* Filtros */}
             <ProductFilters
                 showActivos={showActivos}
-                setShowActivos={setShowActivos}
+                setShowActivos={handleStatusChange}
                 search={search}
-                setSearch={setSearch}
+                setSearch={handleSearchChange}
                 stockFilter={stockFilter}
-                setStockFilter={setStockFilter}
+                setStockFilter={handleStockChange}
                 categoryFilter={categoryFilter}
-                setCategoryFilter={setCategoryFilter}
-                products={products}
+                setCategoryFilter={handleCategoryChange}
+                categorias={categorias}
             />
 
-            {/* Subtítulo */}
-            <h2 className="mt-4 text-lg text-gray-500 text-center flex items-center justify-end gap-2">
-                Mostrando {filteredProducts.length} productos
-            </h2>
+            {/* Subtítulo con contador */}
+            <div className="flex justify-between items-center mt-4 mb-4">
+                <h2 className="text-lg text-gray-500 flex items-center gap-2">
+                    <FaList className="text-gray-400" />
+                    Mostrando {products.length} productos
+                </h2>
+            </div>
 
             {/* Lista de productos */}
             <FilteredProductsList
-                filteredProducts={filteredProducts}
+                filteredProducts={products} // Ahora son los productos ya filtrados del backend
                 onEdit={handleEdit}
-                onToggleFeatured={toggleFeatured}
+                onToggleFeatured={handleToggleFeatured}
                 onDelete={handleDelete}
                 onReactivate={handleReactivate}
                 cotizacion={cotizacion}
@@ -269,6 +306,34 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
                 onStartEditing={startEditing}
                 onCancelEditing={cancelEditing}
             />
+
+            {/* Botón "Cargar más" si hay más productos */}
+            {!loading && !error && hasMoreProducts && (
+                <div className="flex justify-center mt-12 mb-4">
+                    <button
+                        onClick={cargarMasProductos}
+                        disabled={loadingMore}
+                        className={`
+                            px-6 py-3 bg-transparent cursor-pointer text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300
+                            ${loadingMore 
+                                ? 'bg-gray-400 cursor-not-allowed' 
+                                : 'bg-transparent'
+                            }
+                        `}
+                    >
+                        {loadingMore ? 'Cargando...' : 'Cargar más'}
+                    </button>
+                </div>
+            )}
+
+            {/* Indicador de que no hay más productos */}
+            {!loading && !error && !hasMoreProducts && products.length > 0 && (
+                <div className="text-center mt-8 mb-4">
+                    <p className="text-gray-600 font-medium">
+                        Has visto todos los productos disponibles
+                    </p>
+                </div>
+            )}
 
             {/* Modal de confirmación */}
             <ConfirmDeleteProduct
@@ -283,7 +348,6 @@ export default function AdminProducts({ products, setProducts, API_URL, loading,
                     setDeleteProductName('');
                 }}
             />
-
         </div>
     );
 

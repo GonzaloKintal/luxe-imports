@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FaSearch, FaTag, FaFilter, FaSortAmountDownAlt } from 'react-icons/fa';
 
 export default function SearchAndFilters({ 
-    productos = [], 
+    categorias = [],
     busqueda: externalBusqueda, 
     setBusqueda: externalSetBusqueda,
     filtroCategoria: externalFiltroCategoria,
@@ -29,22 +29,6 @@ export default function SearchAndFilters({
     const setFiltroStock = externalSetFiltroStock !== undefined ? externalSetFiltroStock : internalSetFiltroStock;
     const ordenPrecio = externalOrdenPrecio !== undefined ? externalOrdenPrecio : internalOrdenPrecio;
     const setOrdenPrecio = externalSetOrdenPrecio !== undefined ? externalSetOrdenPrecio : internalSetOrdenPrecio;
-
-    // Obtener categorías únicas (soportando objetos populados)
-    const categorias = Array.from(
-        new Map(
-            productos
-                .map(p => {
-                    if (p.category && typeof p.category === 'object') {
-                        return [p.category._id, p.category];
-                    } else if (typeof p.category === 'string') {
-                        return [p.category, { _id: p.category, name: p.category }];
-                    }
-                    return null;
-                })
-                .filter(Boolean)
-        ).values()
-    );
 
     return (
         <section className="max-w-7xl mx-auto mb-10 animate-fadeInUp">

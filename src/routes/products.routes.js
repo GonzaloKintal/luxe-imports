@@ -25,49 +25,165 @@ router.get("/featured", async (req, res, next) => {
   }
 });
 
-// Ruta GET '/active' -> Lista solo productos activos, paginado
-// /active?page=1&limit=12
+// Ruta GET '/active' -> Lista productos activos con filtros, paginado
+// /active?page=1&limit=12&search=termo&category=categoryId&stock=in&sort=price_asc
 router.get("/active", async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
+    
+    // Construir filtros dinámicamente
+    const filter = { status: true };
+    const sort = {};
+    
+    // Filtro de búsqueda por título
+    if (req.query.search && req.query.search.trim()) {
+      filter.title = { $regex: req.query.search.trim(), $options: 'i' };
+    }
+    
+    // Filtro por categoría
+    if (req.query.category && req.query.category !== '') {
+      filter.category = req.query.category;
+    }
+    
+    // Filtro por stock
+    if (req.query.stock) {
+      if (req.query.stock === 'in') {
+        filter.stock = { $gt: 0 };
+      } else if (req.query.stock === 'out') {
+        filter.stock = { $lte: 0 };
+      }
+      // 'all' no agrega filtro
+    }
+    
+    // Ordenamiento por precio
+    if (req.query.sort) {
+      if (req.query.sort === 'price_asc') {
+        sort.price = 1;
+      } else if (req.query.sort === 'price_desc') {
+        sort.price = -1;
+      }
+    } else {
+      // Ordenamiento por defecto
+      sort.createdAt = -1;
+    }
 
     const [products, total] = await Promise.all([
-      manager.getProducts({ skip, limit, filter: { status: true } }),
-      manager.countProducts({ status: true })
+      manager.getProducts({ skip, limit, filter, sort }),
+      manager.countProducts(filter)
     ]);
 
     res.json({
       products,
       total,
       page,
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil(total / limit),
+      // Opcional: devolver los filtros aplicados para debugging
+      appliedFilters: {
+        search: req.query.search || '',
+        category: req.query.category || '',
+        stock: req.query.stock || 'all',
+        sort: req.query.sort || 'newest'
+      }
     });
   } catch (error) {
     next(error);
   }
 });
 
-// Ruta GET '/' -> Lista todos los productos, paginado (sin filtro de activos)
-// /products?page=1&limit=12
+
+// Ruta GET '/' -> Lista todos los productos con filtros, paginado (para admin)
+// /products?page=1&limit=12&search=termo&category=categoryId&stock=conStock&status=active
 router.get("/", async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
+    
+    // Construir filtros dinámicamente
+    const filter = {};
+    const sort = {};
+    
+    // Filtro de búsqueda por título
+    if (req.query.search && req.query.search.trim()) {
+      filter.title = { $regex: req.query.search.trim(), $options: 'i' };
+    }
+    
+    // Filtro por categoría
+    if (req.query.category && req.query.category !== '') {
+      filter.category = req.query.category;
+    }
+    
+    // Filtro por stock (para admin es diferente)
+    if (req.query.stock) {
+      if (req.query.stock === 'conStock') {
+        filter.stock = { $gt: 0 };
+      } else if (req.query.stock === 'sinStock') {
+        filter.stock = { $eq: 0 };
+      }
+      // 'todos' no agrega filtro
+    }
+    
+    // Filtro por status (activos/inactivos)
+    if (req.query.status) {
+      if (req.query.status === 'active') {
+        filter.status = true;
+      } else if (req.query.status === 'inactive') {
+        filter.status = false;
+      }
+      // 'all' no agrega filtro
+    }
+    
+    // Ordenamiento
+    if (req.query.sort) {
+      if (req.query.sort === 'price_asc') {
+        sort.price = 1;
+      } else if (req.query.sort === 'price_desc') {
+        sort.price = -1;
+      } else if (req.query.sort === 'title_asc') {
+        sort.title = 1;
+      } else if (req.query.sort === 'title_desc') {
+        sort.title = -1;
+      } else if (req.query.sort === 'newest') {
+        sort.createdAt = -1;
+      } else if (req.query.sort === 'oldest') {
+        sort.createdAt = 1;
+      }
+    } else {
+      // Ordenamiento por defecto
+      sort.createdAt = -1;
+    }
 
     const [products, total] = await Promise.all([
-      manager.getProducts({ skip, limit }),
-      manager.countProducts()
+      manager.getProducts({ skip, limit, filter, sort }),
+      manager.countProducts(filter)
     ]);
 
     res.json({
       products,
       total,
       page,
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil(total / limit),
+      // Opcional: devolver los filtros aplicados para debugging
+      appliedFilters: {
+        search: req.query.search || '',
+        category: req.query.category || '',
+        stock: req.query.stock || 'todos',
+        status: req.query.status || 'all',
+        sort: req.query.sort || 'newest'
+      }
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET '/categories' -> todas las categorías
+router.get("/categories", async (req, res, next) => {
+  try {
+    const categories = await manager.getAllCategories();
+    res.json(categories);
   } catch (error) {
     next(error);
   }
@@ -266,5 +382,6 @@ router.delete("/:pid", authenticateToken, isAdmin, async (req, res, next) => {
     next(error);
   }
 });
+
 
 export default router;

@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import Category from "../models/Category.js";
 import { io } from "../app.js";
 
 class ProductManager {
@@ -8,10 +9,10 @@ class ProductManager {
   }
 
   // Obtiene productos con paginación y filtro opcional
-  async getProducts({ skip = 0, limit = 0, filter = {} } = {}) {
+  async getProducts({ skip = 0, limit = 0, filter = {}, sort = { createdAt: -1 } } = {}) {
     return await Product.find(filter)
       .populate("category")
-      .sort({ createdAt: -1 })
+      .sort(sort)
       .skip(skip)
       .limit(limit);
   }
@@ -89,7 +90,15 @@ class ProductManager {
     }
     return true;
   }
+
+  // Obtiene todas las categorías únicas de productos
+  async getAllCategories() {
+    const categories = await Category.find({}, { name: 1 });
+    return categories.map(c => ({ _id: c._id, name: c.name }));
+  }
+
 }
+
 
 const productManager = new ProductManager();
 export default productManager;

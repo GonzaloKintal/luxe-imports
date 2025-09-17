@@ -10,23 +10,8 @@ export default function ProductFilters({
     setStockFilter,
     categoryFilter,
     setCategoryFilter,
-    products
+    categorias = []
 }) {
-
-    const categorias = Array.from(
-        new Map(
-            products
-                .map(p => {
-                    if (p.category && typeof p.category === 'object') {
-                        return [p.category._id, p.category];
-                    } else if (typeof p.category === 'string') {
-                        return [p.category, { _id: p.category, name: p.category }];
-                    }
-                    return null;
-                })
-                .filter(Boolean)
-        ).values()
-    );
 
     return (
         <div className="flex flex-col gap-4 p-4 bg-white rounded-xl shadow-lg border border-gray-300">
@@ -39,7 +24,7 @@ export default function ProductFilters({
                     <CategoryFilter 
                         categoryFilter={categoryFilter}
                         setCategoryFilter={setCategoryFilter}
-                        categories={categorias}
+                        categorias={categorias}
                     />
                     <StatusFilter 
                         showActivos={showActivos}
@@ -72,7 +57,7 @@ function SearchInput({ search, setSearch }) {
     );
 }
 
-function CategoryFilter({ categoryFilter, setCategoryFilter, categories }) {
+function CategoryFilter({ categoryFilter, setCategoryFilter, categorias }) {
     return (
         <div className="flex items-center gap-2 w-full">
             <FaTag className="text-gray-600 text-lg" />
@@ -82,7 +67,7 @@ function CategoryFilter({ categoryFilter, setCategoryFilter, categories }) {
                 className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-100 text-gray-900 text-sm font-medium"
             >
                 <option value="">Todas las categorías</option>
-                {categories.map(cat => (
+                {categorias.map(cat => (
                     <option key={cat._id} value={cat._id}>{cat.name}</option>
                 ))}
             </select>
