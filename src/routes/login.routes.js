@@ -3,19 +3,32 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userManager from "../managers/UserManager.js";
 import { authenticateToken, isAdmin } from "../middlewares/auth.js";
-
+import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET;
 
+const JWT_SECRET = process.env.JWT_SECRET;
 const router = express.Router();
 const manager = userManager;
 
-// POST /register -> Registra un nuevo usuario
+// Configuración de nodemailer
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.ADMIN_EMAIL_USER,
+    pass: process.env.ADMIN_EMAIL_PASS,
+  },
+});
+
+
+// Objeto en memoria para guardar códigos temporales
+const pendingRegistrations = {}; // { email: { code: "12345", data: { ... } } }
+
+// POST /register -> Genera código y lo envía al email
 router.post("/register", async (req, res, next) => {
   try {
     let { email, password, firstName, lastName, telefono } = req.body || {};
-    // Si el teléfono no empieza con '+', agregarlo
+
     if (telefono && !telefono.startsWith("+")) {
       telefono = `+${telefono}`;
     }
@@ -24,12 +37,10 @@ router.post("/register", async (req, res, next) => {
       return res.status(400).json({ error: "Faltan campos requeridos" });
     }
 
-    // Validación de formato internacional para teléfono: +54 11 2345 6789
     const telefonoRegex = /^\+\d{12,15}$/;
     if (!telefonoRegex.test(telefono)) {
       return res.status(400).json({
-        error:
-          "El teléfono debe tener formato internacional, ej: +54 11 2345 6789",
+        error: "El teléfono debe tener formato internacional, ej: +5491123456789",
       });
     }
 
@@ -44,17 +55,64 @@ router.post("/register", async (req, res, next) => {
         .json({ error: "La contraseña debe tener al menos 6 caracteres" });
     }
 
-    const newUser = await manager.addUser({
-      email,
-      password,
-      firstName,
-      lastName,
-      telefono,
-      role: "user",
+    // Verificar que el usuario no exista ya en DB
+    const existingUser = await manager.getUserByEmail(email);
+    if (existingUser) {
+      return res.status(409).json({ error: "El email ya está registrado" });
+    }
+
+    // Generar código de 5 dígitos
+    const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
+
+    // Guardar en memoria
+    pendingRegistrations[email] = {
+      code: verificationCode,
+      data: { email, password, firstName, lastName, telefono, role: "user" },
+    };
+
+    // Enviar mail con el código
+	await transporter.sendMail({
+	  from: process.env.ADMIN_EMAIL_USER, // tu Gmail (bandeja de salida)
+	  to: email,                          // correo del usuario que se registra
+	  subject: "Confirma tu correo",
+	  text: `Tu código de verificación es: ${verificationCode}`,
+	});
+
+    res.status(200).json({
+      message: "Código de verificación enviado a tu email",
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /verify-code -> Valida código y crea usuario en DB
+router.post("/verify-code", async (req, res, next) => {
+  try {
+    const { email, code } = req.body || {};
+
+    if (!email || !code) {
+      return res.status(400).json({ error: "Faltan campos requeridos" });
+    }
+
+    const pending = pendingRegistrations[email];
+    if (!pending) {
+      return res.status(400).json({ error: "No hay registro pendiente para este email" });
+    }
+
+    if (pending.code !== code) {
+      return res.status(400).json({ error: "Código inválido" });
+    }
+
+    // Crear usuario en DB
+    const hashedPassword = await bcrypt.hash(pending.data.password, 10);
+    const newUser = await manager.addUser({ ...pending.data, password: hashedPassword });
+
+    // Limpiar memoria
+    delete pendingRegistrations[email];
 
     res.status(201).json({
-      message: "Usuario registrado exitosamente",
+      message: "Registro exitoso",
       user: {
         id: newUser.id,
         email: newUser.email,
@@ -65,14 +123,11 @@ router.post("/register", async (req, res, next) => {
       },
     });
   } catch (error) {
-    if (error.message === "El email ya está registrado") {
-      return res.status(409).json({ error: error.message });
-    }
     next(error);
   }
 });
 
-// POST /login -> Autentica usuario y devuelve JWT
+// POST /login -> Login normal
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body || {};
@@ -87,12 +142,10 @@ router.post("/login", async (req, res, next) => {
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
-
     if (!passwordMatch) {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
-    // Generar token JWT (payload con id, email, rol, firstName y lastName)
     const tokenPayload = {
       id: user.id,
       email: user.email,
@@ -118,10 +171,9 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-// GET /profile/:id -> Obtener perfil (protegido)
+// GET /profile/:id -> Proteger con JWT
 router.get("/profile/:id", authenticateToken, async (req, res, next) => {
   try {
-    // Solo el mismo usuario o admin pueden ver el perfil
     if (req.user.id !== req.params.id && req.user.role !== "admin") {
       return res.status(403).json({ error: "Acceso denegado" });
     }
@@ -138,7 +190,7 @@ router.get("/profile/:id", authenticateToken, async (req, res, next) => {
   }
 });
 
-// GET /users -> Listar todos los usuarios (solo admin)
+// GET /users -> Solo admin
 router.get("/users", authenticateToken, isAdmin, async (req, res, next) => {
   try {
     const users = await manager.getUsers();
@@ -149,7 +201,7 @@ router.get("/users", authenticateToken, isAdmin, async (req, res, next) => {
   }
 });
 
-// POST /logout -> Logout
+// POST /logout -> Mensaje simple
 router.post("/logout", (req, res) => {
   res.json({
     message: "Logout exitoso. Por favor borra el token en el cliente.",

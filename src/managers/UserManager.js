@@ -23,12 +23,10 @@ class UserManager {
     if (existingUser) {
       throw new Error('El email ya está registrado');
     }
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const newUser = new User({
-      ...userData,
-      password: hashedPassword,
-      role: userData.role || 'user',
-    });
+	  const newUser = new User({
+	    ...userData,
+	    role: userData.role || 'user',
+	  });
     await newUser.save();
     const { password, ...userWithoutPassword } = newUser.toObject();
     return userWithoutPassword;
