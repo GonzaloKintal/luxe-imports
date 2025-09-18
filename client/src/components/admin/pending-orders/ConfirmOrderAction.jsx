@@ -45,6 +45,7 @@ export default function ConfirmOrderAction({
         }
     };
 
+    
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50 px-4">
             <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-200">
@@ -66,23 +67,27 @@ export default function ConfirmOrderAction({
                                 Usuario: {orderInfo.userName}
                             </p>
                         )}
-                        {orderInfo.date && (
-                            <p className="text-xs mt-1">
-                                Fecha de creación: {orderInfo.date}
-                            </p>
-                        )}
-                        {orderInfo.pendingAt && (
-                            <p className="text-xs mt-1">
-                                Pendiente de confirmación: {orderInfo.pendingAt}
-                            </p>
-                        )}
-                        {orderInfo.confirmedAt && (
-                            <p className="text-xs mt-1">
-                                Confirmado: {orderInfo.confirmedAt}
-                            </p>
-                        )}
+                        {orderInfo.pendingAt && (() => {
+                            const [datePart, timePart] = orderInfo.pendingAt.split(' ');
+                            return (
+                                <p className="text-xs mt-1">
+                                    Pedido el <span className="font-semibold">{datePart}</span> a las <span className="font-semibold">{timePart}</span>
+                                </p>
+                            );
+                        })()}
+
+                        {orderInfo.confirmedAt && (() => {
+                            const [datePart, timePart] = orderInfo.confirmedAt.split(' ');
+                            return (
+                                <p className="text-xs mt-1">
+                                    Confirmado el <span className="font-semibold">{datePart}</span> a las <span className="font-semibold">{timePart}</span>
+                                </p>
+                            );
+                        })()}
                     </div>
                 )}
+
+
 
                 <div className="flex justify-center gap-3 pt-3 border-t border-gray-200">
                     <button
@@ -97,7 +102,7 @@ export default function ConfirmOrderAction({
                     <button
                         onClick={handleConfirm}
                         disabled={loading}
-                        className={`px-4 py-2 text-sm rounded-md bg-${actionColor}-600 hover:bg-${actionColor}-700 text-white font-semibold transition-colors duration-200 flex items-center gap-1`}
+                        className={`px-4 py-2 text-sm cursor-pointer rounded-md bg-${actionColor}-600 hover:bg-${actionColor}-700 text-white font-semibold transition-colors duration-200 flex items-center gap-1`}
                     >
                         {loading ? (
                             <>

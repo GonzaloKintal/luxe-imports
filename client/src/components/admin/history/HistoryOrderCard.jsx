@@ -101,7 +101,7 @@ export default function HistoryOrderCard({
                     </div>
                 </div>
 
-                <div className="flex mt-2 justify-start md:justify-end md:mt-0">
+                <div className="flex mt-4 justify-start md:justify-end md:mt-0">
                     <div className="flex gap-2">
                         <button
                             className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 shadow-md"
@@ -121,9 +121,9 @@ export default function HistoryOrderCard({
                                 const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
                                 const subtotal = price * quantity;
                                 return (
-                                    <div key={p._id || p.id || idx} className="flex flex-col md:flex-row justify-between items-center py-3 px-4 bg-white rounded-lg border border-gray-100">
+                                    <div key={p._id || p.id || idx} className="flex flex-col md:flex-row justify-between py-3 px-4 bg-white rounded-lg border border-gray-100">
                                         <div className="flex-1 font-medium text-gray-900">{title}</div>
-                                        <div className="flex flex-col md:flex-row md:items-center gap-2 text-sm">
+                                        <div className="flex flex-col gap-0 md:flex-row md:items-center md:gap-2 text-sm">
                                             <span className="text-gray-600">Precio unitario: <span className="font-semibold text-gray-900">${price.toFixed(2)}</span></span>
                                             <span className="text-gray-600">Cantidad: <span className="font-semibold">x{quantity}</span></span>
                                             <span className="text-gray-600">Subtotal: <span className="font-semibold text-blue-700">${subtotal.toFixed(2)}</span></span>

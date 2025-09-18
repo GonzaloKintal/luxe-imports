@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaWhatsapp, FaCheck, FaTrash } from 'react-icons/fa';
 
 export default function PendingOrderCard({ order, onConfirm, onDelete }) {
     const [expanded, setExpanded] = useState(false);
@@ -60,7 +60,7 @@ export default function PendingOrderCard({ order, onConfirm, onDelete }) {
                                 )}
                                 <div>
                                     <span className="font-medium">Estado:</span>{' '}
-                                    <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-600">
                                     Pendiente
                                     </span>
                                 </div>
@@ -70,26 +70,35 @@ export default function PendingOrderCard({ order, onConfirm, onDelete }) {
                     </div>
                 </div>
 
-                <div className="flex mt-2 justify-start md:justify-end md:mt-0">
+                <div className="flex mt-4 justify-start md:justify-end md:mt-0">
                     <div className="flex gap-2">
+
+                        {/* Botón "Ver productos" */}
                         <button
-                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 shadow-md"
+                            className="px-3 py-2 md:px-4 md:py-2 text-sm md:text-base rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 shadow-md"
                             onClick={handleToggleExpand}
                         >
                             {expanded ? 'Ocultar productos' : 'Ver productos'}
                         </button>
+
+                        {/* Botón "Confirmar" */}
                         <button
-                            className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors duration-200 shadow-md"
+                            className="px-3 py-2 md:px-4 md:py-2 text-sm md:text-base rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors duration-200 shadow-md flex items-center justify-center"
                             onClick={() => onConfirm(order._id)}
                         >
-                            Confirmar
+                            <FaCheck className="inline sm:inline md:hidden" /> {/* ícono en sm o menor */}
+                            <span className="hidden md:inline">Confirmar</span> {/* texto en md o mayor */}
                         </button>
+
+                        {/* Botón "Eliminar" */}
                         <button
-                            className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition-colors duration-200 shadow-md"
+                            className="px-3 py-2 md:px-4 md:py-2 text-sm md:text-base rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition-colors duration-200 shadow-md flex items-center justify-center"
                             onClick={() => onDelete(order._id)}
                         >
-                            Eliminar
+                            <FaTrash className="inline sm:inline md:hidden" /> {/* ícono en sm o menor */}
+                            <span className="hidden md:inline">Eliminar</span> {/* texto en md o mayor */}
                         </button>
+
                     </div>
                 </div>
 
@@ -102,9 +111,9 @@ export default function PendingOrderCard({ order, onConfirm, onDelete }) {
                                 const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
                                 const subtotal = price * quantity;
                                 return (
-                                    <div key={p._id || p.id || idx} className="flex flex-col md:flex-row justify-between items-center py-3 px-4 bg-white rounded-lg border border-gray-100">
+                                    <div key={p._id || p.id || idx} className="flex flex-col md:flex-row justify-between py-3 px-4 bg-white rounded-lg border border-gray-100">
                                         <div className="flex-1 font-medium text-gray-900">{title}</div>
-                                        <div className="flex flex-col md:flex-row md:items-center gap-2 text-sm">
+                                        <div className="flex flex-col md:flex-row gap-0 md:items-center md:gap-2 text-sm">
                                             <span className="text-gray-600">Precio unitario: <span className="font-semibold text-gray-900">${price.toFixed(2)}</span></span>
                                             <span className="text-gray-600">Cantidad: <span className="font-semibold">x{quantity}</span></span>
                                             <span className="text-gray-600">Subtotal: <span className="font-semibold text-blue-700">${subtotal.toFixed(2)}</span></span>

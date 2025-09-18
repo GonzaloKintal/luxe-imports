@@ -141,7 +141,7 @@ export default function PendingOrders() {
                 message={
                     confirmDialog.type === 'confirm'
                         ? 'Esta acción marcará el pedido como completado y lo removerá de la lista de pendientes.'
-                        : 'Esta acción eliminará permanentemente el pedido. No se puede deshacer.'
+                        : 'Esta acción eliminará permanentemente el pedido. Esta acción no se puede deshacer.'
                 }
                 onConfirm={handleConfirmAction}
                 onCancel={handleCancelAction}
