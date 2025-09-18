@@ -6,7 +6,8 @@ export default function LoginForm({
     touchedFields, 
     onBlurField, 
     onSubmit, 
-    loading
+    loading,
+    onForgot // <-- nuevo prop
 }) {
     return (
         <form onSubmit={onSubmit} className="space-y-4">
@@ -57,7 +58,8 @@ export default function LoginForm({
                     <span className="text-xs text-red-500 mt-1">La contraseña es obligatoria</span>
                 )}
             </div>
-            
+
+            {/* Botón de iniciar sesión */}
             <button 
                 type="submit" 
                 className="w-full py-3 rounded-lg bg-black text-white font-medium hover:bg-gray-800 transition-all duration-200 flex items-center justify-center gap-2 shadow-md mt-4"
@@ -65,6 +67,15 @@ export default function LoginForm({
                 style={loading ? { opacity: 0.6, pointerEvents: 'none' } : {}}
             >
                 <FaUserCircle /> {loading ? 'Iniciando...' : 'Iniciar sesión'}
+            </button>
+
+            {/* Botón Olvidé mi contraseña */}
+            <button
+                type="button"
+                onClick={onForgot}
+                className="w-full mt-2 text-sm text-gray-600 hover:text-gray-900 underline text-center"
+            >
+                Olvidé mi contraseña
             </button>
         </form>
     );

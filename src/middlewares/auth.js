@@ -24,3 +24,4 @@ export function isAdmin(req, res, next) {
     res.status(403).json({ error: 'Acceso denegado: solo administradores' });
   }
 }
+

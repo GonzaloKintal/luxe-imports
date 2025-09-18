@@ -20,95 +20,56 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Memoria temporal
+const pendingRegistrations = {}; // { email: { code, data } }
+const pendingPasswords = {}; // { email: { code, verified } }
 
-// Objeto en memoria para guardar códigos temporales
-const pendingRegistrations = {}; // { email: { code: "12345", data: { ... } } }
-
-// POST /register -> Genera código y lo envía al email
+// ------------------ Registro y verificación ------------------
 router.post("/register", async (req, res, next) => {
   try {
     let { email, password, firstName, lastName, telefono } = req.body || {};
 
-    if (telefono && !telefono.startsWith("+")) {
-      telefono = `+${telefono}`;
-    }
-
-    if (!email || !password || !firstName || !lastName || !telefono) {
+    if (telefono && !telefono.startsWith("+")) telefono = `+${telefono}`;
+    if (!email || !password || !firstName || !lastName || !telefono)
       return res.status(400).json({ error: "Faltan campos requeridos" });
-    }
 
-    const telefonoRegex = /^\+\d{12,15}$/;
-    if (!telefonoRegex.test(telefono)) {
-      return res.status(400).json({
-        error: "El teléfono debe tener formato internacional, ej: +5491123456789",
-      });
-    }
+    if (!/^\+\d{12,15}$/.test(telefono))
+      return res.status(400).json({ error: "Teléfono inválido, ej: +5491123456789" });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return res.status(400).json({ error: "Email inválido" });
+    if (password.length < 6)
+      return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Formato de email inválido" });
-    }
-
-    if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ error: "La contraseña debe tener al menos 6 caracteres" });
-    }
-
-    // Verificar que el usuario no exista ya en DB
     const existingUser = await manager.getUserByEmail(email);
-    if (existingUser) {
-      return res.status(409).json({ error: "El email ya está registrado" });
-    }
+    if (existingUser) return res.status(409).json({ error: "El email ya está registrado" });
 
-    // Generar código de 5 dígitos
     const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
+    pendingRegistrations[email] = { code: verificationCode, data: { email, password, firstName, lastName, telefono, role: "user" } };
 
-    // Guardar en memoria
-    pendingRegistrations[email] = {
-      code: verificationCode,
-      data: { email, password, firstName, lastName, telefono, role: "user" },
-    };
-
-    // Enviar mail con el código
-	await transporter.sendMail({
-	  from: process.env.ADMIN_EMAIL_USER, // tu Gmail (bandeja de salida)
-	  to: email,                          // correo del usuario que se registra
-	  subject: "Confirma tu correo",
-	  text: `Tu código de verificación es: ${verificationCode}`,
-	});
-
-    res.status(200).json({
-      message: "Código de verificación enviado a tu email",
+    await transporter.sendMail({
+      from: process.env.ADMIN_EMAIL_USER,
+      to: email,
+      subject: "Confirma tu correo",
+      text: `Tu código de verificación es: ${verificationCode}`,
     });
+
+    res.status(200).json({ message: "Código de verificación enviado a tu email" });
   } catch (error) {
     next(error);
   }
 });
 
-// POST /verify-code -> Valida código y crea usuario en DB
 router.post("/verify-code", async (req, res, next) => {
   try {
     const { email, code } = req.body || {};
-
-    if (!email || !code) {
-      return res.status(400).json({ error: "Faltan campos requeridos" });
-    }
+    if (!email || !code) return res.status(400).json({ error: "Faltan campos requeridos" });
 
     const pending = pendingRegistrations[email];
-    if (!pending) {
-      return res.status(400).json({ error: "No hay registro pendiente para este email" });
-    }
+    if (!pending) return res.status(400).json({ error: "No hay registro pendiente para este email" });
+    if (pending.code !== code) return res.status(400).json({ error: "Código inválido" });
 
-    if (pending.code !== code) {
-      return res.status(400).json({ error: "Código inválido" });
-    }
-
-    // Crear usuario en DB
     const hashedPassword = await bcrypt.hash(pending.data.password, 10);
     const newUser = await manager.addUser({ ...pending.data, password: hashedPassword });
-
-    // Limpiar memoria
     delete pendingRegistrations[email];
 
     res.status(201).json({
@@ -127,61 +88,36 @@ router.post("/verify-code", async (req, res, next) => {
   }
 });
 
-// POST /login -> Login normal
+// ------------------ Login y profile ------------------
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body || {};
-
-    if (!email || !password) {
-      return res.status(400).json({ error: "Faltan campos requeridos" });
-    }
+    if (!email || !password) return res.status(400).json({ error: "Faltan campos requeridos" });
 
     const user = await manager.getUserByEmail(email);
-    if (!user) {
-      return res.status(401).json({ error: "Credenciales inválidas" });
-    }
+    if (!user) return res.status(401).json({ error: "Credenciales inválidas" });
 
     const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: "Credenciales inválidas" });
-    }
+    if (!passwordMatch) return res.status(401).json({ error: "Credenciales inválidas" });
 
-    const tokenPayload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    };
+    const tokenPayload = { id: user.id, email: user.email, role: user.role, firstName: user.firstName, lastName: user.lastName };
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "2h" });
 
     res.json({
       message: "Login exitoso",
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-      },
+      user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role },
     });
   } catch (error) {
     next(error);
   }
 });
 
-// GET /profile/:id -> Proteger con JWT
 router.get("/profile/:id", authenticateToken, async (req, res, next) => {
   try {
-    if (req.user.id !== req.params.id && req.user.role !== "admin") {
-      return res.status(403).json({ error: "Acceso denegado" });
-    }
-
+    if (req.user.id !== req.params.id && req.user.role !== "admin") return res.status(403).json({ error: "Acceso denegado" });
     const user = await manager.getUserById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
     const { password, ...userWithoutPassword } = user;
     res.json(userWithoutPassword);
@@ -190,7 +126,6 @@ router.get("/profile/:id", authenticateToken, async (req, res, next) => {
   }
 });
 
-// GET /users -> Solo admin
 router.get("/users", authenticateToken, isAdmin, async (req, res, next) => {
   try {
     const users = await manager.getUsers();
@@ -201,11 +136,75 @@ router.get("/users", authenticateToken, isAdmin, async (req, res, next) => {
   }
 });
 
-// POST /logout -> Mensaje simple
 router.post("/logout", (req, res) => {
-  res.json({
-    message: "Logout exitoso. Por favor borra el token en el cliente.",
-  });
+  res.json({ message: "Logout exitoso. Por favor borra el token en el cliente." });
+});
+
+// ------------------ Forgot Password ------------------
+
+// POST /forgot-password/send-code -> Enviar código al email
+router.post("/forgot-password/send-code", async (req, res, next) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: "Email requerido" });
+
+    const user = await manager.getUserByEmail(email);
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    const code = Math.floor(10000 + Math.random() * 90000).toString();
+    pendingPasswords[email] = { code, verified: false };
+
+    await transporter.sendMail({
+      from: process.env.ADMIN_EMAIL_USER,
+      to: email,
+      subject: "Código para recuperar tu contraseña",
+      text: `Tu código de verificación es: ${code}`,
+    });
+
+    res.status(200).json({ message: "Código enviado a tu email" });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /forgot-password/verify-code -> Verificar código
+router.post("/forgot-password/verify-code", (req, res, next) => {
+  try {
+    const { email, code } = req.body || {};
+    if (!email || !code) return res.status(400).json({ error: "Faltan campos" });
+
+    const pending = pendingPasswords[email];
+    if (!pending) return res.status(400).json({ error: "No hay proceso pendiente" });
+    if (pending.code !== code) return res.status(400).json({ error: "Código inválido" });
+
+    pending.verified = true;
+    res.status(200).json({ message: "Código verificado, ya puedes cambiar tu contraseña" });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /forgot-password/update -> Actualizar contraseña
+router.post("/forgot-password/update", async (req, res, next) => {
+  try {
+    console.log("BODY RECEIVED:", req.body); //
+    const { email, newPassword } = req.body || {};
+    if (!email || !newPassword) return res.status(400).json({ error: "Faltan campos" });
+    if (newPassword.length < 6)
+      return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
+
+    const pending = pendingPasswords[email];
+    if (!pending || !pending.verified)
+      return res.status(400).json({ error: "No se ha verificado el código" });
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await manager.updateUserPassword(email, hashed);
+
+    delete pendingPasswords[email];
+    res.status(200).json({ message: "Contraseña actualizada con éxito" });
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;

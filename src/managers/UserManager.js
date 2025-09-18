@@ -39,6 +39,18 @@ class UserManager {
     const passwordMatch = await bcrypt.compare(plainPassword, user.password);
     return passwordMatch ? user : null;
   }
+
+
+	async updateUserPassword(email, hashedPassword) {
+	  const user = await User.findOne({ email });
+	  if (!user) throw new Error("Usuario no encontrado");
+	  user.password = hashedPassword;
+	  await user.save();
+	  const { password, ...userWithoutPassword } = user.toObject();
+	  return userWithoutPassword;
+	}
+
+
 }
 
 const userManager = new UserManager();
