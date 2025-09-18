@@ -36,59 +36,36 @@ export default function PendingOrderCard({ order, onConfirm, onDelete }) {
                                     </a>
                                 )}
                             </div>
-                            <div className="text-sm text-gray-600">
-                                <span className="font-medium">Fecha de creación:</span>{' '}
-                                {order.createdAt ? (
-                                    <>
-                                        {new Date(order.createdAt).toLocaleDateString('es-AR', {
-                                            day: '2-digit',
-                                            month: '2-digit',
-                                            year: 'numeric',
-                                        })}{' '}
-                                        {new Date(order.createdAt).toLocaleTimeString('es-AR', {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            hour12: false,
+                            
+                            <div className="flex flex-col gap-1 text-sm text-gray-600">
+                                {order.pendingAt && (
+                                    <span>
+                                    <span className="font-medium">Pedido el</span>{' '}
+                                    <span className="font-semibold text-orange-600">
+                                        {new Date(order.pendingAt).toLocaleDateString('es-AR', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                        })}
+                                    </span>{' '}
+                                    <span className="font-medium">a las</span>{' '}
+                                    <span className="font-semibold text-orange-600">
+                                        {new Date(order.pendingAt).toLocaleTimeString('es-AR', {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: false,
                                         })}hs
-                                    </>
-                                ) : (
-                                    'N/A'
+                                    </span>
+                                    </span>
                                 )}
-                            </div>
-                            {order.pendingAt && (
-                                <span className="text-sm text-gray-600">
-                                    <span className="font-medium">Pendiente de confirmación:</span>{' '}
-                                    {`${new Date(order.pendingAt).toLocaleDateString('es-AR', {
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric',
-                                    })} ${new Date(order.pendingAt).toLocaleTimeString('es-AR', {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        hour12: false,
-                                    })}hs`}
-                                </span>
-                            )}
-                            {order.confirmedAt && (
-                                <span className="text-sm text-gray-600">
-                                    <span className="font-medium">Confirmado:</span>{' '}
-                                    {`${new Date(order.confirmedAt).toLocaleDateString('es-AR', {
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric',
-                                    })} ${new Date(order.confirmedAt).toLocaleTimeString('es-AR', {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        hour12: false,
-                                    })}hs`}
-                                </span>
-                            )}
-                            <div>
-                                <span className="font-medium">Estado:</span>{' '}
-                                <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <div>
+                                    <span className="font-medium">Estado:</span>{' '}
+                                    <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                     Pendiente
-                                </span>
+                                    </span>
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -138,7 +115,7 @@ export default function PendingOrderCard({ order, onConfirm, onDelete }) {
                         </div>
                         <div className="mt-4 pt-4 border-t border-gray-200 text-right">
                             <span className="text-lg font-bold text-gray-900">
-                                Total: {order.products.reduce((acc, p) => {
+                                Total: ${order.products.reduce((acc, p) => {
                                     const price = typeof p.price === 'number' ? p.price : (p.productId && typeof p.productId.price === 'number' ? p.productId.price : 0);
                                     const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
                                     return acc + price * quantity;

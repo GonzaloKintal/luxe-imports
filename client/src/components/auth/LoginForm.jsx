@@ -73,7 +73,7 @@ export default function LoginForm({
             <button
                 type="button"
                 onClick={onForgot}
-                className="w-full mt-2 text-sm text-gray-600 hover:text-gray-900 underline text-center"
+                className="w-full mt-2 cursor-pointer text-sm text-gray-600 hover:text-gray-900 underline text-center"
             >
                 Olvidé mi contraseña
             </button>

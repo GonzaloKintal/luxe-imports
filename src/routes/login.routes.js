@@ -41,7 +41,7 @@ router.post("/register", async (req, res, next) => {
       return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
 
     const existingUser = await manager.getUserByEmail(email);
-    if (existingUser) return res.status(409).json({ error: "El email ya está registrado" });
+    if (existingUser) return res.status(409).json({ error: "El email ya está registrado. Si olvidaste tu contraseña, podés usar la opción 'Olvidé mi contraseña'" });
 
     const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
     pendingRegistrations[email] = { code: verificationCode, data: { email, password, firstName, lastName, telefono, role: "user" } };

@@ -21,7 +21,7 @@ class UserManager {
   async addUser(userData) {
     const existingUser = await User.findOne({ email: userData.email });
     if (existingUser) {
-      throw new Error('El email ya está registrado');
+      throw new Error("El email ya está registrado. Si olvidaste tu contraseña, podés usar la opción 'Olvidé mi contraseña'");
     }
 	  const newUser = new User({
 	    ...userData,

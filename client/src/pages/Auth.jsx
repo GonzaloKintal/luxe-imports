@@ -245,16 +245,22 @@ export default function Auth() {
       <div className="w-full max-w-md bg-white rounded-lg shadow-sm p-6 border border-gray-100 relative z-10 mt-8">
         {/* Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-black flex items-center justify-center mb-3">
-            <FaStore className="text-xl text-white" />
+          <div className="w-32 h-32 flex items-center justify-center mb-3">
+            <img 
+              // CAMBIAR A LOGO SIN TEXTO
+              src="/assets/logos/logo1.png" 
+              alt="Luxe Imports Logo" 
+              className="w-full h-full object-contain rounded-full shadow-md"
+            />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-1 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1 text-center">
             Bienvenido a Luxe Imports
           </h2>
-          <p className="text-gray-500 text-sm text-center">
+          <p className="text-gray-600 text-sm text-center max-w-xs">
             Inicia sesión o crea tu cuenta para comenzar
           </p>
         </div>
+
 
         {/* Tabs */}
         <div className="flex mb-6 rounded-md overflow-hidden border border-gray-100 bg-gray-50 p-1">
@@ -366,7 +372,7 @@ export default function Auth() {
                         setForgotLoading(false);
                       }
                     }}
-                    className="px-4 py-2 rounded-md bg-gray-800 text-white hover:bg-gray-900"
+                    className="px-4 py-2 cursor-pointer rounded-md bg-gray-800 text-white hover:bg-gray-900"
                   >
                     Enviar
                   </button>
