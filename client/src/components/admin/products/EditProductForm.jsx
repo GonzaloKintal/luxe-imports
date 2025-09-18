@@ -1,7 +1,95 @@
 
+
 import { useState, useEffect } from 'react';
-import { FaPlus, FaTimes, FaImage, FaTrash, FaCheck, FaSpinner } from 'react-icons/fa';
+import { FaPlus, FaTimes, FaImage, FaTrash, FaCheck, FaSpinner, FaGripVertical, FaCrown } from 'react-icons/fa';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
 const API_URL = import.meta.env.VITE_API_URL;
+
+// Componente para cada imagen sorteable
+function SortableImageItem({ imageObj, onRemove, isPortada }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: imageObj.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`relative group ${isDragging ? 'opacity-50' : ''}`}
+    >
+      {/* Indicador de portada */}
+      {isPortada && (
+        <div className="absolute -top-2 -left-2 z-10 bg-yellow-500 text-white rounded-full p-1 text-xs shadow-lg">
+          <FaCrown />
+        </div>
+      )}
+      
+      {/* Imagen */}
+      <div className="relative">
+        <img
+          src={imageObj.preview}
+          alt="Preview"
+          className={`w-32 h-32 object-cover rounded-lg border-2 ${
+            isPortada ? 'border-yellow-400' : 'border-gray-300'
+          } transition-all duration-200 group-hover:shadow-md`}
+        />
+        
+        {/* Handle para arrastrar */}
+        <div
+          {...attributes}
+          {...listeners}
+          className="absolute top-1 left-1 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded p-1 cursor-grab active:cursor-grabbing transition-all duration-200 opacity-0 group-hover:opacity-100"
+        >
+          <FaGripVertical className="text-xs" />
+        </div>
+        
+        {/* Botón eliminar */}
+        <button
+          type="button"
+          onClick={() => onRemove(imageObj.id)}
+          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 text-xs transition-colors duration-200 shadow-lg"
+        >
+          <FaTrash />
+        </button>
+      </div>
+      
+      {/* Etiqueta de portada */}
+      {isPortada && (
+        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
+          Portada
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function EditProductForm({ product, onSave, onCancel }) {
     const initialForm = {
@@ -19,6 +107,14 @@ export default function EditProductForm({ product, onSave, onCancel }) {
     const [categories, setCategories] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
+
+    // Configuración de sensores para dnd-kit
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     useEffect(() => {
         if (product) {
@@ -99,6 +195,20 @@ export default function EditProductForm({ product, onSave, onCancel }) {
         setSelectedImages(prev => [...prev, ...newImages]);
     }
 
+    // Manejar el reordenamiento de imágenes
+    function handleDragEnd(event) {
+        const { active, over } = event;
+
+        if (active.id !== over.id) {
+            setSelectedImages((items) => {
+                const oldIndex = items.findIndex(item => item.id === active.id);
+                const newIndex = items.findIndex(item => item.id === over.id);
+
+                return arrayMove(items, oldIndex, newIndex);
+            });
+        }
+    }
+
     // Guardar imágenes eliminadas para informar al backend
     const [deletedImages, setDeletedImages] = useState([]);
 
@@ -131,8 +241,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                 formData.append(key, form[key]);
             });
 
-
-            // Separar imágenes existentes de las nuevas
+            // Separar imágenes existentes de las nuevas, manteniendo el orden
             const currentImages = selectedImages
                 .filter(img => img.isExisting)
                 .map(img => img.preview);
@@ -141,15 +250,38 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                 .filter(img => !img.isExisting)
                 .map(img => img.file);
 
-            // Agregar imágenes existentes (con el nombre esperado por el backend)
-            formData.append('currentImages', JSON.stringify(currentImages));
+            // Crear un array ordenado que preserve el orden final
+            // Este array contendrá las URLs de las imágenes existentes en el orden correcto
+            const orderedCurrentImages = [];
+            const newImageFiles = [];
 
-            // Agregar nuevas imágenes
-            newImages.forEach(imageFile => {
+            selectedImages.forEach(img => {
+                if (img.isExisting) {
+                    orderedCurrentImages.push(img.preview);
+                } else {
+                    // Para las nuevas imágenes, necesitamos mantener su posición relativa
+                    // Las agregaremos al final del array de archivos
+                    newImageFiles.push(img.file);
+                }
+            });
+
+            // Agregar imágenes existentes en orden (con el nombre esperado por el backend)
+            formData.append('currentImages', JSON.stringify(orderedCurrentImages));
+
+            // Agregar nuevas imágenes en orden
+            newImageFiles.forEach(imageFile => {
                 formData.append('images', imageFile);
             });
 
-            // Si hay imágenes eliminadas, informar al backend{
+            // Crear un mapa de orden para que el backend sepa cómo intercalar las imágenes
+            const imageOrder = selectedImages.map(img => ({
+                isExisting: img.isExisting || false,
+                preview: img.isExisting ? img.preview : null
+            }));
+            
+            formData.append('imageOrder', JSON.stringify(imageOrder));
+
+            // Si hay imágenes eliminadas, informar al backend
             formData.append('deletedImages', JSON.stringify(deletedImages));
 
             await onSave({ id: product._id, formData });
@@ -311,6 +443,16 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                         </span>
                     </label>
 
+                    {/* Información sobre la portada */}
+                    {selectedImages.length > 0 && (
+                        <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="text-sm text-yellow-700 flex items-center gap-2">
+                                <FaCrown className="text-yellow-600" />
+                                <strong>Tip:</strong> La primera imagen será la portada del producto. Arrastra las imágenes para reordenarlas.
+                            </p>
+                        </div>
+                    )}
+
                     {/* Input de archivos */}
                     <div className="mb-4">
                         <input
@@ -320,42 +462,55 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                             onChange={handleImageSelect}
                             className="hidden"
                             id="image-upload"
+                            disabled={selectedImages.length >= 5}
                         />
                         <label
                             htmlFor="image-upload"
-                            className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300 transition-colors duration-200 text-sm"
+                            className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors duration-200 text-sm ${
+                                selectedImages.length >= 5 
+                                    ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed'
+                                    : 'bg-gray-100 hover:bg-gray-200 border-gray-300'
+                            }`}
                         >
                             <FaImage className="text-gray-600" />
-
-                            {/* Texto en mobile */}
-                            <span className="sm:hidden">Seleccionar</span>
-
-                            {/* Texto en sm y más grande */}
-                            <span className="hidden sm:inline">Seleccionar imágenes</span>
+                            <span className="sm:hidden">
+                                {selectedImages.length >= 5 ? 'Máximo alcanzado' : 'Seleccionar'}
+                            </span>
+                            <span className="hidden sm:inline">
+                                {selectedImages.length >= 5 ? 'Máximo de imágenes alcanzado' : 'Seleccionar imágenes'}
+                            </span>
                         </label>
-
+                        
+                        {selectedImages.length > 0 && (
+                            <span className="ml-3 text-sm text-gray-500">
+                                {selectedImages.length}/5 imágenes
+                            </span>
+                        )}
                     </div>
 
-                    {/* Preview de imágenes */}
+                    {/* Preview de imágenes con drag and drop */}
                     {selectedImages.length > 0 && (
-                        <div className="flex flex-wrap gap-4">
-                            {selectedImages.map((imageObj) => (
-                                <div key={imageObj.id} className="relative">
-                                    <img
-                                        src={imageObj.preview}
-                                        alt="Preview"
-                                        className="w-30 h-30 object-cover rounded-lg border border-gray-300"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeImage(imageObj.id)}
-                                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 text-xs transition-colors duration-200"
-                                    >
-                                        <FaTrash />
-                                    </button>
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext
+                                items={selectedImages.map(img => img.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <div className="flex flex-wrap gap-4">
+                                    {selectedImages.map((imageObj, index) => (
+                                        <SortableImageItem
+                                            key={imageObj.id}
+                                            imageObj={imageObj}
+                                            onRemove={removeImage}
+                                            isPortada={index === 0}
+                                        />
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </SortableContext>
+                        </DndContext>
                     )}
                 </div>
 

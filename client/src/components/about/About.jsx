@@ -49,7 +49,7 @@ const About = () => {
             <p className="text-gray-700 text-lg leading-relaxed">
               Creemos que el lujo debe ser accesible y que cada compra tiene que sentirse 
               como una experiencia única. Por eso trabajamos día a día para ofrecerte 
-              <span className="font-medium"> precios competitivos, atención personalizada</span> 
+              <span className="font-medium"> precios competitivos, atención personalizada </span> 
               y la seguridad de comprar productos 100% originales.
             </p>
 
