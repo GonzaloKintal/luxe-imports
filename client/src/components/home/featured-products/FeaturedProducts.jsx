@@ -4,12 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Marquee from "react-fast-marquee";
 import ProductCard from '../../products/ProductCard';
+import ProductCardSkeleton from '../../products/ProductCardSkeleton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function FeaturedProducts() {
     const navigate = useNavigate();
     const [destacados, setDestacados] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchFeatured = async () => {
@@ -19,11 +21,15 @@ export default function FeaturedProducts() {
                 setDestacados(data);
             } catch (error) {
                 console.error("Error al obtener productos destacados:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchFeatured();
     }, []);
+
+    const skeletonArray = Array.from({ length: 7 });
 
     return (
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
@@ -34,11 +40,22 @@ export default function FeaturedProducts() {
             </div>
 
             <Marquee pauseOnHover gradient={false} speed={40} className='py-4'>
-                {destacados.map((prod) => (
-                    <div className="w-[250px] h-[440px] sm:h-[470px] flex-shrink-0 mx-2">
-                        <ProductCard key={prod._id} {...prod} id={prod._id} onClick={() => navigate(`/products/product-detail/${prod._id}`)} />
-                    </div>
-                ))}
+                {loading
+                    ? skeletonArray.map((_, idx) => (
+                        <div key={idx} className="w-[250px] h-[440px] sm:h-[470px] flex-shrink-0 mx-2">
+                            <ProductCardSkeleton />
+                        </div>
+                    ))
+                    : destacados.map((prod) => (
+                        <div key={prod._id} className="w-[250px] h-[440px] sm:h-[470px] flex-shrink-0 mx-2">
+                            <ProductCard 
+                                {...prod} 
+                                id={prod._id} 
+                                onClick={() => navigate(`/products/product-detail/${prod._id}`)} 
+                            />
+                        </div>
+                    ))
+                }
             </Marquee>
 
             <div className="text-center mt-12">
