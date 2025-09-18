@@ -35,7 +35,7 @@ export default function FeaturedProducts() {
 
             <Marquee pauseOnHover gradient={false} speed={40} className='py-4'>
                 {destacados.map((prod) => (
-                    <div className="w-[250px] flex-shrink-0 mx-2">
+                    <div className="w-[250px] h-[440px] sm:h-[470px] flex-shrink-0 mx-2">
                         <ProductCard key={prod._id} {...prod} id={prod._id} onClick={() => navigate(`/products/product-detail/${prod._id}`)} />
                     </div>
                 ))}

@@ -26,8 +26,8 @@ export default function ProductCard({ title, price, thumbnails, category, stock,
   const precioPesos = cotizacion ? price * cotizacion : null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-md border border-gray-100 hover:border-gray-200 w-full max-w-sm mx-auto flex flex-col hover:shadow-lg transition-all duration-300">
-      
+    <div className="bg-white rounded-2xl shadow-md border border-gray-100 hover:border-gray-200 w-full max-w-sm mx-auto flex flex-col hover:shadow-lg transition-all duration-300 h-full">  
+
       {/* Contenedor de imagen con categoría superpuesta */}
       <div className="relative">
         <img 
