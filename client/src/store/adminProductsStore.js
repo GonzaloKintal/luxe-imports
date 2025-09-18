@@ -155,6 +155,7 @@ const useAdminProductsStore = create((set, get) => ({
 
   // Mantener fetchProductosIniciales para compatibilidad (ahora usa filtros por defecto)
   fetchProductosIniciales: async () => {
+    console.log('fetchProductosIniciales llamado');
     const { isInitialized, products } = get();
     
     // Si ya tenemos productos cargados, no hacer fetch innecesario
