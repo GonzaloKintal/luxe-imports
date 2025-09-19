@@ -268,12 +268,16 @@ class CartManager {
     await cart.save();
   }
 
-  async getPurchaseHistoryByUserId(userId) {
-    return await Cart.find({
-      userId,
-    })
+  async getPurchaseHistoryByUserId(filters, limit = 10, skip = 0) {
+    return await Cart.find(filters)
       .populate("products.productId")
-      .populate("userId");
+      .populate("userId")
+      .limit(limit)
+      .skip(skip);
+  }
+
+  async countPurchaseHistoryByUserId(filters) {
+    return await Cart.countDocuments(filters);
   }
 }
 
