@@ -100,7 +100,7 @@ export default function Auth() {
     setRegisterLoading(true);
 
     try {
-      const payload = { ...registerForm, email: registerForm.email.trim(), telefono: registerForm.telefono ? registerForm.telefono.trim() : '' };
+      const payload = { ...registerForm, email: registerForm.email.trim().toLowerCase(), telefono: registerForm.telefono ? registerForm.telefono.trim() : '' };
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -127,7 +127,7 @@ export default function Auth() {
       const res = await fetch(`${API_URL}/api/auth/verify-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: registerForm.email, code }),
+        body: JSON.stringify({ email: registerForm.email.trim().toLowerCase(), code }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Código incorrecto');
@@ -181,7 +181,7 @@ export default function Auth() {
       const res = await fetch(`${API_URL}/api/auth/forgot-password/verify-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail, code }),
+        body: JSON.stringify({ email: forgotEmail.trim().toLowerCase(), code }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Código incorrecto');
@@ -204,11 +204,11 @@ export default function Auth() {
 
   try {
 	console.log({ email: forgotEmail, newPassword });
-	const res = await fetch(`${API_URL}/api/auth/forgot-password/update`, {
-	  method: "POST",
-	  headers: { "Content-Type": "application/json" },
-	  body: JSON.stringify({ email: forgotEmail, newPassword }),
-	});
+  const res = await fetch(`${API_URL}/api/auth/forgot-password/update`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: forgotEmail.trim().toLowerCase(), newPassword }),
+  });
 	const data = await res.json();
 	console.log(data);
 
@@ -359,7 +359,7 @@ export default function Auth() {
                         const res = await fetch(`${API_URL}/api/auth/forgot-password/send-code`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ email: forgotEmail }),
+                          body: JSON.stringify({ email: forgotEmail.trim().toLowerCase() }),
                         });
                         const data = await res.json();
                         if (!res.ok) throw new Error(data.error || "Error al enviar código");
@@ -373,8 +373,10 @@ export default function Auth() {
                       }
                     }}
                     className="px-4 py-2 cursor-pointer rounded-md bg-gray-800 text-white hover:bg-gray-900"
+                    disabled={forgotLoading}
+                    style={forgotLoading ? { opacity: 0.6, pointerEvents: 'none' } : {}}
                   >
-                    Enviar
+                    {forgotLoading ? 'Enviando...' : 'Enviar'}
                   </button>
                 </div>
               </>
