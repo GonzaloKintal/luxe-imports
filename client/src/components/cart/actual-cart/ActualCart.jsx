@@ -165,6 +165,22 @@ export default function ActualCart({
     async function handleProcessPurchase() {
         setLoadingConfirm(true);
         try {
+            // Modal de confirmación antes de procesar compra
+            const confirmResult = await Swal.fire({
+                title: '¿Deseas finalizar la compra?',
+                text: 'No hay pasarela de pagos. La compra se coordina por mensaje directo con el vendedor vía WhatsApp. ¿Estás seguro de continuar?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, continuar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#25D366',
+                cancelButtonColor: '#d33',
+            });
+            if (!confirmResult.isConfirmed) {
+                setLoadingConfirm(false);
+                return;
+            }
+
             // Confirmar el pago con el backend
             const res = await fetch(`${API_URL}/api/carts/${cartId}/confirm-request`, {
                 method: 'POST',
@@ -173,7 +189,7 @@ export default function ActualCart({
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al solicitar confirmación de compra. Por favor, refresca la página e intenta nuevamente.');
 
-            // SweetAlert antes de derivar a WhatsApp
+            // SweetAlert de éxito y aviso de WhatsApp
             await Swal.fire({
                 title: '¡Compra realizada con éxito!',
                 text: 'Tu compra ha sido procesada correctamente y ya está disponible en tu historial de compras. Ahora serás derivado al WhatsApp del vendedor para coordinar la entrega o pago.',
