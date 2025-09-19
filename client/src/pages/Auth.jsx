@@ -32,11 +32,7 @@ export default function Auth() {
   const { user, setUser } = useContext(UserContext);
   const API_URL = import.meta.env.VITE_API_URL;
 
-  useEffect(() => {
-    if (user) {
-      navigate('/products', { replace: true });
-    }
-  }, [user, navigate]);
+
 
   // -------- Handlers de login --------
   const handleLoginChange = (e) => {
