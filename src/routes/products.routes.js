@@ -263,17 +263,62 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
     const updateData = { ...req.body };
     
 
-    // Manejar imágenes
+    // Manejar imágenes con orden correcto
     let finalThumbnails = [];
-    // Obtener imágenes actuales que se mantienen
-    if (req.body.currentImages) {
+    // Si hay información de orden, reconstruir el array respetando el orden
+    if (req.body.imageOrder) {
       try {
-        const currentImages = JSON.parse(req.body.currentImages);
-        if (Array.isArray(currentImages)) {
-          finalThumbnails = [...currentImages];
+        const imageOrder = JSON.parse(req.body.imageOrder);
+        const currentImages = req.body.currentImages ? JSON.parse(req.body.currentImages) : [];
+        const newImages = req.files ? req.files.map(file => file.path) : [];
+        let currentImageIndex = 0;
+        let newImageIndex = 0;
+        for (const orderItem of imageOrder) {
+          if (orderItem.isExisting) {
+            if (currentImageIndex < currentImages.length) {
+              finalThumbnails.push(currentImages[currentImageIndex]);
+              currentImageIndex++;
+            }
+          } else {
+            if (newImageIndex < newImages.length) {
+              finalThumbnails.push(newImages[newImageIndex]);
+              newImageIndex++;
+            }
+          }
         }
       } catch (e) {
-        console.log('Error parsing currentImages:', e);
+        console.log('Error parsing imageOrder, fallback to original logic:', e);
+        // Fallback a la lógica original...
+        if (req.body.currentImages) {
+          try {
+            const currentImages = JSON.parse(req.body.currentImages);
+            if (Array.isArray(currentImages)) {
+              finalThumbnails = [...currentImages];
+            }
+          } catch (e) {
+            console.log('Error parsing currentImages:', e);
+          }
+        }
+        if (req.files && req.files.length > 0) {
+          const newImages = req.files.map(file => file.path);
+          finalThumbnails = [...finalThumbnails, ...newImages];
+        }
+      }
+    } else {
+      // Lógica original como fallback...
+      if (req.body.currentImages) {
+        try {
+          const currentImages = JSON.parse(req.body.currentImages);
+          if (Array.isArray(currentImages)) {
+            finalThumbnails = [...currentImages];
+          }
+        } catch (e) {
+          console.log('Error parsing currentImages:', e);
+        }
+      }
+      if (req.files && req.files.length > 0) {
+        const newImages = req.files.map(file => file.path);
+        finalThumbnails = [...finalThumbnails, ...newImages];
       }
     }
 
@@ -281,24 +326,16 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
     if (req.body.deletedImages) {
       try {
         const deletedImages = JSON.parse(req.body.deletedImages);
-        console.log('Intentando eliminar imágenes de Cloudinary:', deletedImages);
         if (Array.isArray(deletedImages) && deletedImages.length > 0) {
-          // Eliminar cada imagen de Cloudinary
           for (const url of deletedImages) {
-            // Extraer public_id de la URL de Cloudinary (incluyendo carpeta)
             const match = url.match(/\/upload\/[^/]+\/(.+)\.[a-zA-Z]+$/);
-            console.log('URL:', url, 'Match:', match);
             if (match) {
               const publicId = match[1];
-              console.log('Eliminando publicId:', publicId);
               try {
-                const result = await cloudinary.uploader.destroy(publicId);
-                console.log('Resultado eliminación:', result);
+                await cloudinary.uploader.destroy(publicId);
               } catch (err) {
                 console.log('Error eliminando imagen de Cloudinary:', err);
               }
-            } else {
-              console.log('No se pudo extraer publicId de la URL:', url);
             }
           }
         }
@@ -307,16 +344,15 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
       }
     }
 
-    // Agregar nuevas imágenes si las hay
-    if (req.files && req.files.length > 0) {
-      const newImages = req.files.map(file => file.path);
-      finalThumbnails = [...finalThumbnails, ...newImages];
-    }
-
     // Actualizar thumbnails solo si hay cambios en las imágenes
-    if (req.files?.length > 0 || req.body.currentImages) {
+    if (req.files?.length > 0 || req.body.currentImages || req.body.imageOrder) {
       updateData.thumbnails = finalThumbnails;
     }
+
+    // Limpiar campos temporales
+    delete updateData.currentImages;
+    delete updateData.deletedImages;
+    delete updateData.imageOrder;
 
     // Limpiar campos temporales
     delete updateData.currentImages;
