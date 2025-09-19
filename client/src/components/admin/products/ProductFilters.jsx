@@ -47,6 +47,8 @@ function SearchInput({ search, setSearch }) {
         <div className="flex items-center gap-2 w-full">
             <FaSearch className="text-gray-600 text-lg" />
             <input
+                id="search"
+                name="search"
                 type="text"
                 placeholder="Buscar por nombre..."
                 className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-100 text-gray-900 text-sm font-medium"
@@ -62,6 +64,8 @@ function CategoryFilter({ categoryFilter, setCategoryFilter, categorias }) {
         <div className="flex items-center gap-2 w-full">
             <FaTag className="text-gray-600 text-lg" />
             <select
+                id="categoryFilter"
+                name="categoryFilter"
                 value={categoryFilter}
                 onChange={e => setCategoryFilter(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-100 text-gray-900 text-sm font-medium"
@@ -80,6 +84,8 @@ function StatusFilter({ showActivos, setShowActivos }) {
         <div className="flex items-center gap-2 w-full">
             <FaFilter className="text-gray-600 text-lg" />
             <select
+                id="statusFilter"
+                name="statusFilter"
                 value={showActivos ? 'activos' : 'inactivos'}
                 onChange={e => setShowActivos(e.target.value === 'activos')}
                 className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-100 text-gray-900 text-sm font-medium"
@@ -96,6 +102,8 @@ function StockFilter({ stockFilter, setStockFilter }) {
         <div className="flex items-center gap-2 w-full">
             <FaBox className="text-gray-600 text-lg" />
             <select
+                id="stockFilter"
+                name="stockFilter"
                 value={stockFilter}
                 onChange={e => setStockFilter(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-100 text-gray-900 text-sm font-medium"

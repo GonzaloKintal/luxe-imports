@@ -36,10 +36,12 @@ export default function SearchAndFilters({
 
                 {/* Filtro de búsqueda */}
                 <div className="flex flex-col w-full">
-                    <label className="mb-2 text-sm font-semibold text-gray-700">Buscar</label>
+                    <label htmlFor="buscar" className="mb-2 text-sm font-semibold text-gray-700">Buscar</label>
                     <div className="flex items-center gap-2">
                         <FaSearch className="text-gray-500 text-lg" />
                         <input
+                            id="buscar"
+                            name="buscar"
                             type="text"
                             placeholder="Buscar productos..."
                             value={busqueda}
@@ -51,10 +53,12 @@ export default function SearchAndFilters({
 
                 {/* Filtro de categoría */}
                 <div className="flex flex-col w-full">
-                    <label className="mb-2 text-sm font-semibold text-gray-700">Categoría</label>
+                    <label htmlFor="categoria" className="mb-2 text-sm font-semibold text-gray-700">Categoría</label>
                     <div className="flex items-center gap-2">
                         <FaTag className="text-gray-500 text-lg" />
                         <select
+                            id="categoria"
+                            name="categoria"
                             value={filtroCategoria}
                             onChange={e => setFiltroCategoria(e.target.value)}
                             className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-white text-gray-900 transition text-sm"
@@ -69,10 +73,12 @@ export default function SearchAndFilters({
 
                 {/* Filtro de stock */}
                 <div className="flex flex-col w-full">
-                    <label className="mb-2 text-sm font-semibold text-gray-700">Stock</label>
+                    <label htmlFor="stock" className="mb-2 text-sm font-semibold text-gray-700">Stock</label>
                     <div className="flex items-center gap-2">
                         <FaFilter className="text-gray-500 text-lg" />
                         <select
+                            id="stock"
+                            name="stock"
                             value={filtroStock}
                             onChange={e => setFiltroStock(e.target.value)}
                             className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-white text-gray-900 transition text-sm"
@@ -86,10 +92,12 @@ export default function SearchAndFilters({
 
                 {/* Filtro de orden de precio */}
                 <div className="flex flex-col w-full">
-                    <label className="mb-2 text-sm font-semibold text-gray-700">Ordenar por precio</label>
+                    <label htmlFor="ordenPrecio" className="mb-2 text-sm font-semibold text-gray-700">Ordenar por precio</label>
                     <div className="flex items-center gap-2">
                         <FaSortAmountDownAlt className="text-gray-500 text-lg" />
                         <select
+                            id="ordenPrecio"
+                            name="ordenPrecio"
                             value={ordenPrecio}
                             onChange={e => setOrdenPrecio(e.target.value)}
                             className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-white text-gray-900 transition text-sm"

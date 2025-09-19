@@ -12,12 +12,14 @@ export default function LoginForm({
     return (
         <form onSubmit={onSubmit} className="space-y-4">
             <div>
-                <label className="block text-gray-700 mb-2 text-sm font-medium">Email</label>
+                <label htmlFor="email" className="block text-gray-700 mb-2 text-sm font-medium">Email</label>
                 <div className="relative">
                     <span className="absolute left-3 top-3 text-gray-400"><FaEnvelope /></span>
                     <input 
-                        name="email" 
-                        type="email" 
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete='email'
                         value={formData.email} 
                         onChange={onFormChange} 
                         onBlur={() => onBlurField('email')} 
@@ -36,12 +38,14 @@ export default function LoginForm({
             </div>
             
             <div>
-                <label className="block text-gray-700 mb-2 text-sm font-medium">Contraseña</label>
+                <label htmlFor="password" className="block text-gray-700 mb-2 text-sm font-medium">Contraseña</label>
                 <div className="relative">
                     <span className="absolute left-3 top-3 text-gray-400"><FaLock /></span>
                     <input 
+                        id="password"
                         name="password" 
-                        type="password" 
+                        type="password"
+                        autoComplete='current-password'
                         value={formData.password} 
                         onChange={onFormChange} 
                         onBlur={() => onBlurField('password')} 

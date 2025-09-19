@@ -1,10 +1,10 @@
 export default function LoadHistoryButton({ onLoadHistory, loading, error }) {
     
     return (
-        <div className="mt-10 text-center max-w-3xl mx-auto px-4">
+        <div className="mt-15 text-center max-w-3xl mx-auto px-4">
             <button
                 onClick={onLoadHistory}
-                className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium transition-all bg-white rounded-md group border border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                className="relative cursor-pointer inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium transition-all bg-white rounded-md group border border-gray-200 hover:border-gray-300 hover:shadow-sm"
                 disabled={loading}
             >
                 <span className="absolute inset-0 border-0 transition-all duration-100 ease-linear group-hover:bg-gray-50"></span>

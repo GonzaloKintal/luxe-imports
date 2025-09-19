@@ -32,7 +32,6 @@ export default function ActualCart({
                 const data = await res.json();
                 if (res.ok && data.telefono) {
                     setAdminPhone(data.telefono);
-                    setAdminName(data.nombre || 'Luxe Imports');
                 }
             } catch (err) {
                 console.error('Error al obtener admin-info:', err);
@@ -253,8 +252,9 @@ export default function ActualCart({
                     title="Contactar por WhatsApp"
                 >
                     <span className="font-medium text-gray-800 text-lg">
-                        {'Luxe Imports'}
+                        Luxe Imports
                     </span>
+
                     <div className="bg-green-100 p-1.5 rounded-full group-hover:bg-green-200 transition-colors">
                         <FaWhatsapp className="text-green-600 text-xl" />
                     </div>
@@ -269,22 +269,27 @@ export default function ActualCart({
                 loadingById={loadingById}
             />
 
-            <div className="mt-8 flex justify-between items-center max-w-3xl mx-auto p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <div>
-                    <p className="text-sm text-gray-500">Total a pagar</p>
+            <div className="mt-8 flex flex-col sm:flex-row justify-between items-center max-w-3xl mx-auto p-4 bg-gray-50 rounded-lg border border-gray-200">
+                
+                <div className='flex flex-col gap-2 sm:gap-0'>
+                    <p className="text-sm text-center sm:text-left text-gray-500">Total a pagar</p>
                     <p className="text-2xl font-bold text-gray-800">${total.toFixed(2)}</p>
                 </div>
-                <button
-                    onClick={handleProcessPurchase}
-                    className="bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
-                    disabled={loadingConfirm}
-                    style={loadingConfirm ? { opacity: 0.6, pointerEvents: 'none' } : {}}
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    {loadingConfirm ? 'Procesando...' : 'Finalizar Compra'}
-                </button>
+
+                <div className="mt-2 sm:mt-0">
+                    <button
+                        onClick={handleProcessPurchase}
+                        className="bg-gray-900 hover:bg-black text-white cursor-pointer px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+                        disabled={loadingConfirm}
+                        style={loadingConfirm ? { opacity: 0.6, pointerEvents: 'none' } : {}}
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        {loadingConfirm ? 'Procesando...' : 'Finalizar Compra'}
+                    </button>
+                </div>
+
             </div>
         </>
     );

@@ -12,53 +12,73 @@ export default function HistoryItem({ carrito: order, expanded, onToggleExpanded
     return (
         <div className="bg-white border border-gray-300 p-4 rounded shadow">
             <div className="flex flex-col">
-                <div>
+                <div className="flex flex-col gap-1">
                     <p className="text-black font-semibold">ID Pedido: {id}</p>
-                    <p className="text-sm text-gray-600"><span className="font-medium">Productos:</span> {productCount}</p>
-                    <p className="text-sm text-gray-600"><span className="font-medium">Total:</span> ${total}</p>
-                    <p className="text-sm text-gray-600"><span className="font-medium">Estado:</span> {order.status}</p>
-                    {order.createdAt && (
-                        <p className="text-sm text-gray-600">
-                            <span className="font-medium">Fecha de creación:</span>{' '}
-                            {`${new Date(order.createdAt).toLocaleDateString('es-AR', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                            })} ${new Date(order.createdAt).toLocaleTimeString('es-AR', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false,
-                            })}hs`}
-                        </p>
-                    )}
-                    {order.pendingAt && (
-                        <p className="text-sm text-gray-600">
-                            <span className="font-medium">Pendiente de confirmación:</span>{' '}
-                            {`${new Date(order.pendingAt).toLocaleDateString('es-AR', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                            })} ${new Date(order.pendingAt).toLocaleTimeString('es-AR', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false,
-                            })}hs`}
-                        </p>
-                    )}
-                    {order.confirmedAt && (
-                        <p className="text-sm text-gray-600">
-                            <span className="font-medium">Confirmado:</span>{' '}
-                            {`${new Date(order.confirmedAt).toLocaleDateString('es-AR', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                            })} ${new Date(order.confirmedAt).toLocaleTimeString('es-AR', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false,
-                            })}hs`}
-                        </p>
-                    )}
+                    <p className="text-sm text-gray-600"><span className="font-medium">Productos:</span> <span className="font-bold">{productCount}</span></p>
+
+                    <div className="flex flex-col gap-1 text-sm text-gray-600">
+                        {order.pendingAt && (
+                            <span>
+                                <span className="font-medium">Pedido el</span>{' '}
+                                <span className="font-semibold text-orange-600">
+                                {new Date(order.pendingAt).toLocaleDateString('es-AR', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                })}
+                                </span>{' '}
+                                <span className="font-medium">a las</span>{' '}
+                                <span className="font-semibold text-orange-600">
+                                {new Date(order.pendingAt).toLocaleTimeString('es-AR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false,
+                                })}hs
+                                </span>
+                            </span>
+                        )}
+
+                        {order.confirmedAt && (
+                            <span>
+                                <span className="font-medium">Confirmado el</span>{' '}
+                                <span className="font-semibold text-green-700">
+                                {new Date(order.confirmedAt).toLocaleDateString('es-AR', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                })}
+                                </span>{' '}
+                                <span className="font-medium">a las</span>{' '}
+                                <span className="font-semibold text-green-700">
+                                {new Date(order.confirmedAt).toLocaleTimeString('es-AR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false,
+                                })}hs
+                                </span>
+                            </span>
+                        )}
+                    </div>
+
+                    <p className="text-sm text-gray-600">
+                        <span className="font-medium">Estado:</span>{' '}
+                        {order.status === "pendiente de confirmacion" ? (
+                            <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-600">
+                            Pendiente
+                            </span>
+                        ) : order.status === "confirmado" ? (
+                            <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-green-200 text-green-800">
+                            Confirmado
+                            </span>
+                        ) : (
+                            <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
+                            {order.status
+                                ? order.status.charAt(0).toUpperCase() + order.status.slice(1)
+                                : 'N/A'}
+                            </span>
+                        )}
+                    </p>
+
                 </div>
 
                 <div className="flex mt-2 justify-end">
@@ -74,31 +94,51 @@ export default function HistoryItem({ carrito: order, expanded, onToggleExpanded
             </div>
 
             {expanded && (
-                <ul className="mt-4 space-y-2 list-none">
+                <ul className="mt-4 space-y-4 list-none">
                     {products.map((p, idx) => {
-                        const title = p.title || (p.productId && (p.productId.title || p.productId.name)) || 'Producto';
-                        const price = typeof p.price === 'number' ? p.price : (p.productId && typeof p.productId.price === 'number' ? p.productId.price : 0);
-                        const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
-                        const subtotal = price * quantity;
-                        return (
-                            <li
-                                key={p._id || idx}
-                                className="flex items-center gap-3 border-b border-gray-300 pb-2"
-                            >
-                                <img
-                                    src={p.thumbnails?.[0] || 'https://placehold.co/80x80'}
-                                    alt={title}
-                                    className="w-16 h-16 object-cover rounded-md shadow bg-gray-200 flex-shrink-0"
-                                />
-                                <span className="font-semibold text-black truncate">{title}</span>
-                                <span className="ml-2 text-gray-700">x{quantity}</span>
-                                <span className="ml-2 text-gray-700">${price.toFixed(2)}</span>
-                                <span className="ml-2 text-blue-700 font-semibold">Subtotal: ${subtotal.toFixed(2)}</span>
-                            </li>
-                        );
+                    const title =
+                        p.title ||
+                        (p.productId && (p.productId.title || p.productId.name)) ||
+                        "Producto";
+                    const price =
+                        typeof p.price === "number"
+                        ? p.price
+                        : p.productId && typeof p.productId.price === "number"
+                        ? p.productId.price
+                        : 0;
+                    const quantity = typeof p.quantity === "number" ? p.quantity : 0;
+                    const subtotal = price * quantity;
+
+                    return (
+                        <li
+                        key={p._id || idx}
+                        className="grid grid-cols-[auto_1fr] gap-3 items-center border-b border-gray-300 pb-3"
+                        >
+                        {/* Columna izquierda (imagen) */}
+                        <img
+                            src={p.thumbnails?.[0] || "https://placehold.co/80x80"}
+                            alt={title}
+                            className="w-20 h-20 object-cover rounded-md shadow bg-gray-200"
+                        />
+
+                        {/* Columna derecha (texto e info) */}
+                        <div className="flex flex-col">
+                            <span className="font-semibold text-black mb-1">{title}</span>
+                            <div className="flex flex-wrap gap-2 text-sm text-gray-700">
+                            <span>x{quantity}</span>
+                            <span>${price.toFixed(2)}</span>
+                            <span className="text-blue-700 font-semibold">
+                                Subtotal: ${subtotal.toFixed(2)}
+                            </span>
+                            </div>
+                        </div>
+                        </li>
+                    );
                     })}
                 </ul>
-            )}
+                )}
+
+
 
             <div className="mt-4 pt-4 border-t border-gray-200 text-right">
                 <span className="text-lg font-bold text-gray-900">

@@ -108,10 +108,11 @@ export default function CreateAdminForm({ onSave }) {
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                        <label htmlFor="firstName" className="block text-gray-700 mb-1 font-semibold text-sm">
                             Nombre <span className="text-red-500">*</span>
                         </label>
                         <input
+                            id='firstName'
                             name="firstName"
                             value={form.firstName}
                             onChange={handleChange}
@@ -122,10 +123,11 @@ export default function CreateAdminForm({ onSave }) {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                        <label htmlFor="lastName" className="block text-gray-700 mb-1 font-semibold text-sm">
                             Apellido <span className="text-red-500">*</span>
                         </label>
                         <input
+                            id='lastName'
                             name="lastName"
                             value={form.lastName}
                             onChange={handleChange}
@@ -137,25 +139,28 @@ export default function CreateAdminForm({ onSave }) {
                 </div>
 
                 <div>
-                    <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                    <label htmlFor='email' className="block text-gray-700 mb-1 font-semibold text-sm">
                         Email <span className="text-red-500">*</span>
                     </label>
                     <input
+                        id='email'
                         name="email"
                         type="email"
                         value={form.email}
                         onChange={handleChange}
                         required
+                        autoComplete="email"
                         className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                         placeholder="correo@ejemplo.com"
                     />
                 </div>
 
                 <div>
-                    <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                    <label htmlFor="password" className="block text-gray-700 mb-1 font-semibold text-sm">
                         Contraseña <span className="text-red-500">*</span>
                     </label>
                     <input
+                        id="password"
                         name="password"
                         type="password"
                         value={form.password}

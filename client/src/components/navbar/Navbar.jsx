@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { FaUserCircle, FaChevronDown, FaSignOutAlt, FaUserShield, FaUser, FaSignInAlt } from 'react-icons/fa';
+import { FaUserCircle, FaChevronDown, FaSignOutAlt, FaUserShield, FaUser, FaSignInAlt, FaShoppingCart } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import { toast, ToastContainer } from 'react-toastify';
@@ -128,11 +128,11 @@ function Navbar() {
                                     ) : (
                                         <Link
                                             to="/cart"
-                                            className={`relative group transition-all duration-300 ${isActive('/cart') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
+                                            className={`relative group transition-all duration-300 flex items-center gap-2 ${isActive('/cart') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                                             onClick={() => setIsOpen(false)}
                                         >
-                                            Carrito
-                                            <span className={`absolute -bottom-1 left-0 h-0.5 bg-white transition-all duration-300 ${isActive('/cart') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+                                            <FaShoppingCart className="text-lg" />
+                                            <span className="sr-only">Carrito</span>
                                         </Link>
                                     )}
 
@@ -184,8 +184,8 @@ function Navbar() {
                     </div>
 
                     {/* Mobile menu */}
-                    <div className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
-                        <div className="py-4 border-t border-gray-700">
+                    <div className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+                        <div className="py-4 border-t border-gray-700 flex flex-col justify-center items-center">
                             <Link
                                 to="/"
                                 className={`block py-3 transition-all duration-300 transform hover:translate-x-2 ${isActive('/') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
@@ -223,16 +223,17 @@ function Navbar() {
                                     ) : (
                                         <Link
                                             to="/cart"
-                                            className={`block py-3 transition-all duration-300 transform hover:translate-x-2 ${isActive('/cart') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
+                                            className={`block py-3 transition-all duration-300 transform hover:translate-x-2 items-center gap-2 ${isActive('/cart') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                                             onClick={() => setIsOpen(false)}
                                         >
-                                            Carrito
+                                            <FaShoppingCart className="text-xl" />
+                                            <span className="sr-only">Carrito</span>
                                         </Link>
                                     )}
 
-                                    <div className="py-3 relative">
+                                    <div className="pt-3 relative">
                                         <button
-                                            className="w-full flex justify-between items-center text-gray-200 hover:text-white transition-all duration-300 font-semibold"
+                                            className="w-full flex justify-center items-center gap-2 text-gray-200 hover:text-white transition-all duration-300 font-semibold"
                                             onClick={() => setProfileOpen(!profileOpen)}
                                         >
                                             Perfil
@@ -242,7 +243,7 @@ function Navbar() {
                                         </button>
 
                                         {profileOpen && (
-                                            <div className="mt-2 relative z-20 flex flex-col gap-3 p-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg border border-gray-200 text-black">
+                                            <div className="mt-2 relative z-20 flex flex-col gap-3 p-4 w-60 bg-white/95 backdrop-blur-md rounded-xl shadow-lg border border-gray-200 text-black">
                                                 <div className="flex flex-col items-center">
                                                     <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                                                         {user.role === 'admin' ? <FaUserShield /> : <FaUser />}

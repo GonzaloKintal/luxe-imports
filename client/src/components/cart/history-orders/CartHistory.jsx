@@ -96,7 +96,7 @@ export default function CartHistory({ token, API_URL }) {
     }
 
     return (
-        <div className="mt-10 max-w-4xl mx-auto px-4">
+        <div className="mt-15 max-w-4xl mx-auto px-4">
             <HistoryHeader onClose={handleCloseHistory} />
 
             <PendingOrders

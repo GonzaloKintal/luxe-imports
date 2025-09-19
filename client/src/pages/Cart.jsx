@@ -5,12 +5,13 @@ import { ToastContainer } from 'react-toastify';
 import { UserContext } from '../context/UserContext.jsx';
 import ActualCart from '../components/cart/actual-cart/ActualCart.jsx';
 import CartHistory from '../components/cart/history-orders/CartHistory.jsx';
+import CartSkeleton from '../components/cart/CartSkeleton.jsx';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function Cart() {
 
     const navigate = useNavigate();
-    const { user } = useContext(UserContext);
+    const { user, isLoading } = useContext(UserContext); // Agregar isLoading
     const [cartId, setCartId] = useState(null);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,8 +20,14 @@ export default function Cart() {
     const token = localStorage.getItem('token');
     const API_URL = import.meta.env.VITE_API_URL;
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    });
 
     useEffect(() => {
+        // No hacer nada mientras el UserContext está cargando
+        if (isLoading) return;
+        
         // Redirigir si no hay usuario o si es admin
         if (!user || user.role === 'admin') {
             navigate('/');
@@ -95,14 +102,11 @@ export default function Cart() {
         }
 
         initCart();
-    }, [token, user, navigate, API_URL]);
+    }, [token, user, navigate, API_URL, isLoading]); // Agregar isLoading a las dependencias
 
-    if (loading) {
-        return (
-            <main className="min-h-screen flex items-center justify-center bg-white">
-                <p className="text-gray-600">Cargando carrito...</p>
-            </main>
-        );
+    // Mostrar skeleton mientras UserContext está cargando O mientras se cargan los datos del carrito
+    if (isLoading || loading) {
+        return <CartSkeleton />;
     }
 
     return (

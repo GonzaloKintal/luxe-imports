@@ -19,11 +19,13 @@ export default function RegisterForm({
     <form onSubmit={onSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-gray-700 mb-2 text-sm font-medium">Nombre</label>
+                    <label htmlFor="firstName" className="block text-gray-700 mb-2 text-sm font-medium">Nombre</label>
                     <div className="relative">
                         <span className="absolute left-3 top-3 text-gray-400"><FaUser /></span>
                         <input
+                            id="firstName"
                             name="firstName"
+                            autoComplete="given-name"
                             value={formData.firstName}
                             onChange={onFormChange}
                             onBlur={() => onBlurField('firstName')}
@@ -41,11 +43,13 @@ export default function RegisterForm({
                 </div>
 
                 <div>
-                    <label className="block text-gray-700 mb-2 text-sm font-medium">Apellido</label>
+                    <label htmlFor="lastName" className="block text-gray-700 mb-2 text-sm font-medium">Apellido</label>
                     <div className="relative">
                         <span className="absolute left-3 top-3 text-gray-400"><FaUser /></span>
                         <input
+                            id="lastName"
                             name="lastName"
+                            autoComplete="family-name"
                             value={formData.lastName}
                             onChange={onFormChange}
                             onBlur={() => onBlurField('lastName')}
@@ -64,12 +68,14 @@ export default function RegisterForm({
             </div>
 
             <div>
-                <label className="block text-gray-700 mb-2 text-sm font-medium">Email</label>
+                <label htmlFor="email" className="block text-gray-700 mb-2 text-sm font-medium">Email</label>
                 <div className="relative">
                     <span className="absolute left-3 top-3 text-gray-400"><FaEnvelope /></span>
                     <input
+                        id="email"
                         name="email"
                         type="email"
+                        autoComplete="email"
                         value={formData.email}
                         onChange={onFormChange}
                         onBlur={() => onBlurField('email')}
@@ -87,12 +93,14 @@ export default function RegisterForm({
             </div>
 
             <div>
-                <label className="block text-gray-700 mb-2 text-sm font-medium">Contraseña</label>
+                <label htmlFor="password" className="block text-gray-700 mb-2 text-sm font-medium">Contraseña</label>
                 <div className="relative">
                     <span className="absolute left-3 top-3 text-gray-400"><FaLock /></span>
                     <input
+                        id="password"
                         name="password"
                         type="password"
+                        autoComplete="new-password"
                         value={formData.password}
                         onChange={onFormChange}
                         onBlur={() => onBlurField('password')}
@@ -110,8 +118,9 @@ export default function RegisterForm({
             </div>
 
             <div>
-                <label className="block text-gray-700 mb-2 text-sm font-medium">Teléfono</label>
+                <label htmlFor="telefono" className="block text-gray-700 mb-2 text-sm font-medium">Teléfono</label>
                 <PhoneInput
+                    id="telefono"
                     country="ar"
                     value={formData.telefono || ''}
                     onChange={value => onFormChange({ target: { name: 'telefono', value } })}
@@ -120,6 +129,8 @@ export default function RegisterForm({
                         name: 'telefono',
                         required: true,
                         autoFocus: false,
+                        autoComplete: 'tel',
+                        id: 'telefono',
                         className: `w-full pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent ${telefonoError ? 'border-red-500' : 'border-gray-300'
                             }`
                     }}

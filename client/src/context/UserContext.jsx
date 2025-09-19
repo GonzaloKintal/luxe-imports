@@ -1,10 +1,11 @@
-// context/UserContext.jsx
+
 import { createContext, useEffect, useState } from 'react';
 
-export const UserContext = createContext();
+const UserContext = createContext();
 
-export function UserProvider({ children }) {
+function UserProvider({ children }) {
     const [user, setUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -18,11 +19,14 @@ export function UserProvider({ children }) {
         } else {
             setUser(null);
         }
+        setIsLoading(false);
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, setUser }}>
+        <UserContext.Provider value={{ user, setUser, isLoading }}>
             {children}
         </UserContext.Provider>
     );
 }
+
+export { UserContext, UserProvider };

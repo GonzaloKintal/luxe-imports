@@ -354,10 +354,11 @@ export default function CreateProductForm({ onSave }) {
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                        <label htmlFor="title" className="block text-gray-700 mb-1 font-semibold text-sm">
                             Título <span className="text-red-500">*</span>
                         </label>
                         <input
+                            id='title'
                             name="title"
                             value={form.title}
                             onChange={handleChange}
@@ -367,6 +368,7 @@ export default function CreateProductForm({ onSave }) {
                         />
                     </div>
 
+                    {/* HAY QUE SACARLO */}
                     <div>
                         <label className="block text-gray-700 mb-1 font-semibold text-sm">
                             Código <span className="text-red-500">*</span>
@@ -383,8 +385,9 @@ export default function CreateProductForm({ onSave }) {
                 </div>
 
                 <div>
-                    <label className="block text-gray-700 mb-1 font-semibold text-sm">Descripción</label>
+                    <label htmlFor="description" className="block text-gray-700 mb-1 font-semibold text-sm">Descripción</label>
                     <textarea
+                        id='description'
                         name="description"
                         value={form.description}
                         onChange={handleChange}
@@ -396,10 +399,11 @@ export default function CreateProductForm({ onSave }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                        <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                        <label htmlFor="price" className="block text-gray-700 mb-1 font-semibold text-sm">
                             Precio (USD)<span className="text-red-500">*</span>
                         </label>
                         <input
+                            id='price'
                             name="price"
                             type="number"
                             step="0.01"
@@ -413,10 +417,11 @@ export default function CreateProductForm({ onSave }) {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                        <label htmlFor="stock" className="block text-gray-700 mb-1 font-semibold text-sm">
                             Stock <span className="text-red-500">*</span>
                         </label>
                         <input
+                            id='stock'
                             name="stock"
                             type="number"
                             min="0"
@@ -429,11 +434,12 @@ export default function CreateProductForm({ onSave }) {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                        <label htmlFor="stockCritico" className="block text-gray-700 mb-1 font-semibold text-sm">
                             Stock crítico
                             <span className="text-xs text-gray-500 font-normal ml-1">(alerta de bajo stock)</span>
                         </label>
                         <input
+                            id='stockCritico'
                             name="stockCritico"
                             type="number"
                             min="0"
@@ -445,8 +451,9 @@ export default function CreateProductForm({ onSave }) {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 mb-1 font-semibold text-sm">Estado</label>
+                        <label htmlFor='status' className="block text-gray-700 mb-1 font-semibold text-sm">Estado</label>
                         <select
+                            id='status'
                             name="status"
                             value={form.status ? 'true' : 'false'}
                             onChange={handleChange}
@@ -459,8 +466,9 @@ export default function CreateProductForm({ onSave }) {
                 </div>
 
                 <div>
-                    <label className="block text-gray-700 mb-1 font-semibold text-sm">Categoría</label>
+                    <label htmlFor="category" className="block text-gray-700 mb-1 font-semibold text-sm">Categoría</label>
                     <select
+                        id='category'
                         name="category"
                         value={form.category}
                         onChange={handleChange}
