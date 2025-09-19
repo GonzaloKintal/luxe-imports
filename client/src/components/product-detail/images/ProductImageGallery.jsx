@@ -1,104 +1,54 @@
-// import { useState } from 'react';
-
-// export default function ProductImageGallery({ thumbnails, title }) {
-    
-//   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-//   const images = thumbnails || [];
-//   const hasMultipleImages = images.length > 1;
-
-//   return (
-//     <div className="p-6 lg:p-8">
-//       {/* Imagen principal */}
-//       <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4 max-w-lg mx-auto">
-//         <img
-//           src={images[currentImageIndex] || '/placeholder-product.jpg'}
-//           alt={title}
-//           className="w-full h-full object-cover"
-//           onError={(e) => {
-//             e.target.src = '/placeholder-product.jpg';
-//           }}
-//         />
-//       </div>
-      
-//       {/* Miniaturas - Solo se muestran si hay más de una imagen */}
-//       {hasMultipleImages && (
-//         <div className="flex gap-2 overflow-x-auto">
-//           {images.map((thumbnail, index) => (
-//             <ThumbnailButton
-//               key={index}
-//               src={thumbnail}
-//               alt={`${title} ${index + 1}`}
-//               isActive={currentImageIndex === index}
-//               onClick={() => setCurrentImageIndex(index)}
-//             />
-//           ))}
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// function ThumbnailButton({ src, alt, isActive, onClick }) {
-//   return (
-//     <button
-//       onClick={onClick}
-//       className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-//         isActive 
-//           ? 'border-gray-900' 
-//           : 'border-gray-200 hover:border-gray-400'
-//       }`}
-//     >
-//       <img
-//         src={src}
-//         alt={alt}
-//         className="w-full h-full object-cover"
-//         onError={(e) => {
-//           e.target.src = '/placeholder-product.jpg';
-//         }}
-//       />
-//     </button>
-//   );
-
-// }
-
 
 import { useState } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 export default function ProductImageGallery({ thumbnails, title }) {
-    
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const images = thumbnails && thumbnails.length > 0 ? thumbnails : ["https://placehold.co/250x250"];
   const hasMultipleImages = images.length > 1 && thumbnails && thumbnails.length > 0;
 
+  // Función para cambiar de imagen con transición
+  const changeImage = (newIndex) => {
+    if (isTransitioning || newIndex === currentImageIndex) return;
+    
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentImageIndex(newIndex);
+      setIsTransitioning(false);
+    }, 150); // Duración de la transición
+  };
+
   // Función para avanzar a la siguiente imagen
   const nextImage = () => {
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
+    const newIndex = currentImageIndex === images.length - 1 ? 0 : currentImageIndex + 1;
+    changeImage(newIndex);
   };
 
   // Función para retroceder a la imagen anterior
   const prevImage = () => {
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
+    const newIndex = currentImageIndex === 0 ? images.length - 1 : currentImageIndex - 1;
+    changeImage(newIndex);
   };
 
   return (
     <div className="p-6 lg:p-8 relative">
+
       {/* Contenedor de imagen principal con flechas */}
       <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4 max-w-lg mx-auto relative">
-        <img
-          src={images[currentImageIndex]}
-          alt={title}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.target.src = 'https://placehold.co/250x250';
-          }}
-        />
+        <div className="relative w-full h-full">
+          <img
+            src={images[currentImageIndex]}
+            alt={title}
+            className={`w-full h-full object-cover absolute top-0 left-0 transition-opacity duration-150 ${
+              isTransitioning ? 'opacity-0' : 'opacity-100'
+            }`}
+            onError={(e) => {
+              e.target.src = 'https://placehold.co/250x250';
+            }}
+          />
+        </div>
         
         {/* Flechas de navegación (solo si hay múltiples imágenes) */}
         {hasMultipleImages && (
@@ -140,11 +90,12 @@ export default function ProductImageGallery({ thumbnails, title }) {
               src={thumbnail}
               alt={`${title} ${index + 1}`}
               isActive={currentImageIndex === index}
-              onClick={() => setCurrentImageIndex(index)}
+              onClick={() => changeImage(index)}
             />
           ))}
         </div>
       )}
+
     </div>
   );
 }
