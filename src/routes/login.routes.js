@@ -43,15 +43,21 @@ router.post("/register", async (req, res, next) => {
     const existingUser = await manager.getUserByEmail(email);
     if (existingUser) return res.status(409).json({ error: "El email ya está registrado. Si olvidaste tu contraseña, podés usar la opción 'Olvidé mi contraseña'" });
 
-    const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
-    pendingRegistrations[email] = { code: verificationCode, data: { email, password, firstName, lastName, telefono, role: "user" } };
+   const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
+   const expirationTime = Date.now() + 10 * 60 * 1000; // 10 minutos
 
-    await transporter.sendMail({
-      from: process.env.ADMIN_EMAIL_USER,
-      to: email,
-      subject: "Confirma tu correo",
-      text: `Tu código de verificación es: ${verificationCode}`,
-    });
+   pendingRegistrations[email] = {
+     code: verificationCode,
+     expiresAt: expirationTime,
+     data: { email, password, firstName, lastName, telefono, role: "user" }
+   };
+
+await transporter.sendMail({
+  from: process.env.ADMIN_EMAIL_USER,
+  to: email,
+  subject: "Confirma tu dirección de correo electrónico",
+  text: `¡Bienvenido a nuestra plataforma! 🎉\n\nPara completar tu registro, utiliza el siguiente código de verificación:\n\n${verificationCode}\n\nEste código expirará en 10 minutos.\n\nSi no solicitaste este registro, puedes ignorar este mensaje de manera segura.\n\nGracias,\nEl equipo de soporte`,
+});
 
     res.status(200).json({ message: "Código de verificación enviado a tu email" });
   } catch (error) {
@@ -154,12 +160,13 @@ router.post("/forgot-password/send-code", async (req, res, next) => {
     const code = Math.floor(10000 + Math.random() * 90000).toString();
     pendingPasswords[email] = { code, verified: false };
 
-    await transporter.sendMail({
-      from: process.env.ADMIN_EMAIL_USER,
-      to: email,
-      subject: "Código para recuperar tu contraseña",
-      text: `Tu código de verificación es: ${code}`,
-    });
+await transporter.sendMail({
+  from: process.env.ADMIN_EMAIL_USER,
+  to: email,
+  subject: "Recuperación de contraseña - Código de verificación",
+  text: `Has solicitado restablecer tu contraseña.\n\nTu código de verificación es:\n\n${code}\n\nEste código expirará en 10 minutos.\n\nSi no solicitaste el restablecimiento de tu contraseña, puedes ignorar este correo de manera segura.\n\nGracias,\nEl equipo de soporte`,
+});
+
 
     res.status(200).json({ message: "Código enviado a tu email" });
   } catch (error) {
@@ -173,9 +180,15 @@ router.post("/forgot-password/verify-code", (req, res, next) => {
     const { email, code } = req.body || {};
     if (!email || !code) return res.status(400).json({ error: "Faltan campos" });
 
-    const pending = pendingPasswords[email];
-    if (!pending) return res.status(400).json({ error: "No hay proceso pendiente" });
-    if (pending.code !== code) return res.status(400).json({ error: "Código inválido" });
+   const pending = pendingPasswords[email];
+	if (!pending) return res.status(400).json({ error: "No hay proceso pendiente" });
+
+	if (pending.expiresAt < Date.now())
+	  return res.status(400).json({ error: "El código ha expirado" });
+
+	if (pending.code !== code)
+	  return res.status(400).json({ error: "Código inválido" });
+
 
     pending.verified = true;
     res.status(200).json({ message: "Código verificado, ya puedes cambiar tu contraseña" });
