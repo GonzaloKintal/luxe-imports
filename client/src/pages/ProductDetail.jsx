@@ -169,49 +169,16 @@ export default function ProductDetail() {
     }
     setLoadingAddToCart(true);
     try {
-      let cartId = cartInfo.cartId;
-      // Si no hay carrito, crear uno o obtener el existente
-      if (!cartId) {
-        const createRes = await fetch(`${API_URL}/api/carts`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const nuevoCarrito = await createRes.json();
-        
-        if (!createRes.ok) {
-          // Si el error es 409 (ya existe carrito), obtener el carrito existente del historial
-          if (createRes.status === 409) {
-            const [confirmedRes, pendingRes] = await Promise.all([
-              fetch(`${API_URL}/api/carts/history/confirmed?limit=100`, {
-                headers: { Authorization: `Bearer ${token}` },
-              }),
-              fetch(`${API_URL}/api/carts/history/pending?limit=100`, {
-                headers: { Authorization: `Bearer ${token}` },
-              })
-            ]);
-            
-            const [confirmed, pending] = await Promise.all([
-              confirmedRes.json(),
-              pendingRes.json()
-            ]);
-            
-            if (!confirmedRes.ok) throw new Error(confirmed.error || 'Error al obtener historial confirmado');
-            if (!pendingRes.ok) throw new Error(pending.error || 'Error al obtener historial pendiente');
-            
-            const allCarts = [...(confirmed.results || []), ...(pending.results || [])];
-            
-            const carritoAbierto = allCarts.find(c => c.status === 'abierto');
-            if (!carritoAbierto) {
-              throw new Error('No se encontró carrito abierto');
-            }
-            cartId = carritoAbierto._id;
-          } else {
-            throw new Error(nuevoCarrito.error || 'Error al crear carrito');
-          }
-        } else {
-          cartId = nuevoCarrito._id;
-        }
-      }
+      // Obtener o crear carrito activo usando el nuevo endpoint
+      const activeCartRes = await fetch(`${API_URL}/api/carts/active`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const activeCart = await activeCartRes.json();
+      if (!activeCartRes.ok) throw new Error(activeCart.error || 'Error al obtener carrito activo');
+      
+      const cartId = activeCart._id;
+      
       // Agregar producto
       const addRes = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
         method: 'POST',

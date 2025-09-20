@@ -1,7 +1,7 @@
 import HistoryItem from './HistoryItem';
 import HistoryDateFilter from './HistoryDateFilter';
 
-export default function ConfirmedOrders({ orders, expandedHistorial, onToggleExpanded, onFilterConfirmed, onLoadMore, hasMore, loading, loadingMore }) {
+export default function ConfirmedOrders({ orders, totalConfirmed, expandedHistorial, onToggleExpanded, onFilterConfirmed, onLoadMore, hasMore, loading, loadingMore }) {
     
     return (
         <div className="mb-8">
@@ -11,7 +11,7 @@ export default function ConfirmedOrders({ orders, expandedHistorial, onToggleExp
                     Compras Confirmadas
                 </h2>
                 <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                    {orders ? orders.length : 0}
+                    {totalConfirmed || 0}
                 </span>
             </div>
             

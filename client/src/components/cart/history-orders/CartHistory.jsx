@@ -22,6 +22,9 @@ export default function CartHistory({ token, API_URL }) {
     const [currentPageConfirmed, setCurrentPageConfirmed] = useState(1);
     const [currentPagePending, setCurrentPagePending] = useState(1);
     const [currentFilters, setCurrentFilters] = useState({ from: null, to: null });
+    const [currentPendingFilters, setCurrentPendingFilters] = useState({ from: null, to: null });
+    const [totalConfirmed, setTotalConfirmed] = useState(0);
+    const [totalPending, setTotalPending] = useState(0);
 
     const ITEMS_PER_PAGE = 5;
 
@@ -76,8 +79,8 @@ export default function CartHistory({ token, API_URL }) {
     async function cargarConfirmados(page = 1, filters = currentFilters) {
         try {
             let url = `${API_URL}/api/carts/history/confirmed?limit=${ITEMS_PER_PAGE}&page=${page}`;
-            if (filters.from) url += `&from=${filters.from}T00:00:00.000Z`;
-            if (filters.to) url += `&to=${filters.to}T23:59:59.999Z`;
+            if (filters.from) url += `&from=${filters.from}`;
+            if (filters.to) url += `&to=${filters.to}`;
             
             const res = await fetch(url, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -104,15 +107,20 @@ export default function CartHistory({ token, API_URL }) {
 
             setCurrentPageConfirmed(page);
             setHasMoreConfirmed((page * ITEMS_PER_PAGE) < (data.total || 0));
+            setTotalConfirmed(data.total || 0);
 
         } catch (err) {
             throw err;
         }
     }
 
-    async function cargarPendientes(page = 1) {
+    async function cargarPendientes(page = 1, filters = currentPendingFilters) {
         try {
-            const res = await fetch(`${API_URL}/api/carts/history/pending?limit=${ITEMS_PER_PAGE}&page=${page}`, {
+            let url = `${API_URL}/api/carts/history/pending?limit=${ITEMS_PER_PAGE}&page=${page}`;
+            if (filters.from) url += `&from=${filters.from}`;
+            if (filters.to) url += `&to=${filters.to}`;
+            
+            const res = await fetch(url, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -137,6 +145,7 @@ export default function CartHistory({ token, API_URL }) {
 
             setCurrentPagePending(page);
             setHasMorePending((page * ITEMS_PER_PAGE) < (data.total || 0));
+            setTotalPending(data.total || 0);
 
         } catch (err) {
             throw err;
@@ -158,6 +167,21 @@ export default function CartHistory({ token, API_URL }) {
         }
     }
 
+    async function filtrarPendientes(from, to) {
+        try {
+            setLoading(true);
+            setError(null);
+            setCurrentPendingFilters({ from, to });
+            
+            await cargarPendientes(1, { from, to });
+
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     function cargarMasConfirmados() {
         if (!loadingMore) {
             setLoadingMore(true);
@@ -169,7 +193,7 @@ export default function CartHistory({ token, API_URL }) {
     function cargarMasPendientes() {
         if (!loadingMore) {
             setLoadingMore(true);
-            cargarPendientes(currentPagePending + 1)
+            cargarPendientes(currentPagePending + 1, currentPendingFilters)
                 .finally(() => setLoadingMore(false));
         }
     }
@@ -186,6 +210,9 @@ export default function CartHistory({ token, API_URL }) {
         setHasMoreConfirmed(false);
         setHasMorePending(false);
         setCurrentFilters({ from: null, to: null });
+        setCurrentPendingFilters({ from: null, to: null });
+        setTotalConfirmed(0);
+        setTotalPending(0);
     }
 
     if (!historialVisible) {
@@ -206,15 +233,19 @@ export default function CartHistory({ token, API_URL }) {
 
             <PendingOrders
                 orders={historialCarritos.pendientes}
+                totalPending={totalPending}
                 expandedHistorial={expandedHistorial}
                 onToggleExpanded={toggleExpanded}
+                onFilterPending={filtrarPendientes}
                 onLoadMore={cargarMasPendientes}
                 hasMore={hasMorePending}
+                loading={loading}
                 loadingMore={loadingMore}
             />
 
             <ConfirmedOrders
                 orders={historialCarritos.confirmados}
+                totalConfirmed={totalConfirmed}
                 expandedHistorial={expandedHistorial}
                 onToggleExpanded={toggleExpanded}
                 onFilterConfirmed={filtrarConfirmados}

@@ -32,8 +32,16 @@ router.get('/pendientes', authenticateToken, isAdmin, async (req, res, next) => 
     const filters = { status: 'pendiente de confirmacion' };
     if (from || to) {
       filters.pendingAt = {};
-      if (from) filters.pendingAt.$gte = new Date(from);
-      if (to) filters.pendingAt.$lte = new Date(to);
+      if (from) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const fromDate = new Date(from + 'T00:00:00-03:00');
+        filters.pendingAt.$gte = fromDate;
+      }
+      if (to) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const toDate = new Date(to + 'T23:59:59-03:00');
+        filters.pendingAt.$lte = toDate;
+      }
     }
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await manager.countPurchaseHistoryByUserId(filters);
@@ -64,14 +72,47 @@ router.post('/', authenticateToken, async (req, res, next) => {
   }
 });
 
+// POST /api/carts/active => Obtener carrito activo del usuario o crear uno si no existe
+router.post('/active', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = req.user._id || req.user.id; // MongoDB _id o fallback
+    
+    // Primero intentar obtener carrito existente
+    let cart = await manager.getCartByUserId(userId);
+    
+    // Si no existe, crear uno nuevo
+    if (!cart) {
+      cart = await manager.createCart(userId);
+    }
+    
+    res.json(cart);
+  } catch (error) {
+    next(error);
+  }
+});
 
-// GET /api/carts/history/pending => Obtener historial de pedidos pendientes
+
+// GET /api/carts/history/pending => Obtener historial de pedidos pendientes (con filtros de fecha)
 router.get('/history/pending', authenticateToken, async (req, res, next) => {
   try {
     const userId = req.user._id || req.user.id;
-    const { limit = 10, page = 1 } = req.query;
+    const { from, to, limit = 10, page = 1 } = req.query;
 
     const filters = { userId, status: 'pendiente de confirmacion' };
+
+    if (from || to) {
+      filters.pendingAt = {};
+      if (from) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const fromDate = new Date(from + 'T00:00:00-03:00');
+        filters.pendingAt.$gte = fromDate;
+      }
+      if (to) {
+        // Crear fecha en zona horaria Argentina (UTC-3) 
+        const toDate = new Date(to + 'T23:59:59-03:00');
+        filters.pendingAt.$lte = toDate;
+      }
+    }
 
     // Paginación
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -97,8 +138,16 @@ router.get('/history/confirmed', authenticateToken, async (req, res, next) => {
 
     if (from || to) {
       filters.confirmedAt = {};
-      if (from) filters.confirmedAt.$gte = new Date(from);
-      if (to) filters.confirmedAt.$lte = new Date(to);
+      if (from) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const fromDate = new Date(from + 'T00:00:00-03:00');
+        filters.confirmedAt.$gte = fromDate;
+      }
+      if (to) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const toDate = new Date(to + 'T23:59:59-03:00');
+        filters.confirmedAt.$lte = toDate;
+      }
     }
 
     // Paginación
@@ -163,8 +212,16 @@ router.get('/confirmados', authenticateToken, isAdmin, async (req, res, next) =>
     const filters = { status: 'confirmado' };
     if (from || to) {
       filters.confirmedAt = {};
-      if (from) filters.confirmedAt.$gte = new Date(from);
-      if (to) filters.confirmedAt.$lte = new Date(to);
+      if (from) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const fromDate = new Date(from + 'T00:00:00-03:00');
+        filters.confirmedAt.$gte = fromDate;
+      }
+      if (to) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const toDate = new Date(to + 'T23:59:59-03:00');
+        filters.confirmedAt.$lte = toDate;
+      }
     }
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await manager.countPurchaseHistoryByUserId(filters);

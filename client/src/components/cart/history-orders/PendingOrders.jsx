@@ -1,6 +1,7 @@
 import HistoryItem from './HistoryItem';
+import HistoryDateFilter from './HistoryDateFilter';
 
-export default function PendingOrders({ orders, expandedHistorial, onToggleExpanded, onLoadMore, hasMore, loadingMore }) {
+export default function PendingOrders({ orders, totalPending, expandedHistorial, onToggleExpanded, onFilterPending, onLoadMore, hasMore, loading, loadingMore }) {
     
     return (
         <div className="mb-8">
@@ -10,9 +11,13 @@ export default function PendingOrders({ orders, expandedHistorial, onToggleExpan
                     Compras Pendientes de Confirmación
                 </h2>
                 <span className="ml-2 bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">
-                    {orders ? orders.length : 0}
+                    {totalPending || 0}
                 </span>
             </div>
+            
+            {onFilterPending && (
+                <HistoryDateFilter onFilter={onFilterPending} loading={loading} />
+            )}
             
             {orders && orders.length ? (
                 <div className="space-y-4">
@@ -35,7 +40,7 @@ export default function PendingOrders({ orders, expandedHistorial, onToggleExpan
             )}
             
             {/* Botón Cargar más pendientes */}
-            {hasMore && (
+            {!loading && hasMore && (
                 <div className="flex justify-center mt-6">
                     <button
                         onClick={onLoadMore}

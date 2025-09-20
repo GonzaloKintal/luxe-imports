@@ -232,6 +232,11 @@ export default function ActualCart({
             setProducts([]);
             setCartId(null);
 
+            // Recargar la página después de un breve delay para que el user vea el pedido inmediatamente
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+
             // Abrir WhatsApp en nueva pestaña
             window.open(url, '_blank');
         } catch (err) {
