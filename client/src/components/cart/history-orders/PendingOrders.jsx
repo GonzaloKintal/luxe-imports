@@ -1,5 +1,5 @@
 import HistoryItem from './HistoryItem';
-import HistoryDateFilter from './HistoryDateFilter';
+import DateRangeFilter from '../../utils/DateRangeFilter';
 
 export default function PendingOrders({ orders, totalPending, expandedHistorial, onToggleExpanded, onFilterPending, onLoadMore, hasMore, loading, loadingMore }) {
     
@@ -16,7 +16,7 @@ export default function PendingOrders({ orders, totalPending, expandedHistorial,
             </div>
             
             {onFilterPending && (
-                <HistoryDateFilter onFilter={onFilterPending} loading={loading} />
+                <DateRangeFilter onFilter={onFilterPending} loading={loading} />
             )}
             
             {orders && orders.length ? (

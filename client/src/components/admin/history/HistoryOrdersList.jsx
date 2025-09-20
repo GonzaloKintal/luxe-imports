@@ -5,6 +5,7 @@ import HistoryOrderCardSkeleton from './HistoryOrderCardSkeleton';
 
 export default function HistoryOrdersList({ 
     orders, 
+    total,
     loading, 
     error, 
     expanded, 
@@ -52,6 +53,12 @@ export default function HistoryOrdersList({
 
     return (
         <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-gray-600">
+                    Hay <span className="font-semibold text-gray-900">{total || 0}</span> pedidos confirmados en total
+                </p>
+            </div>
+
             {orders.map((order) => (
                 <HistoryOrderCard
                     key={order._id}

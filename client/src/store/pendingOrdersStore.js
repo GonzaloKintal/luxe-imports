@@ -1,10 +1,9 @@
-
 import { create } from 'zustand';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 10;
 
-const useHistoryOrdersStore = create((set, get) => ({
+const usePendingOrdersStore = create((set, get) => ({
   // Estado
   orders: [],
   total: 0,
@@ -16,15 +15,11 @@ const useHistoryOrdersStore = create((set, get) => ({
   error: null,
   isInitialized: false,
   
-  // Filtros actuales (para futuras expansiones)
+  // Filtros actuales
   currentFilters: {
     from: '',
     to: ''
   },
-
-  // Detalles expandidos y productos detallados
-  expanded: {},
-  details: {},
 
   // Acciones básicas
   setLoading: (loading) => set({ loading }),
@@ -71,11 +66,11 @@ const useHistoryOrdersStore = create((set, get) => ({
 
       const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(filters, 1);
-      const res = await fetch(`${API_URL}/api/carts/confirmados?${queryString}`, {
+      const res = await fetch(`${API_URL}/api/carts/pendientes?${queryString}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
-      if (!res.ok) throw new Error('Error al cargar pedidos');
+      if (!res.ok) throw new Error('Error al cargar pedidos pendientes');
       
       const data = await res.json();
       
@@ -131,7 +126,7 @@ const useHistoryOrdersStore = create((set, get) => ({
       const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(currentFilters, nextPage);
       
-      const res = await fetch(`${API_URL}/api/carts/confirmados?${queryString}`, {
+      const res = await fetch(`${API_URL}/api/carts/pendientes?${queryString}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -159,65 +154,14 @@ const useHistoryOrdersStore = create((set, get) => ({
     }
   },
 
-  // Función inicial de carga
-  fetchOrdersIniciales: async () => {
-    console.log('fetchOrdersIniciales llamado');
-    const { isInitialized, orders } = get();
-    
-    // Si ya tenemos pedidos cargados, no hacer fetch innecesario
-    if (isInitialized && orders.length > 0) {
-      return;
-    }
-
-    const defaultFilters = {
-      from: '',
-      to: ''
-    };
-
-    await get().fetchOrders(defaultFilters);
-  },
-
-  // Manejo de expansión de pedidos
-  toggleExpand: (cartId) => {
-    const { expanded } = get();
+  // Función para remover un pedido del estado (cuando se confirma o elimina)
+  removeOrder: (orderId) => {
+    const { orders, total } = get();
+    const newOrders = orders.filter(order => order._id !== orderId);
     set({
-      expanded: {
-        ...expanded,
-        [cartId]: !expanded[cartId]
-      }
+      orders: newOrders,
+      total: Math.max(0, total - 1) // Reducir el total en 1
     });
-  },
-
-  // Cargar detalles de productos
-  fetchDetails: async (cartId, products) => {
-    const { details } = get();
-    
-    if (details[cartId]) return; // Ya cargado
-    
-    try {
-      const productosConDetalles = await Promise.all(
-        products.map(async (p) => {
-          const prodId = p.productId?._id || p.productId || p._id;
-          try {
-            const res = await fetch(`${API_URL}/api/products/${prodId}`);
-            if (!res.ok) return { ...p, title: 'Producto eliminado', price: 0 };
-            const prod = await res.json();
-            return { ...prod, quantity: p.quantity };
-          } catch {
-            return { ...p, title: 'Error', price: 0 };
-          }
-        })
-      );
-      
-      set({
-        details: {
-          ...details,
-          [cartId]: productosConDetalles
-        }
-      });
-    } catch (err) {
-      console.error('Error al cargar detalles:', err);
-    }
   },
 
   // Función para resetear el store
@@ -234,22 +178,14 @@ const useHistoryOrdersStore = create((set, get) => ({
     currentFilters: {
       from: '',
       to: ''
-    },
-    expanded: {},
-    details: {}
+    }
   }),
 
   // Función para refrescar pedidos con filtros actuales
   refreshOrders: async () => {
     const { currentFilters } = get();
     await get().fetchOrders(currentFilters);
-  },
-
-  // Limpiar detalles y expansiones (útil al cambiar de vista)
-  clearExpandedData: () => set({
-    expanded: {},
-    details: {}
-  })
+  }
 }));
 
-export default useHistoryOrdersStore;
+export default usePendingOrdersStore;

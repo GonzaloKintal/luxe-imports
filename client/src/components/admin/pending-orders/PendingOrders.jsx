@@ -3,12 +3,26 @@ import { FaClock } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import PendingOrdersList from './PendingOrdersList';
 import ConfirmOrderAction from './ConfirmOrderAction';
+import DateRangeFilter from '../../utils/DateRangeFilter';
+import usePendingOrdersStore from '../../../store/pendingOrdersStore';
 
 export default function PendingOrders() {
 
-    const [orders, setOrders] = React.useState([]);
-    const [loadingOrders, setLoadingOrders] = React.useState(true);
-    const [error, setError] = React.useState(null);
+    const {
+        orders,
+        total,
+        loading,
+        loadingMore,
+        error,
+        hasMoreOrders,
+        fetchOrders,
+        cargarMasPedidos,
+        removeOrder,
+        isInitialized,
+        applyDateFilters,
+        clearFilters
+    } = usePendingOrdersStore();
+
     const [confirmDialog, setConfirmDialog] = React.useState({
         open: false,
         type: null, // 'confirm' or 'delete'
@@ -18,27 +32,18 @@ export default function PendingOrders() {
 
     const API_URL = import.meta.env.VITE_API_URL;
 
+    // Fetch inicial de pedidos SOLO si no están cargados
     React.useEffect(() => {
-        async function fetchOrders() {
-            setLoadingOrders(true);
-            setError(null);
-            try {
-                const token = localStorage.getItem('token');
-                const res = await fetch(`${API_URL}/api/carts/pendientes?limit=100`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (!res.ok) throw new Error('Error al obtener pedidos pendientes');
-                const data = await res.json();
-                // Usar results del objeto paginado
-                setOrders(data.results || []);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoadingOrders(false);
-            }
+        if (!isInitialized) {
+            const defaultFilters = {
+                from: '',
+                to: ''
+            };
+            fetchOrders(defaultFilters);
         }
-        fetchOrders();
-    }, []);
+    }, [isInitialized, fetchOrders]);
+
+
 
     function handleConfirmClick(cartId) {
         const order = orders.find(o => o._id === cartId);
@@ -97,7 +102,7 @@ export default function PendingOrders() {
             }
 
             // Actualizar la lista de pedidos
-            setOrders(orders.filter(o => o._id !== orderId));
+            removeOrder(orderId);
 
             // Cerrar el dialog
             setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
@@ -111,6 +116,20 @@ export default function PendingOrders() {
     function handleCancelAction() {
         setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
     }
+
+    const handleDateFilter = async (fromDate, toDate) => {
+        await applyDateFilters(fromDate, toDate);
+    };
+
+    const handleClearFilters = async () => {
+        await clearFilters();
+    };
+
+    const handleLoadMore = () => {
+        if (!loadingMore && hasMoreOrders) {
+            cargarMasPedidos();
+        }
+    };
 
     return (
         <>
@@ -126,13 +145,49 @@ export default function PendingOrders() {
                         </p>
                     </div>
 
+                    {/* Filtros de fecha */}
+                    <div className="w-full lg:w-[600px] mx-auto mb-6">
+                        <DateRangeFilter
+                            onFilter={handleDateFilter}
+                            loading={loading}
+                            title="Filtrar por fecha"
+                            showTitle={false}
+                        />
+                    </div>
+
                     <PendingOrdersList
                         orders={orders}
-                        loading={loadingOrders}
+                        total={total}
+                        loading={loading}
                         error={error}
                         onConfirm={handleConfirmClick}
                         onDelete={handleDeleteClick}
                     />
+
+                    {/* Botón Cargar más */}
+                    {!loading && !error && hasMoreOrders && (
+                        <div className="flex justify-center mt-8">
+                            <button
+                                onClick={handleLoadMore}
+                                disabled={loadingMore}
+                                className={`
+                                    px-6 py-3 bg-transparent cursor-pointer text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300
+                                    ${loadingMore ? 'bg-gray-400 cursor-not-allowed' : 'bg-transparent'}
+                                `}
+                            >
+                                {loadingMore ? 'Cargando...' : 'Cargar más pedidos'}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Mensaje cuando se han visto todos */}
+                    {!loading && !error && !hasMoreOrders && orders.length > 0 && (
+                        <div className="text-center mt-8">
+                            <p className="text-gray-600 font-medium">
+                                Has visto todos los pedidos pendientes
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 

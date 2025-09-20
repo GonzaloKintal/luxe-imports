@@ -46,12 +46,12 @@ router.get('/pendientes', authenticateToken, isAdmin, async (req, res, next) => 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await manager.countPurchaseHistoryByUserId(filters);
     const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
-    const sorted = carts.sort((a, b) => (b.pendingAt ? new Date(b.pendingAt) : 0) - (a.pendingAt ? new Date(a.pendingAt) : 0));
+    // El ordenamiento ahora se hace en la base de datos (CartManager)
     res.json({
       total,
       page: parseInt(page),
       limit: parseInt(limit),
-      results: sorted
+      results: carts
     });
   } catch (error) {
     next(error);
@@ -119,10 +119,8 @@ router.get('/history/pending', authenticateToken, async (req, res, next) => {
     const total = await manager.countPurchaseHistoryByUserId(filters);
     const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
 
-    // Ordenar por fecha de pendiente (desc)
-    const sorted = carts.sort((a, b) => new Date(b.pendingAt || 0) - new Date(a.pendingAt || 0));
-
-    res.json({ total, page: parseInt(page), limit: parseInt(limit), results: sorted });
+    // El ordenamiento ahora se hace en la base de datos (CartManager)
+    res.json({ total, page: parseInt(page), limit: parseInt(limit), results: carts });
   } catch (error) {
     next(error);
   }
@@ -155,10 +153,8 @@ router.get('/history/confirmed', authenticateToken, async (req, res, next) => {
     const total = await manager.countPurchaseHistoryByUserId(filters);
     const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
 
-    // Ordenar por fecha de confirmación (desc)
-    const sorted = carts.sort((a, b) => new Date(b.confirmedAt || 0) - new Date(a.confirmedAt || 0));
-
-    res.json({ total, page: parseInt(page), limit: parseInt(limit), results: sorted });
+    // El ordenamiento ahora se hace en la base de datos (CartManager)
+    res.json({ total, page: parseInt(page), limit: parseInt(limit), results: carts });
   } catch (error) {
     next(error);
   }
@@ -226,12 +222,12 @@ router.get('/confirmados', authenticateToken, isAdmin, async (req, res, next) =>
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await manager.countPurchaseHistoryByUserId(filters);
     const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
-    const sorted = carts.sort((a, b) => (b.confirmedAt ? new Date(b.confirmedAt) : 0) - (a.confirmedAt ? new Date(a.confirmedAt) : 0));
+    // El ordenamiento ahora se hace en la base de datos (CartManager)
     res.json({
       total,
       page: parseInt(page),
       limit: parseInt(limit),
-      results: sorted
+      results: carts
     });
   } catch (error) {
     next(error);

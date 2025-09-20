@@ -10,6 +10,7 @@ export default function HistoryOrders({ history }) {
     
     const {
         orders,
+        total,
         loading,
         loadingMore,
         error,
@@ -94,6 +95,7 @@ export default function HistoryOrders({ history }) {
 
                 <HistoryOrdersList
                     orders={orders}
+                    total={total}
                     loading={loading}
                     error={error}
                     expanded={expanded}

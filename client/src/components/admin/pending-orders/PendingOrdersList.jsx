@@ -3,7 +3,7 @@ import { FaClock } from 'react-icons/fa';
 import PendingOrderCard from './PendingOrderCard';
 import PendingOrderCardSkeleton from './PendingOrderCardSkeleton';
 
-export default function PendingOrdersList({ orders, loading, error, onConfirm, onDelete }) {
+export default function PendingOrdersList({ orders, total, loading, error, onConfirm, onDelete }) {
 
     if (loading) {
         return (
@@ -43,7 +43,7 @@ export default function PendingOrdersList({ orders, loading, error, onConfirm, o
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-gray-600">
-                    Hay <span className="font-semibold text-gray-900">{orders.length}</span> pedidos pendientes en este momento
+                    Hay <span className="font-semibold text-gray-900">{total || 0}</span> pedidos pendientes en total
                 </p>
             </div>
 
