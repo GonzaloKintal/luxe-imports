@@ -12,7 +12,7 @@ import { CartContext } from '../context/CartContext.jsx';
 export default function Cart() {
 
     const navigate = useNavigate();
-    const { user, isLoading } = useContext(UserContext); // Agregar isLoading
+    const { user, isLoading } = useContext(UserContext);
     const [cartId, setCartId] = useState(null);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
