@@ -109,6 +109,11 @@ export default function Cart() {
         initCart();
     }, [token, user, navigate, API_URL, isLoading]); // Agregar isLoading a las dependencias
 
+    // Sincronizar cambios locales en products con el CartContext para actualizar indicador en tiempo real
+    useEffect(() => {
+        setCart(products);
+    }, [products, setCart]);
+
     // Mostrar skeleton mientras UserContext está cargando O mientras se cargan los datos del carrito
     if (isLoading || loading) {
         return <CartSkeleton />;

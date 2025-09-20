@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { UserContext } from '../context/UserContext';
+import { CartContext } from '../context/CartContext';
 import ProductImageGallery from '../components/product-detail/images/ProductImageGallery';
 import ProductInfo from '../components/product-detail/info/ProductInfo';
 import ProductDetailSkeleton from '../components/product-detail/ProductDetailSkeleton';
@@ -20,6 +21,9 @@ export default function ProductDetail() {
   const [loadingCotizacion, setLoadingCotizacion] = useState(true);
   const [errorCotizacion, setErrorCotizacion] = useState(null);
   const [loadingAddToCart, setLoadingAddToCart] = useState(false);
+  
+  // Contexto del carrito para actualizar el indicador en tiempo real
+  const { setCart } = useContext(CartContext);
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
   const isAdmin = user?.role === 'admin';
@@ -115,6 +119,47 @@ export default function ProductDetail() {
     }
   };
 
+  // Función para actualizar el contexto del carrito con productos completos
+  async function updateCartContext(cartId) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!cartId || !token) return;
+
+      // Obtener productos del carrito
+      const cartRes = await fetch(`${API_URL}/api/carts/${cartId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const cartProducts = await cartRes.json();
+      if (!cartRes.ok) return;
+
+      // Obtener detalles completos de cada producto
+      const productosConDetalles = await Promise.all(
+        cartProducts.map(async ({ productId, quantity }) => {
+          let prodId;
+          if (typeof productId === 'object' && productId !== null) {
+            prodId = productId._id || productId.id || productId.toString();
+          } else {
+            prodId = productId;
+          }
+          try {
+            const res = await fetch(`${API_URL}/api/products/${prodId}`);
+            if (!res.ok) return null;
+            const product = await res.json();
+            return { ...product, quantity };
+          } catch {
+            return null;
+          }
+        })
+      );
+
+      // Filtrar productos válidos y actualizar contexto
+      const productosValidos = productosConDetalles.filter(p => p !== null);
+      setCart(productosValidos);
+    } catch (err) {
+      console.error('Error al actualizar contexto del carrito:', err);
+    }
+  }
+
   async function handleAddToCart() {
     if (isAdmin) {
       toast.error('Los administradores no pueden agregar productos al carrito');
@@ -182,6 +227,10 @@ export default function ProductDetail() {
         items[prodId] = p.quantity;
       }
       setCartInfo({ cartId, items });
+      
+      // Actualizar el contexto del carrito para el indicador en tiempo real
+      await updateCartContext(cartId);
+      
       toast.success('Producto agregado al carrito');
     } catch (err) {
       toast.error(err.message);
