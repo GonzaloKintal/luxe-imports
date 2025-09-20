@@ -1,5 +1,5 @@
 import HistoryItem from './HistoryItem';
-import HistoryDateFilter from './HistoryDateFilter';
+import DateRangeFilter from '../../utils/DateRangeFilter';
 
 export default function ConfirmedOrders({ orders, totalConfirmed, expandedHistorial, onToggleExpanded, onFilterConfirmed, onLoadMore, hasMore, loading, loadingMore }) {
     
@@ -16,7 +16,13 @@ export default function ConfirmedOrders({ orders, totalConfirmed, expandedHistor
             </div>
             
             {onFilterConfirmed && (
-                <HistoryDateFilter onFilter={onFilterConfirmed} loading={loading} />
+                <DateRangeFilter 
+                    onFilter={onFilterConfirmed} 
+                    loading={loading}
+                    title="Filtrar por fecha"
+                    showTitle={true}
+                    className="mb-6"
+                />
             )}
             
             {orders && orders.length ? (
@@ -54,6 +60,16 @@ export default function ConfirmedOrders({ orders, totalConfirmed, expandedHistor
                     </button>
                 </div>
             )}
+
+            {/* Mensaje cuando se han visto todos */}
+            {orders && orders.length > 0 && !hasMore && (
+                <div className="text-center mt-6">
+                    <p className="text-gray-600 font-medium">
+                        Has visto todo el historial de compras confirmadas
+                    </p>
+                </div>
+            )}
+
         </div>
     );
 

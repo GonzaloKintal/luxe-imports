@@ -2,7 +2,13 @@ import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-export default function HistoryDateFilter({ onFilter, loading }) {
+export default function DateRangeFilter({ 
+    onFilter, 
+    loading = false, 
+    title = "Filtrar por fecha",
+    showTitle = true,
+    className = ""
+}) {
     
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
@@ -29,13 +35,18 @@ export default function HistoryDateFilter({ onFilter, loading }) {
     }
 
     return (
-        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+        <div className={`bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200 ${className}`}>
+            {showTitle && (
+                <h4 className="text-lg font-medium text-gray-900 mb-4">{title}</h4>
+            )}
+            
             <div className="flex flex-wrap items-end gap-4">
                 <div className="flex-1 min-w-[150px]">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor='from' className="block text-sm font-medium text-gray-700 mb-1">
                         Desde
                     </label>
                     <DatePicker
+                        id='from'
                         selected={fromDate}
                         onChange={setFromDate}
                         dateFormat="dd/MM/yyyy"
@@ -47,10 +58,11 @@ export default function HistoryDateFilter({ onFilter, loading }) {
                 </div>
                 
                 <div className="flex-1 min-w-[150px]">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor='to' className="block text-sm font-medium text-gray-700 mb-1">
                         Hasta
                     </label>
                     <DatePicker
+                        id='to'
                         selected={toDate}
                         onChange={setToDate}
                         dateFormat="dd/MM/yyyy"
@@ -65,7 +77,7 @@ export default function HistoryDateFilter({ onFilter, loading }) {
                 <div className="flex gap-2">
                     <button
                         onClick={handleFilter}
-                        disabled={loading}
+                        disabled={loading || (!fromDate && !toDate)}
                         className="px-4 py-2 cursor-pointer bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                         {loading && (
@@ -75,12 +87,13 @@ export default function HistoryDateFilter({ onFilter, loading }) {
                     </button>
                     <button
                         onClick={handleClear}
-                        disabled={loading}
+                        disabled={loading || (!fromDate && !toDate)}
                         className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Limpiar
                     </button>
                 </div>
+                
             </div>
         </div>
     );

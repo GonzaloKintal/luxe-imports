@@ -1,8 +1,10 @@
 
+
 import { useState, useEffect } from 'react';
 import { FaHistory } from 'react-icons/fa';
 import HistoryOrdersList from './HistoryOrdersList';
 import useHistoryOrdersStore from '../../../store/historyOrdersStore';
+import DateRangeFilter from '../../utils/DateRangeFilter';
 
 export default function HistoryOrders({ history }) {
     
@@ -19,7 +21,9 @@ export default function HistoryOrders({ history }) {
         toggleExpand,
         fetchDetails,
         clearExpandedData,
-        isInitialized
+        isInitialized,
+        applyDateFilters,
+        clearFilters
     } = useHistoryOrdersStore();
 
     // Fetch inicial de pedidos SOLO si no están cargados
@@ -50,6 +54,14 @@ export default function HistoryOrders({ history }) {
         }
     };
 
+    const handleDateFilter = async (fromDate, toDate) => {
+        await applyDateFilters(fromDate, toDate);
+    };
+
+    const handleClearFilters = async () => {
+        await clearFilters();
+    };
+
     const handleLoadMore = () => {
         if (!loadingMore && hasMoreOrders) {
             cargarMasPedidos();
@@ -68,6 +80,17 @@ export default function HistoryOrders({ history }) {
                         Consulta todas las compras realizadas en el sistema
                     </p>
                 </div>
+
+                {/* Filtros de fecha */}
+                <div className="w-full lg:w-[600px] mx-auto">
+                    <DateRangeFilter
+                        onFilter={handleDateFilter}
+                        loading={loading}
+                        title="Filtrar por fecha"
+                        showTitle={false}
+                    />
+                </div>
+
 
                 <HistoryOrdersList
                     orders={orders}
@@ -104,15 +127,8 @@ export default function HistoryOrders({ history }) {
                     </div>
                 )}
 
-                {/* Mensaje cuando no hay pedidos */}
-                {!loading && !error && orders.length === 0 && (
-                    <div className="text-center mt-8">
-                        <p className="text-gray-600 font-medium">
-                            No se encontraron pedidos confirmados
-                        </p>
-                    </div>
-                )}
             </div>
         </div>
     );
+
 }
