@@ -78,46 +78,43 @@ export default function ProductDetail() {
   };
 
   const fetchCart = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+  const token = localStorage.getItem('token');
+  if (!token) return;
 
-    try {
-      // Obtener historial
-      const historyRes = await fetch(`${API_URL}/api/carts/history?limit=100`, {
+  try {
+    // Solo obtener carritos pendientes ya que los "abiertos" están ahí
+    const pendingRes = await fetch(`${API_URL}/api/carts/history/pending?limit=100`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    
+    const pending = await pendingRes.json();
+    if (!pendingRes.ok) throw new Error(pending.error || 'Error al obtener historial pendiente');
+    
+    // Buscar carrito abierto en los pendientes
+    const carritoAbierto = pending.results?.find(c => c.status === 'abierto' || c.status === 'pendiente');
+
+    if (carritoAbierto) {
+      const cartRes = await fetch(`${API_URL}/api/carts/${carritoAbierto._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const history = await historyRes.json();
-      if (!historyRes.ok) throw new Error(history.error || 'Error al obtener historial de carritos');
+      const cartProducts = await cartRes.json();
+      if (!cartRes.ok) throw new Error(cartProducts.error || 'Error al obtener productos del carrito');
 
-      // Obtener los carritos del array results
-      const carritos = history.results || [];
-      // Buscar carrito abierto
-      const carritoAbierto = carritos.find(c => c.status === 'abierto');
-
-      // Obtener productos del carrito abierto
-      if (carritoAbierto) {
-        const cartRes = await fetch(`${API_URL}/api/carts/${carritoAbierto._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const cartProducts = await cartRes.json();
-        if (!cartRes.ok) throw new Error(cartProducts.error || 'Error al obtener productos del carrito');
-
-        // Mapear cantidades
-        const items = {};
-        for (const p of cartProducts) {
-          let prodId = p.productId;
-          if (typeof prodId === 'object' && prodId !== null) {
-            prodId = prodId._id || prodId.id || prodId.toString();
-          }
-          if (!prodId) prodId = p._id;
-          items[prodId] = p.quantity;
+      const items = {};
+      for (const p of cartProducts) {
+        let prodId = p.productId;
+        if (typeof prodId === 'object' && prodId !== null) {
+          prodId = prodId._id || prodId.id || prodId.toString();
         }
-        setCartInfo({ cartId: carritoAbierto._id, items });
+        if (!prodId) prodId = p._id;
+        items[prodId] = p.quantity;
       }
-    } catch (err) {
-      // No mostrar error si no hay carrito
+      setCartInfo({ cartId: carritoAbierto._id, items });
     }
-  };
+  } catch (err) {
+    // No mostrar error si no hay carrito
+  }
+};
 
   // Función para actualizar el contexto del carrito con productos completos
   async function updateCartContext(cartId) {
@@ -184,15 +181,26 @@ export default function ProductDetail() {
         if (!createRes.ok) {
           // Si el error es 409 (ya existe carrito), obtener el carrito existente del historial
           if (createRes.status === 409) {
-            const historyRes = await fetch(`${API_URL}/api/carts/history?limit=100`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            const history = await historyRes.json();
-            if (!historyRes.ok) throw new Error(history.error || 'Error al obtener historial de carritos');
+            const [confirmedRes, pendingRes] = await Promise.all([
+              fetch(`${API_URL}/api/carts/history/confirmed?limit=100`, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+              fetch(`${API_URL}/api/carts/history/pending?limit=100`, {
+                headers: { Authorization: `Bearer ${token}` },
+              })
+            ]);
             
-            // Obtener los carritos del array results
-            const carritos = history.results || [];
-            const carritoAbierto = carritos.find(c => c.status === 'abierto');
+            const [confirmed, pending] = await Promise.all([
+              confirmedRes.json(),
+              pendingRes.json()
+            ]);
+            
+            if (!confirmedRes.ok) throw new Error(confirmed.error || 'Error al obtener historial confirmado');
+            if (!pendingRes.ok) throw new Error(pending.error || 'Error al obtener historial pendiente');
+            
+            const allCarts = [...(confirmed.results || []), ...(pending.results || [])];
+            
+            const carritoAbierto = allCarts.find(c => c.status === 'abierto');
             if (!carritoAbierto) {
               throw new Error('No se encontró carrito abierto');
             }

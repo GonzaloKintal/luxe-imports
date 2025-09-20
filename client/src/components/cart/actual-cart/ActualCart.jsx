@@ -273,7 +273,7 @@ export default function ActualCart({
                     href={whatsappLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 transition-all duration-200 hover:opacity-80 group"
+                    className="flex items-center gap-2 group"
                     title="Contactar por WhatsApp"
                 >
                     <span className="font-medium text-gray-800 text-lg">

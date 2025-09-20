@@ -1,6 +1,7 @@
 import HistoryItem from './HistoryItem';
+import HistoryDateFilter from './HistoryDateFilter';
 
-export default function ConfirmedOrders({ orders, expandedHistorial, onToggleExpanded }) {
+export default function ConfirmedOrders({ orders, expandedHistorial, onToggleExpanded, onFilterConfirmed, onLoadMore, hasMore, loading, loadingMore }) {
     
     return (
         <div className="mb-8">
@@ -14,11 +15,15 @@ export default function ConfirmedOrders({ orders, expandedHistorial, onToggleExp
                 </span>
             </div>
             
+            {onFilterConfirmed && (
+                <HistoryDateFilter onFilter={onFilterConfirmed} loading={loading} />
+            )}
+            
             {orders && orders.length ? (
                 <div className="space-y-4">
-                    {orders.map((carrito) => (
+                    {orders.map((carrito, index) => (
                         <HistoryItem
-                            key={carrito._id || carrito.id}
+                            key={`${carrito._id || carrito.id}-${index}`}
                             carrito={carrito}
                             expanded={expandedHistorial[carrito._id || carrito.id]}
                             onToggleExpanded={onToggleExpanded}
@@ -31,6 +36,22 @@ export default function ConfirmedOrders({ orders, expandedHistorial, onToggleExp
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                     </svg>
                     <p className="mt-3 text-gray-500">No hay compras confirmadas.</p>
+                </div>
+            )}
+            
+            {/* Botón Cargar más confirmados */}
+            {!loading && hasMore && (
+                <div className="flex justify-center mt-6">
+                    <button
+                        onClick={onLoadMore}
+                        disabled={loadingMore}
+                        className={`
+                            px-6 py-3 bg-transparent cursor-pointer text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300
+                            ${loadingMore ? 'bg-gray-400 cursor-not-allowed' : 'bg-transparent'}
+                        `}
+                    >
+                        {loadingMore ? 'Cargando...' : 'Cargar más confirmados'}
+                    </button>
                 </div>
             )}
         </div>

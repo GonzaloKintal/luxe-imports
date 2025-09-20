@@ -1,6 +1,6 @@
 import HistoryItem from './HistoryItem';
 
-export default function PendingOrders({ orders, expandedHistorial, onToggleExpanded }) {
+export default function PendingOrders({ orders, expandedHistorial, onToggleExpanded, onLoadMore, hasMore, loadingMore }) {
     
     return (
         <div className="mb-8">
@@ -31,6 +31,22 @@ export default function PendingOrders({ orders, expandedHistorial, onToggleExpan
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <p className="mt-3 text-gray-500">No hay compras pendientes de confirmación.</p>
+                </div>
+            )}
+            
+            {/* Botón Cargar más pendientes */}
+            {hasMore && (
+                <div className="flex justify-center mt-6">
+                    <button
+                        onClick={onLoadMore}
+                        disabled={loadingMore}
+                        className={`
+                            px-6 py-3 bg-transparent cursor-pointer text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300
+                            ${loadingMore ? 'bg-gray-400 cursor-not-allowed' : 'bg-transparent'}
+                        `}
+                    >
+                        {loadingMore ? 'Cargando...' : 'Cargar más pendientes'}
+                    </button>
                 </div>
             )}
         </div>

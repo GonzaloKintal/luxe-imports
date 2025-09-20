@@ -64,19 +64,41 @@ router.post('/', authenticateToken, async (req, res, next) => {
   }
 });
 
-// GET /api/carts/history => Obtener historial de pedidos del usuario
-router.get('/history', authenticateToken, async (req, res, next) => {
+
+// GET /api/carts/history/pending => Obtener historial de pedidos pendientes
+router.get('/history/pending', authenticateToken, async (req, res, next) => {
   try {
     const userId = req.user._id || req.user.id;
-    const { status, from, to, limit = 10, page = 1 } = req.query;
-    const filters = { userId };
-    if (status) filters.status = status;
+    const { limit = 10, page = 1 } = req.query;
+
+    const filters = { userId, status: 'pendiente de confirmacion' };
+
+    // Paginación
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const total = await manager.countPurchaseHistoryByUserId(filters);
+    const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
+
+    // Ordenar por fecha de pendiente (desc)
+    const sorted = carts.sort((a, b) => new Date(b.pendingAt || 0) - new Date(a.pendingAt || 0));
+
+    res.json({ total, page: parseInt(page), limit: parseInt(limit), results: sorted });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/carts/history/confirmed => Obtener historial de pedidos confirmados (con filtros de fecha)
+router.get('/history/confirmed', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = req.user._id || req.user.id;
+    const { from, to, limit = 10, page = 1 } = req.query;
+
+    const filters = { userId, status: 'confirmado' };
+
     if (from || to) {
-      // Filtrar por fechas (confirmedAt o pendingAt según status)
-      const dateField = status === 'confirmado' ? 'confirmedAt' : 'pendingAt';
-      filters[dateField] = {};
-      if (from) filters[dateField].$gte = new Date(from);
-      if (to) filters[dateField].$lte = new Date(to);
+      filters.confirmedAt = {};
+      if (from) filters.confirmedAt.$gte = new Date(from);
+      if (to) filters.confirmedAt.$lte = new Date(to);
     }
 
     // Paginación
@@ -84,21 +106,55 @@ router.get('/history', authenticateToken, async (req, res, next) => {
     const total = await manager.countPurchaseHistoryByUserId(filters);
     const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
 
-    // Ordenar: confirmados por confirmedAt, pendientes por pendingAt, ambos descendente
-    const sorted = carts.sort((a, b) => {
-      const getDate = cart => cart.status === 'confirmado' ? new Date(cart.confirmedAt || 0) : new Date(cart.pendingAt || 0);
-      return getDate(b) - getDate(a);
-    });
-    res.json({
-      total,
-      page: parseInt(page),
-      limit: parseInt(limit),
-      results: sorted
-    });
+    // Ordenar por fecha de confirmación (desc)
+    const sorted = carts.sort((a, b) => new Date(b.confirmedAt || 0) - new Date(a.confirmedAt || 0));
+
+    res.json({ total, page: parseInt(page), limit: parseInt(limit), results: sorted });
   } catch (error) {
     next(error);
   }
 });
+
+// GET /api/carts/current => Obtener carrito actual (activo/abierto)
+router.get('/current', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = req.user._id || req.user.id;
+    
+    // Primero intentar obtener un carrito existente directamente
+    const existing = await manager.getCartByUserId(userId);
+    
+    if (existing) {
+      return res.json(existing);
+    }
+    
+    // Si no hay carrito directo, buscar en el historial
+    // Un carrito "activo" puede tener diferentes estados según tu lógica
+    const filters = { 
+      userId, 
+      $or: [
+        { status: { $exists: false } },
+        { status: 'abierto' },
+        { status: '' },
+        { status: null }
+      ]
+    };
+    
+    const carts = await manager.getPurchaseHistoryByUserId(filters, 1, 0);
+    
+    if (carts.length === 0) {
+      return res.status(404).json({ error: 'No hay carrito activo' });
+    }
+    
+    // Retornar el más reciente
+    const currentCart = carts.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))[0];
+    res.json(currentCart);
+    
+  } catch (error) {
+    next(error);
+  }
+});
+
+
 
 // GET /api/carts/confirmados => Obtener todos los carritos confirmados (solo admin)
 router.get('/confirmados', authenticateToken, isAdmin, async (req, res, next) => {

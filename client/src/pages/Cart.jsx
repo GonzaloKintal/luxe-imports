@@ -68,7 +68,7 @@ export default function Cart() {
                 setError(null);
 
                 // Obtener historial para buscar carrito in_progress
-                const historyRes = await fetch(`${API_URL}/api/carts/history?limit=100`, {
+                const historyRes = await fetch(`${API_URL}/api/carts/history/pending?limit=100`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const history = await historyRes.json();
