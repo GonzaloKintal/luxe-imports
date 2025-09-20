@@ -24,12 +24,13 @@ export default function PendingOrders() {
             setError(null);
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${API_URL}/api/carts/pendientes`, {
+                const res = await fetch(`${API_URL}/api/carts/pendientes?limit=100`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!res.ok) throw new Error('Error al obtener pedidos pendientes');
                 const data = await res.json();
-                setOrders(data);
+                // Usar results del objeto paginado
+                setOrders(data.results || []);
             } catch (err) {
                 setError(err.message);
             } finally {

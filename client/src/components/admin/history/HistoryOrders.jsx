@@ -24,12 +24,13 @@ export default function HistoryOrders({ history }) {
             setErrorConfirmed(null);
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${API_URL}/api/carts/confirmados`, {
+                const res = await fetch(`${API_URL}/api/carts/confirmados?limit=100`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!res.ok) throw new Error('Error al obtener compras confirmadas');
                 const data = await res.json();
-                setConfirmedHistory(Array.isArray(data) ? data : []);
+                // Usar results del objeto paginado
+                setConfirmedHistory(data.results || []);
             } catch (err) {
                 setErrorConfirmed(err.message);
             } finally {

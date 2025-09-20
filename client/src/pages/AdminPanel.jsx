@@ -93,12 +93,13 @@ export default function AdminPanel() {
             setLoadingHistory(true);
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${API_URL}/api/carts/confirmados`, {
+                const res = await fetch(`${API_URL}/api/carts/confirmados?limit=100`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Error al obtener historial');
-                setHistory(Array.isArray(data) ? data : []);
+                // Usar results del objeto paginado
+                setHistory(data.results || []);
             } catch (err) {
                 toast.error(err.message || 'Error al obtener historial');
             } finally {
