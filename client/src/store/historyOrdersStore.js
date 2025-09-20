@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -92,6 +93,24 @@ const useHistoryOrdersStore = create((set, get) => ({
         loading: false 
       });
     }
+  },
+
+  // Función para aplicar filtros de fecha
+  applyDateFilters: async (fromDate, toDate) => {
+    const filters = {
+      from: fromDate || '',
+      to: toDate || ''
+    };
+    await get().fetchOrders(filters);
+  },
+
+  // Función para limpiar filtros
+  clearFilters: async () => {
+    const defaultFilters = {
+      from: '',
+      to: ''
+    };
+    await get().fetchOrders(defaultFilters);
   },
 
   // Función para cargar más pedidos (mantiene filtros actuales)
