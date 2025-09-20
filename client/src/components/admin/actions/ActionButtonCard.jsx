@@ -1,3 +1,5 @@
+import { red } from "@mui/material/colors";
+
 export default function ActionButtonCard({ 
     id, 
     icon: Icon, 
@@ -16,11 +18,11 @@ export default function ActionButtonCard({
             iconBg: 'bg-blue-100',
             iconText: 'text-blue-600'
         },
-        green: {
-            bg: 'bg-green-50',
-            border: 'border-green-200',
-            iconBg: 'bg-green-100',
-            iconText: 'text-green-600'
+        red: {
+            bg: 'bg-red-50',
+            border: 'border-red-200',
+            iconBg: 'bg-red-100',
+            iconText: 'text-red-600'
         },
         purple: {
             bg: 'bg-purple-50',

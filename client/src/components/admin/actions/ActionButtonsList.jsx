@@ -16,7 +16,7 @@ export default function ActionButtonsList({ openForm, onFormOpen }) {
             icon: FaUserShield,
             title: 'Crear Admin',
             description: 'Agregar nuevo administrador',
-            colorScheme: 'green'
+            colorScheme: 'red'
         },
         {
             id: 'category',
