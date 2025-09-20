@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { CartContext } from '../../context/CartContext';
 
 function Navbar() {
     const { user, setUser } = useContext(UserContext);
@@ -12,6 +13,7 @@ function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+    const { cart } = useContext(CartContext);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -59,6 +61,7 @@ function Navbar() {
         }, 100);
     };
 
+    const totalItems = cart.reduce((acc, p) => acc + (p.quantity || 0), 0);
 
     return (
         <>
@@ -129,9 +132,15 @@ function Navbar() {
                                         <Link
                                             to="/cart"
                                             className={`relative group transition-all duration-300 flex items-center gap-2 ${isActive('/cart') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
-                                            onClick={() => setIsOpen(false)}
-                                        >
-                                            <FaShoppingCart className="text-lg" />
+                                            onClick={() => setIsOpen(false)}>
+                                            <div className="relative">
+                                                <FaShoppingCart className="text-lg" />
+                                                {totalItems > 0 && (
+                                                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                                        {totalItems}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <span className="sr-only">Carrito</span>
                                         </Link>
                                     )}

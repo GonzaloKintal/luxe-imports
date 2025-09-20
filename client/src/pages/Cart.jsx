@@ -7,6 +7,7 @@ import ActualCart from '../components/cart/actual-cart/ActualCart.jsx';
 import CartHistory from '../components/cart/history-orders/CartHistory.jsx';
 import CartSkeleton from '../components/cart/CartSkeleton.jsx';
 import 'react-toastify/dist/ReactToastify.css';
+import { CartContext } from '../context/CartContext.jsx';
 
 export default function Cart() {
 
@@ -16,6 +17,7 @@ export default function Cart() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { cart, setCart } = useContext(CartContext);
 
     const token = localStorage.getItem('token');
     const API_URL = import.meta.env.VITE_API_URL;
@@ -66,14 +68,16 @@ export default function Cart() {
                 setError(null);
 
                 // Obtener historial para buscar carrito in_progress
-                const historyRes = await fetch(`${API_URL}/api/carts/history`, {
+                const historyRes = await fetch(`${API_URL}/api/carts/history?limit=100`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const history = await historyRes.json();
 
                 if (!historyRes.ok) throw new Error(history.error || 'Error al obtener historial');
 
-                let carritoAbierto = history.find((c) => c.status === 'abierto');
+                // Obtener los carritos del array results
+                const carritos = history.results || [];
+                let carritoAbierto = carritos.find((c) => c.status === 'abierto');
                 let carritoId;
 
                 if (carritoAbierto) {
@@ -91,6 +95,7 @@ export default function Cart() {
                     const productosConDetalles = await fetchProductDetails(productosInCart);
 
                     setProducts(productosConDetalles);
+                    setCart(productosConDetalles); // Actualizar contexto global del carrito
                 } else {
                     setProducts([]);
                 }

@@ -40,14 +40,16 @@ export default function CartHistory({ token, API_URL }) {
             setLoading(true);
             setError(null);
             
-            const res = await fetch(`${API_URL}/api/carts/history`, {
+            const res = await fetch(`${API_URL}/api/carts/history?limit=100`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al obtener historial');
             
-            const confirmados = data.filter(c => c.status === 'confirmado');
-            const pendientes = data.filter(c => c.status === 'pendiente de confirmacion');
+            // Obtener los carritos del array results
+            const carritos = data.results || [];
+            const confirmados = carritos.filter(c => c.status === 'confirmado');
+            const pendientes = carritos.filter(c => c.status === 'pendiente de confirmacion');
 
             // Detalles para confirmados
             const confirmadosConDetalles = await Promise.all(

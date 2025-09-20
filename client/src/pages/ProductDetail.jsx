@@ -79,14 +79,16 @@ export default function ProductDetail() {
 
     try {
       // Obtener historial
-      const historyRes = await fetch(`${API_URL}/api/carts/history`, {
+      const historyRes = await fetch(`${API_URL}/api/carts/history?limit=100`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const history = await historyRes.json();
       if (!historyRes.ok) throw new Error(history.error || 'Error al obtener historial de carritos');
 
+      // Obtener los carritos del array results
+      const carritos = history.results || [];
       // Buscar carrito abierto
-      const carritoAbierto = history.find(c => c.status === 'abierto');
+      const carritoAbierto = carritos.find(c => c.status === 'abierto');
 
       // Obtener productos del carrito abierto
       if (carritoAbierto) {
@@ -126,15 +128,36 @@ export default function ProductDetail() {
     setLoadingAddToCart(true);
     try {
       let cartId = cartInfo.cartId;
-      // Si no hay carrito, crear uno
+      // Si no hay carrito, crear uno o obtener el existente
       if (!cartId) {
         const createRes = await fetch(`${API_URL}/api/carts`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
         });
         const nuevoCarrito = await createRes.json();
-        if (!createRes.ok) throw new Error(nuevoCarrito.error || 'Error al crear carrito');
-        cartId = nuevoCarrito._id;
+        
+        if (!createRes.ok) {
+          // Si el error es 409 (ya existe carrito), obtener el carrito existente del historial
+          if (createRes.status === 409) {
+            const historyRes = await fetch(`${API_URL}/api/carts/history?limit=100`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const history = await historyRes.json();
+            if (!historyRes.ok) throw new Error(history.error || 'Error al obtener historial de carritos');
+            
+            // Obtener los carritos del array results
+            const carritos = history.results || [];
+            const carritoAbierto = carritos.find(c => c.status === 'abierto');
+            if (!carritoAbierto) {
+              throw new Error('No se encontró carrito abierto');
+            }
+            cartId = carritoAbierto._id;
+          } else {
+            throw new Error(nuevoCarrito.error || 'Error al crear carrito');
+          }
+        } else {
+          cartId = nuevoCarrito._id;
+        }
       }
       // Agregar producto
       const addRes = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
