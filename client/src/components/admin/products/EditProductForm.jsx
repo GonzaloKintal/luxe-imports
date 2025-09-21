@@ -101,6 +101,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
         stock: '',
         stockCritico: '',
         category: '',
+        displayOrder: 1,
     };
 
     const [form, setForm] = useState(initialForm);
@@ -127,6 +128,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                 stock: product.stock || '',
                 stockCritico: product.stockCritico || '',
                 category: product.category?._id || product.category || '',
+                displayOrder: product.displayOrder || 1,
             });
 
             // Si hay imágenes existentes, convertirlas al formato de selectedImages
@@ -164,6 +166,13 @@ export default function EditProductForm({ product, onSave, onCancel }) {
             } else {
                 const num = Number(value);
                 newValue = num < 0 ? 0 : num;
+            }
+        } else if (name === 'displayOrder') {
+            if (value === '') {
+                newValue = '';
+            } else {
+                const num = parseInt(value);
+                newValue = num < 1 ? 1 : num;
             }
         }
         setForm({ ...form, [name]: newValue });
@@ -418,20 +427,38 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                     </div>
                 </div>
 
-                <div>
-                    <label className="block text-gray-700 mb-1 font-semibold text-sm">Categoría</label>
-                    <select
-                        name="category"
-                        value={form.category}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
-                        required
-                    >
-                        <option value="">Selecciona una categoría</option>
-                        {categories.map(cat => (
-                            <option key={cat._id} value={cat._id}>{cat.name}</option>
-                        ))}
-                    </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-gray-700 mb-1 font-semibold text-sm">Categoría</label>
+                        <select
+                            name="category"
+                            value={form.category}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                            required
+                        >
+                            <option value="">Selecciona una categoría</option>
+                            {categories.map(cat => (
+                                <option key={cat._id} value={cat._id}>{cat.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                            Orden de visualización
+                            <span className="text-xs text-gray-500 font-normal ml-1">(número mayor = aparece después)</span>
+                        </label>
+                        <input
+                            name="displayOrder"
+                            type="number"
+                            min="1"
+                            value={form.displayOrder === 0 ? '' : form.displayOrder || ''}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-sm"
+                            placeholder="1"
+                        />
+                    </div>
                 </div>
 
                 {/* Sección de imágenes */}

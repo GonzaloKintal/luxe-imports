@@ -66,7 +66,8 @@ router.get("/active", async (req, res, next) => {
         sort.price = -1;
       }
     } else {
-      // Ordenamiento por defecto
+      // Ordenamiento por defecto: displayOrder ASC, luego createdAt DESC
+      sort.displayOrder = 1;
       sort.createdAt = -1;
     }
 
@@ -150,9 +151,13 @@ router.get("/", async (req, res, next) => {
         sort.createdAt = -1;
       } else if (req.query.sort === 'oldest') {
         sort.createdAt = 1;
+      } else if (req.query.sort === 'display_order') {
+        sort.displayOrder = 1;
+        sort.createdAt = -1;
       }
     } else {
-      // Ordenamiento por defecto
+      // Ordenamiento por defecto: displayOrder ASC, luego createdAt DESC
+      sort.displayOrder = 1;
       sort.createdAt = -1;
     }
 
@@ -220,6 +225,7 @@ router.post("/", authenticateToken, isAdmin, uploadProductImages.array('images',
       stock,
       stockCritico,
       category,
+      displayOrder,
     } = req.body;
 
     // Validar campos requeridos
@@ -239,7 +245,7 @@ router.post("/", authenticateToken, isAdmin, uploadProductImages.array('images',
     // Obtener las URLs de las imágenes subidas
     const thumbnails = req.files ? req.files.map(file => file.path) : [];
 
-    const newProduct = await manager.addProduct({
+    const productData = {
       title,
       description,
       code,
@@ -249,7 +255,17 @@ router.post("/", authenticateToken, isAdmin, uploadProductImages.array('images',
       stockCritico: parseInt(stockCritico),
       category,
       thumbnails,
-    });
+    };
+
+    // Agregar displayOrder si se proporciona, sino usar el default del modelo
+    if (displayOrder != null) {
+      const parsedDisplayOrder = parseInt(displayOrder);
+      if (parsedDisplayOrder >= 1) {
+        productData.displayOrder = parsedDisplayOrder;
+      }
+    }
+
+    const newProduct = await manager.addProduct(productData);
     
     res.status(201).json(newProduct);
   } catch (error) {
@@ -362,6 +378,14 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
     if (updateData.price) updateData.price = parseFloat(updateData.price);
     if (updateData.stock) updateData.stock = parseInt(updateData.stock);
     if (updateData.stockCritico) updateData.stockCritico = parseInt(updateData.stockCritico);
+    if (updateData.displayOrder != null) {
+      const parsedDisplayOrder = parseInt(updateData.displayOrder);
+      if (parsedDisplayOrder >= 1) {
+        updateData.displayOrder = parsedDisplayOrder;
+      } else {
+        delete updateData.displayOrder; // No actualizar si es inválido
+      }
+    }
     if (updateData.status !== undefined) {
     if (typeof updateData.status === 'string') {
       updateData.status = updateData.status === 'true';
