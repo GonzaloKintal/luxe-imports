@@ -35,9 +35,16 @@ const About = () => {
             transition={{ duration: 1, delay: 0.2 }}
             className="space-y-6"
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-black">
-              Somos Maxi y Sabrina
-            </h2>
+            <div className="flex items-center gap-4">
+              <img 
+                src="/assets/logos/logo1.png" 
+                alt="Logo Luxe Imports"
+                className="w-16 h-16 rounded-full shadow-md object-cover"
+              />
+              <h2 className="text-2xl md:text-3xl font-bold text-black">
+                Somos Diego y Sabrina
+              </h2>
+            </div>
             <p className="text-gray-700 text-lg leading-relaxed">
               Fundadores de <span className="font-semibold text-black">Luxe Imports</span>, 
               un proyecto nacido de nuestra pasión por acercar a la gente productos exclusivos 
@@ -73,7 +80,7 @@ const About = () => {
             >
               <img
                 src="https://placehold.co/500x500"
-                alt="Maxi y Sabrina"
+                alt="Diego y Sabrina"
                 className="w-full h-full object-cover"
               />
             </motion.div>

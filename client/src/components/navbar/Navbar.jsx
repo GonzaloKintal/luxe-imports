@@ -136,7 +136,7 @@ function Navbar() {
                                             <div className="relative">
                                                 <FaShoppingCart className="text-lg" />
                                                 {totalItems > 0 && (
-                                                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
                                                         {totalItems}
                                                     </span>
                                                 )}
@@ -232,10 +232,17 @@ function Navbar() {
                                     ) : (
                                         <Link
                                             to="/cart"
-                                            className={`block py-3 transition-all duration-300 transform hover:translate-x-2 items-center gap-2 ${isActive('/cart') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
+                                            className={`relative py-3 transition-all duration-300 transform hover:translate-x-2 flex items-center gap-2 ${isActive('/cart') ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                                             onClick={() => setIsOpen(false)}
                                         >
-                                            <FaShoppingCart className="text-xl" />
+                                            <div className="relative">
+                                                <FaShoppingCart className="text-xl" />
+                                                {totalItems > 0 && (
+                                                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                                                        {totalItems}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <span className="sr-only">Carrito</span>
                                         </Link>
                                     )}

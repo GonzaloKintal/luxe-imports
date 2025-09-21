@@ -42,7 +42,7 @@ export default function DateRangeFilter({
             
             <div className="flex flex-wrap items-end gap-4">
                 <div className="flex-1 min-w-[150px]">
-                    <label htmlFor='from' className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor='from' className="block text-sm font-medium text-gray-700">
                         Desde
                     </label>
                     <DatePicker
@@ -58,7 +58,7 @@ export default function DateRangeFilter({
                 </div>
                 
                 <div className="flex-1 min-w-[150px]">
-                    <label htmlFor='to' className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor='to' className="block text-sm font-medium text-gray-700">
                         Hasta
                     </label>
                     <DatePicker
