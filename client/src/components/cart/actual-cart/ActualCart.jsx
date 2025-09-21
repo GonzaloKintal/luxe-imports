@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { io as socketIOClient } from 'socket.io-client';
 import { toast } from 'react-toastify';
 import { FaWhatsapp } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import CartItems from './CartItems';
+import { CartContext } from '../../../context/CartContext';
 
 export default function ActualCart({
     products, 
@@ -20,6 +21,9 @@ export default function ActualCart({
     const [loadingConfirm, setLoadingConfirm] = useState(false);
     // WebSocket client setup
     const socketRef = useRef(null);
+    
+    // Contexto del carrito para actualizar el indicador en tiempo real
+    const { setCart } = useContext(CartContext);
     
     const [adminPhone, setAdminPhone] = useState('');
     
@@ -39,6 +43,11 @@ export default function ActualCart({
         }
         if (products.length && token) fetchAdminInfo();
     }, [products.length, token, API_URL]);
+
+    // Sincronizar cambios en products con el CartContext para actualizar el indicador en tiempo real
+    useEffect(() => {
+        setCart(products);
+    }, [products, setCart]);
 
     // WebSocket connection and price update listener
     useEffect(() => {
@@ -223,6 +232,11 @@ export default function ActualCart({
             setProducts([]);
             setCartId(null);
 
+            // Recargar la página después de un breve delay para que el user vea el pedido inmediatamente
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+
             // Abrir WhatsApp en nueva pestaña
             window.open(url, '_blank');
         } catch (err) {
@@ -264,7 +278,7 @@ export default function ActualCart({
                     href={whatsappLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 transition-all duration-200 hover:opacity-80 group"
+                    className="flex items-center gap-2 group"
                     title="Contactar por WhatsApp"
                 >
                     <span className="font-medium text-gray-800 text-lg">

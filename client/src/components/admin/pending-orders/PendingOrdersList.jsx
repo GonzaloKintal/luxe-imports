@@ -1,16 +1,21 @@
 import React from 'react';
 import { FaClock } from 'react-icons/fa';
 import PendingOrderCard from './PendingOrderCard';
+import PendingOrderCardSkeleton from './PendingOrderCardSkeleton';
 
-export default function PendingOrdersList({ orders, loading, error, onConfirm, onDelete }) {
+export default function PendingOrdersList({ orders, total, loading, error, onConfirm, onDelete }) {
 
     if (loading) {
         return (
-            <div className="text-center py-12">
-                <div className="inline-flex items-center gap-3 text-gray-600">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                    <span className="text-lg">Cargando pedidos...</span>
+            <div className="space-y-4">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="h-5 bg-gray-200 rounded w-48 animate-pulse"></div>
                 </div>
+                
+                {/* Renderizar 3 skeletons mientras carga */}
+                {Array.from({ length: 3 }).map((_, index) => (
+                    <PendingOrderCardSkeleton key={index} />
+                ))}
             </div>
         );
     }
@@ -38,7 +43,7 @@ export default function PendingOrdersList({ orders, loading, error, onConfirm, o
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-gray-600">
-                    Se encontraron <span className="font-semibold text-gray-900">{orders.length}</span> pedidos pendientes
+                    Hay <span className="font-semibold text-gray-900">{total || 0}</span> pedidos pendientes en total
                 </p>
             </div>
 

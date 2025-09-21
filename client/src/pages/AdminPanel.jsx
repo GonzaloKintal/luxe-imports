@@ -93,12 +93,13 @@ export default function AdminPanel() {
             setLoadingHistory(true);
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${API_URL}/api/carts/confirmados`, {
+                const res = await fetch(`${API_URL}/api/carts/confirmados?limit=100`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Error al obtener historial');
-                setHistory(Array.isArray(data) ? data : []);
+                // Usar results del objeto paginado
+                setHistory(data.results || []);
             } catch (err) {
                 toast.error(err.message || 'Error al obtener historial');
             } finally {
@@ -111,8 +112,6 @@ export default function AdminPanel() {
         }
     }, [activeTab, API_URL]);
 
-    // if (loading) return <div className="p-6 text-center">Cargando...</div>;
-    // if (error) return <div className="p-6 text-center text-red-600">{error}</div>;
 
     return (
         <main className="bg-gray-100 px-6 md:px-12 pt-12 relative overflow-hidden min-h-screen w-full">
@@ -159,8 +158,16 @@ export default function AdminPanel() {
 
 
                 {/* Tab Content */}
-                <div className="transition-opacity duration-200">
-                    {activeTab === 'products' && (
+                <div className="relative overflow-hidden">
+                    <div 
+                        className="transition-all duration-300 ease-in-out transform"
+                        style={{
+                            opacity: activeTab === 'products' ? 1 : 0,
+                            transform: activeTab === 'products' ? 'translateX(0)' : 'translateX(-40px)',
+                            position: activeTab === 'products' ? 'relative' : 'absolute',
+                            width: '100%'
+                        }}
+                    >
                         <AdminProducts
                             products={products}
                             setProducts={setProducts}
@@ -168,9 +175,17 @@ export default function AdminPanel() {
                             loading={loading}
                             error={error}
                         />
-                    )}
+                    </div>
                     
-                    {activeTab === 'actions' && (
+                    <div 
+                        className="transition-all duration-300 ease-in-out transform"
+                        style={{
+                            opacity: activeTab === 'actions' ? 1 : 0,
+                            transform: activeTab === 'actions' ? 'translateX(0)' : 'translateX(-40px)',
+                            position: activeTab === 'actions' ? 'relative' : 'absolute',
+                            width: '100%'
+                        }}
+                    >
                         <AdminActions
                             products={products}
                             setProducts={setProducts}
@@ -178,20 +193,36 @@ export default function AdminPanel() {
                             loading={loading}
                             error={error}
                         />
-                    )}
+                    </div>
 
-                    {activeTab === 'pending' && (
+                    <div 
+                        className="transition-all duration-300 ease-in-out transform"
+                        style={{
+                            opacity: activeTab === 'pending' ? 1 : 0,
+                            transform: activeTab === 'pending' ? 'translateX(0)' : 'translateX(-40px)',
+                            position: activeTab === 'pending' ? 'relative' : 'absolute',
+                            width: '100%'
+                        }}
+                    >
                         <PendingOrders
                             API_URL={API_URL}
                         />
-                    )}
+                    </div>
 
-                    {activeTab === 'history' && (
+                    <div 
+                        className="transition-all duration-300 ease-in-out transform"
+                        style={{
+                            opacity: activeTab === 'history' ? 1 : 0,
+                            transform: activeTab === 'history' ? 'translateX(0)' : 'translateX(-40px)',
+                            position: activeTab === 'history' ? 'relative' : 'absolute',
+                            width: '100%'
+                        }}
+                    >
                         <HistoryOrders
                             history={history}
                             onClose={() => {}}
                         />
-                    )}
+                    </div>
                 </div>
             </div>
         </main>

@@ -1,6 +1,7 @@
 import HistoryItem from './HistoryItem';
+import DateRangeFilter from '../../utils/DateRangeFilter';
 
-export default function ConfirmedOrders({ orders, expandedHistorial, onToggleExpanded }) {
+export default function ConfirmedOrders({ orders, totalConfirmed, expandedHistorial, onToggleExpanded, onFilterConfirmed, onLoadMore, hasMore, loading, loadingMore }) {
     
     return (
         <div className="mb-8">
@@ -10,15 +11,25 @@ export default function ConfirmedOrders({ orders, expandedHistorial, onToggleExp
                     Compras Confirmadas
                 </h2>
                 <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                    {orders ? orders.length : 0}
+                    {totalConfirmed || 0}
                 </span>
             </div>
             
+            {onFilterConfirmed && (
+                <DateRangeFilter 
+                    onFilter={onFilterConfirmed} 
+                    loading={loading}
+                    title="Filtrar por fecha"
+                    showTitle={true}
+                    className="mb-6"
+                />
+            )}
+            
             {orders && orders.length ? (
                 <div className="space-y-4">
-                    {orders.map((carrito) => (
+                    {orders.map((carrito, index) => (
                         <HistoryItem
-                            key={carrito._id || carrito.id}
+                            key={`${carrito._id || carrito.id}-${index}`}
                             carrito={carrito}
                             expanded={expandedHistorial[carrito._id || carrito.id]}
                             onToggleExpanded={onToggleExpanded}
@@ -33,6 +44,32 @@ export default function ConfirmedOrders({ orders, expandedHistorial, onToggleExp
                     <p className="mt-3 text-gray-500">No hay compras confirmadas.</p>
                 </div>
             )}
+            
+            {/* Botón Cargar más confirmados */}
+            {!loading && hasMore && (
+                <div className="flex justify-center mt-6">
+                    <button
+                        onClick={onLoadMore}
+                        disabled={loadingMore}
+                        className={`
+                            px-6 py-3 bg-transparent cursor-pointer text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300
+                            ${loadingMore ? 'bg-gray-400 cursor-not-allowed' : 'bg-transparent'}
+                        `}
+                    >
+                        {loadingMore ? 'Cargando...' : 'Cargar más confirmados'}
+                    </button>
+                </div>
+            )}
+
+            {/* Mensaje cuando se han visto todos */}
+            {orders && orders.length > 0 && !hasMore && (
+                <div className="text-center mt-6">
+                    <p className="text-gray-600 font-medium">
+                        Has visto todo el historial de compras confirmadas
+                    </p>
+                </div>
+            )}
+
         </div>
     );
 

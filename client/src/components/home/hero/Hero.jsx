@@ -45,21 +45,33 @@ export default function Hero() {
               </p>
 
               <div className="animate-bounce mt-16">
-                <svg
-                  className="w-8 h-8 mx-auto text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+                <button
+                  onClick={() => {
+                    const section = document.getElementById("featured-products");
+                    if (section) {
+                      const y = section.getBoundingClientRect().top + window.scrollY - 50;
+                      window.scrollTo({ top: y, behavior: "smooth" });
+                    }
+                  }}
+                  className="focus:outline-none cursor-pointer"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  ></path>
-                </svg>
+                  <svg
+                    className="w-8 h-8 mx-auto text-gray-400 hover:text-white transition-colors duration-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                    ></path>
+                  </svg>
+                </button>
               </div>
+
             </div>
         </section>
     );

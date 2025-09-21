@@ -1,9 +1,11 @@
 import React from 'react';
 import { FaHistory } from 'react-icons/fa';
 import HistoryOrderCard from './HistoryOrderCard';
+import HistoryOrderCardSkeleton from './HistoryOrderCardSkeleton';
 
 export default function HistoryOrdersList({ 
     orders, 
+    total,
     loading, 
     error, 
     expanded, 
@@ -14,11 +16,15 @@ export default function HistoryOrdersList({
     
     if (loading) {
         return (
-            <div className="text-center py-12">
-                <div className="inline-flex items-center gap-3 text-gray-600">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                    <span className="text-lg">Cargando historial...</span>
+            <div className="space-y-4">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="h-5 bg-gray-200 rounded w-48 animate-pulse"></div>
                 </div>
+                
+                {/* Renderizar 3 skeletons mientras carga */}
+                {Array.from({ length: 3 }).map((_, index) => (
+                    <HistoryOrderCardSkeleton key={index} />
+                ))}
             </div>
         );
     }
@@ -49,10 +55,10 @@ export default function HistoryOrdersList({
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-gray-600">
-                    Se encontraron <span className="font-semibold text-gray-900">{orders.length}</span> compras confirmadas
+                    Hay <span className="font-semibold text-gray-900">{total || 0}</span> pedidos confirmados en total
                 </p>
             </div>
-            
+
             {orders.map((order) => (
                 <HistoryOrderCard
                     key={order._id}

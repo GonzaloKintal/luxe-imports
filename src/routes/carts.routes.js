@@ -32,18 +32,26 @@ router.get('/pendientes', authenticateToken, isAdmin, async (req, res, next) => 
     const filters = { status: 'pendiente de confirmacion' };
     if (from || to) {
       filters.pendingAt = {};
-      if (from) filters.pendingAt.$gte = new Date(from);
-      if (to) filters.pendingAt.$lte = new Date(to);
+      if (from) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const fromDate = new Date(from + 'T00:00:00-03:00');
+        filters.pendingAt.$gte = fromDate;
+      }
+      if (to) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const toDate = new Date(to + 'T23:59:59-03:00');
+        filters.pendingAt.$lte = toDate;
+      }
     }
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await manager.countPurchaseHistoryByUserId(filters);
     const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
-    const sorted = carts.sort((a, b) => (b.pendingAt ? new Date(b.pendingAt) : 0) - (a.pendingAt ? new Date(a.pendingAt) : 0));
+    // El ordenamiento ahora se hace en la base de datos (CartManager)
     res.json({
       total,
       page: parseInt(page),
       limit: parseInt(limit),
-      results: sorted
+      results: carts
     });
   } catch (error) {
     next(error);
@@ -64,19 +72,46 @@ router.post('/', authenticateToken, async (req, res, next) => {
   }
 });
 
-// GET /api/carts/history => Obtener historial de pedidos del usuario
-router.get('/history', authenticateToken, async (req, res, next) => {
+// POST /api/carts/active => Obtener carrito activo del usuario o crear uno si no existe
+router.post('/active', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = req.user._id || req.user.id; // MongoDB _id o fallback
+    
+    // Primero intentar obtener carrito existente
+    let cart = await manager.getCartByUserId(userId);
+    
+    // Si no existe, crear uno nuevo
+    if (!cart) {
+      cart = await manager.createCart(userId);
+    }
+    
+    res.json(cart);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+// GET /api/carts/history/pending => Obtener historial de pedidos pendientes (con filtros de fecha)
+router.get('/history/pending', authenticateToken, async (req, res, next) => {
   try {
     const userId = req.user._id || req.user.id;
-    const { status, from, to, limit = 10, page = 1 } = req.query;
-    const filters = { userId };
-    if (status) filters.status = status;
+    const { from, to, limit = 10, page = 1 } = req.query;
+
+    const filters = { userId, status: 'pendiente de confirmacion' };
+
     if (from || to) {
-      // Filtrar por fechas (confirmedAt o pendingAt según status)
-      const dateField = status === 'confirmado' ? 'confirmedAt' : 'pendingAt';
-      filters[dateField] = {};
-      if (from) filters[dateField].$gte = new Date(from);
-      if (to) filters[dateField].$lte = new Date(to);
+      filters.pendingAt = {};
+      if (from) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const fromDate = new Date(from + 'T00:00:00-03:00');
+        filters.pendingAt.$gte = fromDate;
+      }
+      if (to) {
+        // Crear fecha en zona horaria Argentina (UTC-3) 
+        const toDate = new Date(to + 'T23:59:59-03:00');
+        filters.pendingAt.$lte = toDate;
+      }
     }
 
     // Paginación
@@ -84,21 +119,87 @@ router.get('/history', authenticateToken, async (req, res, next) => {
     const total = await manager.countPurchaseHistoryByUserId(filters);
     const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
 
-    // Ordenar: confirmados por confirmedAt, pendientes por pendingAt, ambos descendente
-    const sorted = carts.sort((a, b) => {
-      const getDate = cart => cart.status === 'confirmado' ? new Date(cart.confirmedAt || 0) : new Date(cart.pendingAt || 0);
-      return getDate(b) - getDate(a);
-    });
-    res.json({
-      total,
-      page: parseInt(page),
-      limit: parseInt(limit),
-      results: sorted
-    });
+    // El ordenamiento ahora se hace en la base de datos (CartManager)
+    res.json({ total, page: parseInt(page), limit: parseInt(limit), results: carts });
   } catch (error) {
     next(error);
   }
 });
+
+// GET /api/carts/history/confirmed => Obtener historial de pedidos confirmados (con filtros de fecha)
+router.get('/history/confirmed', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = req.user._id || req.user.id;
+    const { from, to, limit = 10, page = 1 } = req.query;
+
+    const filters = { userId, status: 'confirmado' };
+
+    if (from || to) {
+      filters.confirmedAt = {};
+      if (from) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const fromDate = new Date(from + 'T00:00:00-03:00');
+        filters.confirmedAt.$gte = fromDate;
+      }
+      if (to) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const toDate = new Date(to + 'T23:59:59-03:00');
+        filters.confirmedAt.$lte = toDate;
+      }
+    }
+
+    // Paginación
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const total = await manager.countPurchaseHistoryByUserId(filters);
+    const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
+
+    // El ordenamiento ahora se hace en la base de datos (CartManager)
+    res.json({ total, page: parseInt(page), limit: parseInt(limit), results: carts });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/carts/current => Obtener carrito actual (activo/abierto)
+router.get('/current', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = req.user._id || req.user.id;
+    
+    // Primero intentar obtener un carrito existente directamente
+    const existing = await manager.getCartByUserId(userId);
+    
+    if (existing) {
+      return res.json(existing);
+    }
+    
+    // Si no hay carrito directo, buscar en el historial
+    // Un carrito "activo" puede tener diferentes estados según tu lógica
+    const filters = { 
+      userId, 
+      $or: [
+        { status: { $exists: false } },
+        { status: 'abierto' },
+        { status: '' },
+        { status: null }
+      ]
+    };
+    
+    const carts = await manager.getPurchaseHistoryByUserId(filters, 1, 0);
+    
+    if (carts.length === 0) {
+      return res.status(404).json({ error: 'No hay carrito activo' });
+    }
+    
+    // Retornar el más reciente
+    const currentCart = carts.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))[0];
+    res.json(currentCart);
+    
+  } catch (error) {
+    next(error);
+  }
+});
+
+
 
 // GET /api/carts/confirmados => Obtener todos los carritos confirmados (solo admin)
 router.get('/confirmados', authenticateToken, isAdmin, async (req, res, next) => {
@@ -107,18 +208,26 @@ router.get('/confirmados', authenticateToken, isAdmin, async (req, res, next) =>
     const filters = { status: 'confirmado' };
     if (from || to) {
       filters.confirmedAt = {};
-      if (from) filters.confirmedAt.$gte = new Date(from);
-      if (to) filters.confirmedAt.$lte = new Date(to);
+      if (from) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const fromDate = new Date(from + 'T00:00:00-03:00');
+        filters.confirmedAt.$gte = fromDate;
+      }
+      if (to) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const toDate = new Date(to + 'T23:59:59-03:00');
+        filters.confirmedAt.$lte = toDate;
+      }
     }
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await manager.countPurchaseHistoryByUserId(filters);
     const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
-    const sorted = carts.sort((a, b) => (b.confirmedAt ? new Date(b.confirmedAt) : 0) - (a.confirmedAt ? new Date(a.confirmedAt) : 0));
+    // El ordenamiento ahora se hace en la base de datos (CartManager)
     res.json({
       total,
       page: parseInt(page),
       limit: parseInt(limit),
-      results: sorted
+      results: carts
     });
   } catch (error) {
     next(error);
