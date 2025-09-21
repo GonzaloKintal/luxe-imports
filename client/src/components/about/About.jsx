@@ -36,7 +36,7 @@ const About = () => {
             className="space-y-6"
           >
             <h2 className="text-2xl md:text-3xl font-bold text-black">
-              Somos Maxi y Sabrina
+              Somos Diego y Sabrina
             </h2>
             <p className="text-gray-700 text-lg leading-relaxed">
               Fundadores de <span className="font-semibold text-black">Luxe Imports</span>, 
