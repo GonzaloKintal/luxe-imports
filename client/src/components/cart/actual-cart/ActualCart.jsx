@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import { io as socketIOClient } from 'socket.io-client';
-import { toast } from 'react-toastify';
 import { FaWhatsapp } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import CartItems from './CartItems';
 import { CartContext } from '../../../context/CartContext';
+import { useNotify } from "../../../components/ToastProvider";
 
 export default function ActualCart({
     products, 
@@ -15,18 +15,14 @@ export default function ActualCart({
     userInfo,
     API_URL 
 }) {
-    // Estado de loading por producto (id: {add: bool, remove: bool, removeInactive: bool})
     const [loadingById, setLoadingById] = useState({});
-    // Estado de loading para confirmar compra
     const [loadingConfirm, setLoadingConfirm] = useState(false);
-    // WebSocket client setup
     const socketRef = useRef(null);
-    
-    // Contexto del carrito para actualizar el indicador en tiempo real
     const { setCart } = useContext(CartContext);
-    
     const [adminPhone, setAdminPhone] = useState('');
-    
+    const notify = useNotify();
+
+
     useEffect(() => {
         async function fetchAdminInfo() {
             try {
@@ -34,9 +30,7 @@ export default function ActualCart({
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
-                if (res.ok && data.telefono) {
-                    setAdminPhone(data.telefono);
-                }
+                if (res.ok && data.telefono) setAdminPhone(data.telefono);
             } catch (err) {
                 console.error('Error al obtener admin-info:', err);
             }
@@ -44,36 +38,32 @@ export default function ActualCart({
         if (products.length && token) fetchAdminInfo();
     }, [products.length, token, API_URL]);
 
-    // Sincronizar cambios en products con el CartContext para actualizar el indicador en tiempo real
     useEffect(() => {
         setCart(products);
     }, [products, setCart]);
 
-    // WebSocket connection and price update listener
     useEffect(() => {
-        // Connect only once
-        if (!socketRef.current) {
-            socketRef.current = socketIOClient(API_URL);
-        }
+        if (!socketRef.current) socketRef.current = socketIOClient(API_URL);
         const socket = socketRef.current;
-        // Listen for priceUpdate events
+
         socket.on('priceUpdate', ({ productId, newPrice }) => {
             setProducts(prevProducts => prevProducts.map(p =>
                 p._id === productId ? { ...p, price: newPrice } : p
             ));
         });
-        // Listen for stockUpdate events
+
         socket.on('stockUpdate', ({ productId, newStock }) => {
             setProducts(prevProducts => prevProducts.map(p =>
                 p._id === productId ? { ...p, stock: newStock } : p
             ));
         });
-        // Listen for statusUpdate events
+
         socket.on('statusUpdate', ({ productId, newStatus }) => {
             setProducts(prevProducts => prevProducts.map(p =>
                 p._id === productId ? { ...p, status: newStatus } : p
             ));
         });
+
         return () => {
             socket.off('priceUpdate');
             socket.off('stockUpdate');
@@ -94,9 +84,9 @@ export default function ActualCart({
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al agregar producto');
             setProducts(prev => prev.map(p => p._id === product._id ? { ...p, quantity: p.quantity + 1 } : p));
-            toast.success('Producto agregado al carrito');
+            notify.success('Producto agregado al carrito'); 
         } catch (err) {
-            toast.error(err.message);
+            notify.error(err.message); 
         } finally {
             setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), add: false } }));
         }
@@ -107,7 +97,6 @@ export default function ActualCart({
         setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), remove: true } }));
         try {
             if (product.quantity > 1) {
-                // PUT para actualizar cantidad
                 const res = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
                     method: 'PUT',
                     headers: {
@@ -119,34 +108,28 @@ export default function ActualCart({
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Error al descontar producto');
                 setProducts(prev => prev.map(p => p._id === product._id ? { ...p, quantity: p.quantity - 1 } : p));
-                toast.success('Cantidad actualizada');
+                notify.success('Cantidad actualizada'); 
             } else {
-                // DELETE para eliminar producto
                 const res = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
                     method: 'DELETE',
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Error al quitar producto');
-                // Actualizar productos en frontend
                 setProducts(prev => {
                     const updated = prev.filter(p => p._id !== product._id);
-                    // Si no quedan productos, eliminar el carrito
                     if (updated.length === 0) {
                         fetch(`${API_URL}/api/carts/${cartId}`, {
                             method: 'DELETE',
                             headers: { Authorization: `Bearer ${token}` },
-                        })
-                            .then(() => {
-                                setCartId(null);
-                            });
+                        }).then(() => setCartId(null));
                     }
                     return updated;
                 });
-                toast.success('Producto quitado del carrito');
+                notify.success('Producto quitado del carrito'); 
             }
         } catch (err) {
-            toast.error(err.message);
+            notify.error(err.message); 
         } finally {
             setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), remove: false } }));
         }
@@ -163,9 +146,9 @@ export default function ActualCart({
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al quitar producto');
             setProducts(prev => prev.filter(p => p._id !== product._id));
-            toast.success('Producto quitado del carrito');
+            notify.success('Producto quitado del carrito'); 
         } catch (err) {
-            toast.error(err.message);
+            notify.error(err.message); 
         } finally {
             setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), removeInactive: false } }));
         }
@@ -174,7 +157,6 @@ export default function ActualCart({
     async function handleProcessPurchase() {
         setLoadingConfirm(true);
         try {
-            // Modal de confirmación antes de procesar compra
             const confirmResult = await Swal.fire({
                 title: '¿Deseas finalizar la compra?',
                 text: 'No hay pasarela de pagos. La compra se coordina por mensaje directo con el vendedor vía WhatsApp. ¿Estás seguro de continuar?',
@@ -190,7 +172,6 @@ export default function ActualCart({
                 return;
             }
 
-            // Confirmar el pago con el backend
             const res = await fetch(`${API_URL}/api/carts/${cartId}/confirm-request`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` },
@@ -198,7 +179,6 @@ export default function ActualCart({
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al solicitar confirmación de compra. Por favor, refresca la página e intenta nuevamente.');
 
-            // SweetAlert de éxito y aviso de WhatsApp
             await Swal.fire({
                 title: '¡Compra realizada con éxito!',
                 text: 'Tu compra ha sido procesada correctamente y ya está disponible en tu historial de compras. Ahora serás derivado al WhatsApp del vendedor para coordinar la entrega o pago.',
@@ -207,17 +187,14 @@ export default function ActualCart({
                 confirmButtonColor: '#25D366',
             });
 
-            toast.success('Compra realizada con éxito');
-
-            // Preparar mensaje de WhatsApp
+            notify.success('Compra realizada con éxito'); 
             const productos = products
                 .map(p => `- ${p.title} x${p.quantity} ($${(p.price * p.quantity).toFixed(2)})`)
-                .join('%0A'); // salto de línea en URL
+                .join('%0A');
 
             let nombreUsuario = (userInfo?.firstName || '') + (userInfo?.lastName ? ' ' + userInfo.lastName : '') || userInfo?.email || 'Cliente';
             const mensaje = `Hola, mi nombre es ${nombreUsuario.trim()}, acabo de realizar una compra:%0A${productos}%0A%0AMuchas gracias`;
 
-            // Usar el número dinámico del admin
             let phone = adminPhone ? adminPhone.replace(/\D/g, '') : '';
             if (phone && !phone.startsWith('549')) {
                 if (phone.startsWith('54')) {
@@ -228,19 +205,14 @@ export default function ActualCart({
             }
             const url = `https://wa.me/${phone}?text=${mensaje}`;
 
-            // Limpiar carrito en frontend
             setProducts([]);
-            setCartId(null);
+            setCartId(null);z
 
-            // Recargar la página después de un breve delay para que el user vea el pedido inmediatamente
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+            setTimeout(() => window.location.reload(), 1000);
 
-            // Abrir WhatsApp en nueva pestaña
             window.open(url, '_blank');
         } catch (err) {
-            toast.error(err.message);
+            notify.error(err.message); 
         } finally {
             setLoadingConfirm(false);
         }
@@ -260,14 +232,10 @@ export default function ActualCart({
         );
     }
 
-    // Generar WhatsApp link para mostrar info del vendedor
     let phone = adminPhone ? adminPhone.replace(/\D/g, '') : '';
     if (phone && !phone.startsWith('549')) {
-        if (phone.startsWith('54')) {
-            phone = '549' + phone.slice(2);
-        } else {
-            phone = '549' + phone;
-        }
+        if (phone.startsWith('54')) phone = '549' + phone.slice(2);
+        else phone = '549' + phone;
     }
     const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}`;
 

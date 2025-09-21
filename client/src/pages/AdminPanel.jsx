@@ -1,8 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useNotify } from '../components/ToastProvider';
 import { FaBolt, FaList, FaHistory, FaClock } from 'react-icons/fa';
 import AdminActions from '../components/admin/actions/AdminActions';
 import AdminProducts from '../components/admin/products/AdminProducts';
@@ -23,6 +21,7 @@ export default function AdminPanel() {
 
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL;
+    const notify = useNotify();
 
     // Configuración de las tabs
     const tabs = [
@@ -101,7 +100,7 @@ export default function AdminPanel() {
                 // Usar results del objeto paginado
                 setHistory(data.results || []);
             } catch (err) {
-                toast.error(err.message || 'Error al obtener historial');
+                notify.error(err.message || 'Error al obtener historial');
             } finally {
                 setLoadingHistory(false);
             }
@@ -110,17 +109,11 @@ export default function AdminPanel() {
         if (activeTab === 'history') {
             fetchHistory();
         }
-    }, [activeTab, API_URL]);
+    }, [activeTab, API_URL, notify]);
 
 
     return (
         <main className="bg-gray-100 px-6 md:px-12 pt-12 relative overflow-hidden min-h-screen w-full">
-            <ToastContainer
-                position="top-right"
-                autoClose={2500}
-                theme="light"
-            />
-
             <div className="flex flex-col relative z-10 md:px-6 py-20">                 
                 {/* Header */}
                 <div className="mb-8">

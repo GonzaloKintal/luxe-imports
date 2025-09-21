@@ -1,11 +1,10 @@
-import { useState, useContext, useEffect } from 'react';
-import { FaStore } from 'react-icons/fa';
+// src/components/Auth.jsx
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { UserContext } from '../context/UserContext';
 import LoginForm from '../components/auth/LoginForm';
 import RegisterForm from '../components/auth/RegisterForm';
+import { useNotify } from '../components/ToastProvider';
 
 export default function Auth() {
   const [tab, setTab] = useState('login');
@@ -19,9 +18,8 @@ export default function Auth() {
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState(Array(5).fill(''));
 
-  // Forgot password states
   const [showForgotModal, setShowForgotModal] = useState(false);
-  const [forgotStep, setForgotStep] = useState(0); // 0=email, 1=código, 2=nueva contraseña
+  const [forgotStep, setForgotStep] = useState(0);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotCode, setForgotCode] = useState(Array(5).fill(''));
   const [newPassword, setNewPassword] = useState('');
@@ -31,8 +29,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
   const API_URL = import.meta.env.VITE_API_URL;
-
-
+  const notify = useNotify();
 
   // -------- Handlers de login --------
   const handleLoginChange = (e) => {
@@ -74,16 +71,12 @@ export default function Auth() {
         setUser(null);
       }
 
-      toast.success('Sesión iniciada', {
-        autoClose: 1000,
-        onClose: () => {
-          setLoginLoading(false);
-          navigate('/');
-        },
-      });
+      notify.success('Sesión iniciada');
+      setLoginLoading(false);
+      navigate('/');
 
     } catch (err) {
-      toast.error(err.message, { autoClose: 3500 });
+      notify.error(err.message);
       setLoginLoading(false);
     }
   }
@@ -107,17 +100,17 @@ export default function Auth() {
 
       setVerificationCode(Array(5).fill(''));
       setShowVerificationModal(true);
-      toast.info('Te enviamos un código de verificación al correo');
+      notify.info('Te enviamos un código de verificación al correo');
 
     } catch (err) {
-      toast.error(err.message);
+      notify.error(err.message);
       setRegisterLoading(false);
     }
   }
 
   async function handleVerifyCode() {
     const code = verificationCode.join('');
-    if (code.length !== 5) return toast.error('Completa los 5 dígitos');
+    if (code.length !== 5) return notify.error('Completa los 5 dígitos');
 
     try {
       const res = await fetch(`${API_URL}/api/auth/verify-code`, {
@@ -128,19 +121,15 @@ export default function Auth() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Código incorrecto');
 
-      toast.success('Registro verificado con éxito', {
-        autoClose: 1500,
-        onClose: () => {
-          setRegisterForm({ firstName: '', lastName: '', email: '', password: '', telefono: '' });
-          setRegisterTouched({ firstName: false, lastName: false, email: false, password: false, telefono: false });
-          setTab('login');
-          setRegisterLoading(false);
-          setShowVerificationModal(false);
-        }
-      });
+      notify.success('Registro verificado con éxito');
+      setRegisterForm({ firstName: '', lastName: '', email: '', password: '', telefono: '' });
+      setRegisterTouched({ firstName: false, lastName: false, email: false, password: false, telefono: false });
+      setTab('login');
+      setRegisterLoading(false);
+      setShowVerificationModal(false);
 
     } catch (err) {
-      toast.error(err.message);
+      notify.error(err.message);
     }
   }
 
@@ -170,7 +159,7 @@ export default function Auth() {
 
   const handleVerifyForgotCode = async () => {
     const code = forgotCode.join('');
-    if (code.length !== 5) return toast.error('Completa los 5 dígitos');
+    if (code.length !== 5) return notify.error('Completa los 5 dígitos');
     setForgotLoading(true);
 
     try {
@@ -181,73 +170,84 @@ export default function Auth() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Código incorrecto');
-      toast.success('Código verificado');
-      setForgotStep(2); // Avanzar a nueva contraseña
+      notify.success('Código verificado');
+      setForgotStep(2);
+
     } catch (err) {
-      toast.error(err.message);
+      notify.error(err.message);
     } finally {
       setForgotLoading(false);
     }
   };
 
   const handleUpdatePassword = async () => {
-  if (!newPassword || newPassword.length < 6)
-    return toast.error('La contraseña debe tener al menos 6 caracteres');
-  if (newPassword !== repeatPassword)
-    return toast.error('Las contraseñas no coinciden');
-  
-  setForgotLoading(true);
+    if (!newPassword || newPassword.length < 6)
+      return notify.error('La contraseña debe tener al menos 6 caracteres');
+    if (newPassword !== repeatPassword)
+      return notify.error('Las contraseñas no coinciden');
 
-  try {
-	console.log({ email: forgotEmail, newPassword });
-  const res = await fetch(`${API_URL}/api/auth/forgot-password/update`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: forgotEmail.trim().toLowerCase(), newPassword }),
-  });
-	const data = await res.json();
-	console.log(data);
+    setForgotLoading(true);
 
-    if (!res.ok) throw new Error(data.error || 'Error al actualizar contraseña');
+    try {
+      const res = await fetch(`${API_URL}/api/auth/forgot-password/update`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail.trim().toLowerCase(), newPassword }),
+      });
+      const data = await res.json();
 
-    toast.success('Contraseña actualizada con éxito', {
-      autoClose: 1500,
-      onClose: () => {
-        setShowForgotModal(false);
-        setForgotStep(0);
-        setForgotEmail('');
-        setForgotCode(Array(5).fill(''));
-        setNewPassword('');
-        setRepeatPassword('');
-      }
-    });
-  } catch (err) {
-    toast.error(err.message);
-  } finally {
-    setForgotLoading(false);
-  }
-};
+      if (!res.ok) throw new Error(data.error || 'Error al actualizar contraseña');
 
+      notify.success('Contraseña actualizada con éxito');
+      setShowForgotModal(false);
+      setForgotStep(0);
+      setForgotEmail('');
+      setForgotCode(Array(5).fill(''));
+      setNewPassword('');
+      setRepeatPassword('');
+
+    } catch (err) {
+      notify.error(err.message);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleSendForgotCode = async () => {
+    if (!forgotEmail) return notify.error("Ingresa tu email");
+    setForgotLoading(true);
+    
+    try {
+      const res = await fetch(`${API_URL}/api/auth/forgot-password/send-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail.trim().toLowerCase() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al enviar código");
+      notify.success("Código enviado al correo");
+      setForgotStep(1);
+      setForgotCode(Array(5).fill(''));
+    } catch (err) {
+      notify.error(err.message);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  // -------- Render --------
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8 md:py-16">
-      {/* Fondo animado */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-xl animate-pulse-slow" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-gray-500/5 rounded-full blur-xl animate-pulse-slower" />
       </div>
 
-      <ToastContainer position="top-right" autoClose={2500} theme="colored" />
-
       <div className="w-full max-w-md bg-white rounded-lg shadow-sm p-6 border border-gray-100 relative z-10 mt-8">
         {/* Header */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-32 h-32 flex items-center justify-center mb-3">
-            <img 
-              // CAMBIAR A LOGO SIN TEXTO
-              src="/assets/logos/logo1.png" 
-              alt="Luxe Imports Logo" 
-              className="w-full h-full object-contain rounded-full shadow-md"
-            />
+            <img src="/assets/logos/logo1.png" alt="Luxe Imports Logo" className="w-full h-full object-contain rounded-full shadow-md" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-1 text-center">
             Bienvenido a Luxe Imports
@@ -256,7 +256,6 @@ export default function Auth() {
             Inicia sesión o crea tu cuenta para comenzar
           </p>
         </div>
-
 
         {/* Tabs */}
         <div className="flex mb-6 rounded-md overflow-hidden border border-gray-100 bg-gray-50 p-1">
@@ -284,10 +283,7 @@ export default function Auth() {
               onBlurField={handleLoginBlur}
               onSubmit={handleLogin}
               loading={loginLoading}
-              onForgot={() => {
-                setShowForgotModal(true);
-                setForgotStep(0);
-              }}
+              onForgot={() => { setShowForgotModal(true); setForgotStep(0); }}
             />
           )}
           {tab === "register" && (
@@ -348,26 +344,7 @@ export default function Auth() {
                 <div className="flex justify-between">
                   <button onClick={() => setShowForgotModal(false)} className="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300">Cancelar</button>
                   <button
-                    onClick={async () => {
-                      if (!forgotEmail) return toast.error("Ingresa tu email");
-                      setForgotLoading(true);
-                      try {
-                        const res = await fetch(`${API_URL}/api/auth/forgot-password/send-code`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ email: forgotEmail.trim().toLowerCase() }),
-                        });
-                        const data = await res.json();
-                        if (!res.ok) throw new Error(data.error || "Error al enviar código");
-                        toast.success("Código enviado al correo");
-                        setForgotStep(1);
-                        setForgotCode(Array(5).fill(''));
-                      } catch (err) {
-                        toast.error(err.message);
-                      } finally {
-                        setForgotLoading(false);
-                      }
-                    }}
+                    onClick={handleSendForgotCode}
                     className="px-4 py-2 cursor-pointer rounded-md bg-gray-800 text-white hover:bg-gray-900"
                     disabled={forgotLoading}
                     style={forgotLoading ? { opacity: 0.6, pointerEvents: 'none' } : {}}

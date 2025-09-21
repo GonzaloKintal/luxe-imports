@@ -1,8 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from "react-icons/fa";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useNotify } from "../components/ToastProvider";
 import { UserContext } from '../context/UserContext';
 import { CartContext } from '../context/CartContext';
 import ProductImageGallery from '../components/product-detail/images/ProductImageGallery';
@@ -22,11 +21,11 @@ export default function ProductDetail() {
   const [errorCotizacion, setErrorCotizacion] = useState(null);
   const [loadingAddToCart, setLoadingAddToCart] = useState(false);
   
-  // Contexto del carrito para actualizar el indicador en tiempo real
   const { setCart } = useContext(CartContext);
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin'; 
+  const notify = useNotify();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -52,7 +51,6 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (product && product.status === false) {
-      // Redirigir automáticamente a /products después de un breve delay
       setTimeout(() => {
         navigate('/products');
       }, 5000);
@@ -78,58 +76,51 @@ export default function ProductDetail() {
   };
 
   const fetchCart = async () => {
-  const token = localStorage.getItem('token');
-  if (!token) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-  try {
-    // Solo obtener carritos pendientes ya que los "abiertos" están ahí
-    const pendingRes = await fetch(`${API_URL}/api/carts/history/pending?limit=100`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    
-    const pending = await pendingRes.json();
-    if (!pendingRes.ok) throw new Error(pending.error || 'Error al obtener historial pendiente');
-    
-    // Buscar carrito abierto en los pendientes
-    const carritoAbierto = pending.results?.find(c => c.status === 'abierto' || c.status === 'pendiente');
-
-    if (carritoAbierto) {
-      const cartRes = await fetch(`${API_URL}/api/carts/${carritoAbierto._id}`, {
+    try {
+      const pendingRes = await fetch(`${API_URL}/api/carts/history/pending?limit=100`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const cartProducts = await cartRes.json();
-      if (!cartRes.ok) throw new Error(cartProducts.error || 'Error al obtener productos del carrito');
+      
+      const pending = await pendingRes.json();
+      if (!pendingRes.ok) throw new Error(pending.error || 'Error al obtener historial pendiente');
+      
+      const carritoAbierto = pending.results?.find(c => c.status === 'abierto' || c.status === 'pendiente');
 
-      const items = {};
-      for (const p of cartProducts) {
-        let prodId = p.productId;
-        if (typeof prodId === 'object' && prodId !== null) {
-          prodId = prodId._id || prodId.id || prodId.toString();
+      if (carritoAbierto) {
+        const cartRes = await fetch(`${API_URL}/api/carts/${carritoAbierto._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const cartProducts = await cartRes.json();
+        if (!cartRes.ok) throw new Error(cartProducts.error || 'Error al obtener productos del carrito');
+
+        const items = {};
+        for (const p of cartProducts) {
+          let prodId = p.productId;
+          if (typeof prodId === 'object' && prodId !== null) {
+            prodId = prodId._id || prodId.id || prodId.toString();
+          }
+          if (!prodId) prodId = p._id;
+          items[prodId] = p.quantity;
         }
-        if (!prodId) prodId = p._id;
-        items[prodId] = p.quantity;
+        setCartInfo({ cartId: carritoAbierto._id, items });
       }
-      setCartInfo({ cartId: carritoAbierto._id, items });
-    }
-  } catch (err) {
-    // No mostrar error si no hay carrito
-  }
-};
+    } catch (err) {}
+  };
 
-  // Función para actualizar el contexto del carrito con productos completos
   async function updateCartContext(cartId) {
     try {
       const token = localStorage.getItem('token');
       if (!cartId || !token) return;
 
-      // Obtener productos del carrito
       const cartRes = await fetch(`${API_URL}/api/carts/${cartId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const cartProducts = await cartRes.json();
       if (!cartRes.ok) return;
 
-      // Obtener detalles completos de cada producto
       const productosConDetalles = await Promise.all(
         cartProducts.map(async ({ productId, quantity }) => {
           let prodId;
@@ -149,7 +140,6 @@ export default function ProductDetail() {
         })
       );
 
-      // Filtrar productos válidos y actualizar contexto
       const productosValidos = productosConDetalles.filter(p => p !== null);
       setCart(productosValidos);
     } catch (err) {
@@ -159,17 +149,16 @@ export default function ProductDetail() {
 
   async function handleAddToCart() {
     if (isAdmin) {
-      toast.error('Los administradores no pueden agregar productos al carrito');
+      notify.error('Los administradores no pueden agregar productos al carrito');
       return;
     }
     const token = localStorage.getItem('token');
     if (!token) {
-      toast.error('Debes iniciar sesión para agregar productos al carrito');
+      notify.error('Debes iniciar sesión para agregar productos al carrito');
       return;
     }
     setLoadingAddToCart(true);
     try {
-      // Obtener o crear carrito activo usando el nuevo endpoint
       const activeCartRes = await fetch(`${API_URL}/api/carts/active`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -179,14 +168,13 @@ export default function ProductDetail() {
       
       const cartId = activeCart._id;
       
-      // Agregar producto
       const addRes = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
       const addData = await addRes.json();
       if (!addRes.ok) throw new Error(addData.error || 'Error al agregar producto al carrito');
-      // Sincronizar cantidades con backend
+
       const cartRes = await fetch(`${API_URL}/api/carts/${cartId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -203,20 +191,17 @@ export default function ProductDetail() {
       }
       setCartInfo({ cartId, items });
       
-      // Actualizar el contexto del carrito para el indicador en tiempo real
       await updateCartContext(cartId);
       
-      toast.success('Producto agregado al carrito');
+      notify.success('Producto agregado al carrito');
     } catch (err) {
-      toast.error(err.message);
+      notify.error(err.message);
     } finally {
       setLoadingAddToCart(false);
     }
   }
 
-  if (loading) {
-    return <ProductDetailSkeleton />;
-  }
+  if (loading) return <ProductDetailSkeleton />;
 
   if (error) {
     return (
@@ -234,7 +219,6 @@ export default function ProductDetail() {
     );
   }
 
-  // Si el producto está inactivo, mostrar mensaje y bloquear botón
   if (product && product.status === false) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
@@ -249,19 +233,7 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col py-8 pt-20">
-      <ToastContainer 
-        position="top-right" 
-        autoClose={2500} 
-        hideProgressBar={false} 
-        newestOnTop 
-        closeOnClick 
-        pauseOnFocusLoss 
-        draggable 
-        pauseOnHover 
-        theme="colored" 
-      />
       
-      {/* Botón de volver */}
       <div className="w-full px-4 sm:px-6 lg:px-8 mt-6 mb-4">
         <button
           onClick={() => navigate('/products')}
@@ -271,19 +243,16 @@ export default function ProductDetail() {
         </button>
       </div>
 
-      {/* Contenedor principal */}
       <div className="flex-grow flex items-center justify-center">
         <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-0 w-full">
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             <div className="lg:grid lg:grid-cols-2 lg:gap-0">
               
-              {/* Galería de imágenes */}
               <ProductImageGallery 
                 thumbnails={product.thumbnails}
                 title={product.title}
               />
               
-              {/* Información del producto */}
               <ProductInfo
                 product={product}
                 cartInfo={cartInfo}
