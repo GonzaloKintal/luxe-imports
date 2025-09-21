@@ -48,12 +48,17 @@ export default function AdminActions({ products, setProducts, API_URL }) {
             });
             
             if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || 'Error al crear producto');
+                let errorMessage = 'Error al crear producto';
+                try {
+                    const errorData = await res.json();
+                    errorMessage = errorData.error || errorMessage;
+                } catch (e) {
+                    errorMessage = `Error ${res.status}: ${res.statusText}`;
+                }
+                throw new Error(errorMessage);
             }
             
             const created = await res.json();
-            setProducts([...products, created]);
             toast.success('Producto creado correctamente');
         } catch (error) {
             console.error('Error:', error);

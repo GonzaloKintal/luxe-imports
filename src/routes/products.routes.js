@@ -242,8 +242,31 @@ router.post("/", authenticateToken, isAdmin, uploadProductImages.array('images',
       return res.status(400).json({ error: "Faltan campos requeridos" });
     }
 
-    // Obtener las URLs de las imágenes subidas
-    const thumbnails = req.files ? req.files.map(file => file.path) : [];
+    // Manejar imágenes con orden
+    let thumbnails = [];
+    if (req.files && req.files.length > 0) {
+      const uploadedImages = req.files.map(file => file.path);
+      
+      // Si hay información de orden, reconstruir el array respetando el orden
+      if (req.body.imageOrder) {
+        try {
+          const imageOrder = JSON.parse(req.body.imageOrder);
+          let imageIndex = 0;
+          
+          for (const orderItem of imageOrder) {
+            if (!orderItem.isExisting && imageIndex < uploadedImages.length) {
+              thumbnails.push(uploadedImages[imageIndex]);
+              imageIndex++;
+            }
+          }
+        } catch (e) {
+          console.log('Error parsing imageOrder, using original order:', e);
+          thumbnails = uploadedImages;
+        }
+      } else {
+        thumbnails = uploadedImages;
+      }
+    }
 
     const productData = {
       title,
