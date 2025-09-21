@@ -22,6 +22,8 @@ export default function CartHistory({ token, API_URL }) {
     const [currentPageConfirmed, setCurrentPageConfirmed] = useState(1);
     const [currentPagePending, setCurrentPagePending] = useState(1);
     const [currentFilters, setCurrentFilters] = useState({ from: null, to: null });
+    const [totalPending, setTotalPending] = useState(0);
+    const [totalConfirmed, setTotalConfirmed] = useState(0);
 
     const ITEMS_PER_PAGE = 5;
 
@@ -56,12 +58,13 @@ export default function CartHistory({ token, API_URL }) {
                 setCurrentPageConfirmed(1);
                 setCurrentPagePending(1);
                 setHistorialCarritos({ confirmados: [], pendientes: [] });
+                setCurrentFilters({ from: null, to: null }); // Reset filters on initial load
             }
             
             // Cargar ambos tipos en paralelo
             await Promise.all([
-                cargarConfirmados(1),
-                cargarPendientes(1)
+                cargarConfirmados(1, { from: null, to: null }),
+                cargarPendientes(1, { from: null, to: null })
             ]);
             
             setHistorialVisible(true);
@@ -76,8 +79,8 @@ export default function CartHistory({ token, API_URL }) {
     async function cargarConfirmados(page = 1, filters = currentFilters) {
         try {
             let url = `${API_URL}/api/carts/history/confirmed?limit=${ITEMS_PER_PAGE}&page=${page}`;
-            if (filters.from) url += `&from=${filters.from}T00:00:00.000Z`;
-            if (filters.to) url += `&to=${filters.to}T23:59:59.999Z`;
+            if (filters.from) url += `&from=${filters.from}`;
+            if (filters.to) url += `&to=${filters.to}`;
             
             const res = await fetch(url, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -104,15 +107,20 @@ export default function CartHistory({ token, API_URL }) {
 
             setCurrentPageConfirmed(page);
             setHasMoreConfirmed((page * ITEMS_PER_PAGE) < (data.total || 0));
+            setTotalConfirmed(data.total || 0);
 
         } catch (err) {
             throw err;
         }
     }
 
-    async function cargarPendientes(page = 1) {
+    async function cargarPendientes(page = 1, filters = currentFilters) {
         try {
-            const res = await fetch(`${API_URL}/api/carts/history/pending?limit=${ITEMS_PER_PAGE}&page=${page}`, {
+            let url = `${API_URL}/api/carts/history/pending?limit=${ITEMS_PER_PAGE}&page=${page}`;
+            if (filters.from) url += `&from=${filters.from}`;
+            if (filters.to) url += `&to=${filters.to}`;
+            
+            const res = await fetch(url, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -137,6 +145,7 @@ export default function CartHistory({ token, API_URL }) {
 
             setCurrentPagePending(page);
             setHasMorePending((page * ITEMS_PER_PAGE) < (data.total || 0));
+            setTotalPending(data.total || 0);
 
         } catch (err) {
             throw err;
@@ -147,9 +156,34 @@ export default function CartHistory({ token, API_URL }) {
         try {
             setLoading(true);
             setError(null);
-            setCurrentFilters({ from, to });
+            const newFilters = { from, to };
+            setCurrentFilters(newFilters);
             
-            await cargarConfirmados(1, { from, to });
+            // Reset pagination when applying filters
+            setCurrentPageConfirmed(1);
+            setHistorialCarritos(prev => ({ ...prev, confirmados: [] }));
+            
+            await cargarConfirmados(1, newFilters);
+
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function filtrarPendientes(from, to) {
+        try {
+            setLoading(true);
+            setError(null);
+            const newFilters = { from, to };
+            setCurrentFilters(newFilters);
+            
+            // Reset pagination when applying filters  
+            setCurrentPagePending(1);
+            setHistorialCarritos(prev => ({ ...prev, pendientes: [] }));
+            
+            await cargarPendientes(1, newFilters);
 
         } catch (err) {
             setError(err.message);
@@ -161,7 +195,7 @@ export default function CartHistory({ token, API_URL }) {
     function cargarMasConfirmados() {
         if (!loadingMore) {
             setLoadingMore(true);
-            cargarConfirmados(currentPageConfirmed + 1)
+            cargarConfirmados(currentPageConfirmed + 1, currentFilters)
                 .finally(() => setLoadingMore(false));
         }
     }
@@ -169,7 +203,7 @@ export default function CartHistory({ token, API_URL }) {
     function cargarMasPendientes() {
         if (!loadingMore) {
             setLoadingMore(true);
-            cargarPendientes(currentPagePending + 1)
+            cargarPendientes(currentPagePending + 1, currentFilters)
                 .finally(() => setLoadingMore(false));
         }
     }
@@ -186,6 +220,8 @@ export default function CartHistory({ token, API_URL }) {
         setHasMoreConfirmed(false);
         setHasMorePending(false);
         setCurrentFilters({ from: null, to: null });
+        setTotalPending(0);
+        setTotalConfirmed(0);
     }
 
     if (!historialVisible) {
@@ -206,15 +242,19 @@ export default function CartHistory({ token, API_URL }) {
 
             <PendingOrders
                 orders={historialCarritos.pendientes}
+                totalPending={totalPending}
                 expandedHistorial={expandedHistorial}
                 onToggleExpanded={toggleExpanded}
+                onFilterPending={filtrarPendientes}
                 onLoadMore={cargarMasPendientes}
                 hasMore={hasMorePending}
+                loading={loading}
                 loadingMore={loadingMore}
             />
 
             <ConfirmedOrders
                 orders={historialCarritos.confirmados}
+                totalConfirmed={totalConfirmed}
                 expandedHistorial={expandedHistorial}
                 onToggleExpanded={toggleExpanded}
                 onFilterConfirmed={filtrarConfirmados}
@@ -227,9 +267,15 @@ export default function CartHistory({ token, API_URL }) {
             {/* Mensaje cuando no hay historial */}
             {!loading && !error && totalCarritos === 0 && (
                 <div className="text-center mt-8 mb-4">
-                    <p className="text-gray-600 font-medium">
-                        No tienes historial de pedidos
-                    </p>
+                    {currentFilters.from || currentFilters.to ? (
+                        <p className="text-gray-600 font-medium">
+                            No se encontraron pedidos en el rango de fechas seleccionado
+                        </p>
+                    ) : (
+                        <p className="text-gray-600 font-medium">
+                            No tienes historial de pedidos
+                        </p>
+                    )}
                 </div>
             )}
         </div>

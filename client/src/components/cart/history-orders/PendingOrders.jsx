@@ -30,6 +30,11 @@ export default function PendingOrders({ orders, totalPending, expandedHistorial,
                         />
                     ))}
                 </div>
+            ) : loading ? (
+                <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
+                    <div className="w-8 h-8 mx-auto border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-3 text-gray-500">Cargando pedidos pendientes...</p>
+                </div>
             ) : (
                 <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
                     <svg className="w-12 h-12 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
