@@ -11,6 +11,15 @@ const productSchema = new mongoose.Schema({
   thumbnails: [{ type: String }],
   status: { type: Boolean, default: true },
   featured: { type: Boolean, default: false },
+  displayOrder: { 
+    type: Number, 
+    default: 1,
+    min: [1, 'Display order must be at least 1'],
+    validate: {
+      validator: Number.isInteger,
+      message: 'Display order must be an integer'
+    }
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

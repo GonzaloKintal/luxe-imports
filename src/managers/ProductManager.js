@@ -5,11 +5,13 @@ import { io } from "../app.js";
 class ProductManager {
   // Obtiene productos destacados
   async getFeaturedProducts() {
-    return await Product.find({ featured: true }).populate("category");
+    return await Product.find({ featured: true })
+      .populate("category")
+      .sort({ displayOrder: 1, createdAt: -1 });
   }
 
   // Obtiene productos con paginación y filtro opcional
-  async getProducts({ skip = 0, limit = 0, filter = {}, sort = { createdAt: -1 } } = {}) {
+  async getProducts({ skip = 0, limit = 0, filter = {}, sort = { displayOrder: 1, createdAt: -1 } } = {}) {
     return await Product.find(filter)
       .populate("category")
       .sort(sort)

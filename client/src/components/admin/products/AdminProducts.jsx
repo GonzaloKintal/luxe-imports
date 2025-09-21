@@ -45,6 +45,7 @@ export default function AdminProducts() {
     const [showActivos, setShowActivos] = useState(filtrosGuardados.showActivos ?? true);
     const [search, setSearch] = useState(filtrosGuardados.search || '');
     const [stockFilter, setStockFilter] = useState(filtrosGuardados.stockFilter || 'todos');
+    const [sortFilter, setSortFilter] = useState(filtrosGuardados.sortFilter || 'display_order');
 
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
@@ -57,9 +58,10 @@ export default function AdminProducts() {
             categoryFilter,
             showActivos,
             search,
-            stockFilter
+            stockFilter,
+            sortFilter
         }));
-    }, [categoryFilter, showActivos, search, stockFilter]);
+    }, [categoryFilter, showActivos, search, stockFilter, sortFilter]);
 
     // Fetch inicial de productos SOLO si no están cargados
     useEffect(() => {
@@ -69,7 +71,7 @@ export default function AdminProducts() {
                 category: categoryFilter,
                 stock: stockFilter,
                 status: showActivos ? 'active' : 'inactive',
-                sort: 'newest'
+                sort: sortFilter
             };
             fetchProductos(filters);
         }
@@ -95,19 +97,23 @@ export default function AdminProducts() {
     // Handlers filtros
     const handleSearchChange = (value) => {
         setSearch(value);
-        applyFilters({ search: value, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive' });
+        applyFilters({ search: value, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
     };
     const handleCategoryChange = (value) => {
         setCategoryFilter(value);
-        applyFilters({ search, category: value, stock: stockFilter, status: showActivos ? 'active' : 'inactive' });
+        applyFilters({ search, category: value, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
     };
     const handleStockChange = (value) => {
         setStockFilter(value);
-        applyFilters({ search, category: categoryFilter, stock: value, status: showActivos ? 'active' : 'inactive' });
+        applyFilters({ search, category: categoryFilter, stock: value, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
     };
     const handleStatusChange = (value) => {
         setShowActivos(value);
-        applyFilters({ search, category: categoryFilter, stock: stockFilter, status: value ? 'active' : 'inactive' });
+        applyFilters({ search, category: categoryFilter, stock: stockFilter, status: value ? 'active' : 'inactive', sort: sortFilter });
+    };
+    const handleSortChange = (value) => {
+        setSortFilter(value);
+        applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: value });
     };
 
     const applyFilters = (filters) => {
@@ -119,7 +125,8 @@ export default function AdminProducts() {
         setCategoryFilter('');
         setStockFilter('todos');
         setShowActivos(true);
-        fetchProductos({ search: '', category: '', stock: 'todos', status: 'active', sort: 'newest' });
+        setSortFilter('display_order');
+        fetchProductos({ search: '', category: '', stock: 'todos', status: 'active', sort: 'display_order' });
     };
 
     // Funciones de productos
@@ -146,7 +153,18 @@ export default function AdminProducts() {
     const handleEdit = async ({ id, formData }) => {
         const result = await editProduct(id, formData);
         toast[result.success ? 'success' : 'error'](result.message);
-        if (result.success) setEditingProductId(null);
+        if (result.success) {
+            setEditingProductId(null);
+            // Forzar refresh completo para aplicar nuevo ordenamiento
+            const currentFilters = {
+                search,
+                category: categoryFilter,
+                stock: stockFilter,
+                status: showActivos ? 'active' : 'inactive',
+                sort: sortFilter
+            };
+            await fetchProductos(currentFilters);
+        }
     };
 
     // Renderizado de errores o sin productos
@@ -174,6 +192,8 @@ export default function AdminProducts() {
                 setStockFilter={handleStockChange}
                 categoryFilter={categoryFilter}
                 setCategoryFilter={handleCategoryChange}
+                sortFilter={sortFilter}
+                setSortFilter={handleSortChange}
                 categorias={categorias}
             />
 

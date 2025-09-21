@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaFilter, FaSearch, FaBox, FaTag } from 'react-icons/fa';
+import { FaFilter, FaSearch, FaBox, FaTag, FaSort } from 'react-icons/fa';
 
 export default function ProductFilters({
     showActivos,
@@ -10,13 +10,15 @@ export default function ProductFilters({
     setStockFilter,
     categoryFilter,
     setCategoryFilter,
+    sortFilter,
+    setSortFilter,
     categorias = []
 }) {
 
     return (
         <div className="flex flex-col gap-4 p-4 bg-white rounded-xl shadow-lg border border-gray-300">
             <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 w-full">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 w-full">
                     <SearchInput 
                         search={search}
                         setSearch={setSearch}
@@ -33,6 +35,10 @@ export default function ProductFilters({
                     <StockFilter 
                         stockFilter={stockFilter}
                         setStockFilter={setStockFilter}
+                    />
+                    <SortFilter 
+                        sortFilter={sortFilter}
+                        setSortFilter={setSortFilter}
                     />
                 </div>
             </div>
@@ -111,6 +117,29 @@ function StockFilter({ stockFilter, setStockFilter }) {
                 <option value="todos">Todos</option>
                 <option value="conStock">Con stock</option>
                 <option value="sinStock">Sin stock</option>
+            </select>
+        </div>
+    );
+}
+
+function SortFilter({ sortFilter, setSortFilter }) {
+    return (
+        <div className="flex items-center gap-2 w-full">
+            <FaSort className="text-gray-600 text-lg" />
+            <select
+                id="sortFilter"
+                name="sortFilter"
+                value={sortFilter}
+                onChange={e => setSortFilter(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-100 text-gray-900 text-sm font-medium"
+            >
+                <option value="display_order">Por orden visual</option>
+                <option value="newest">Más reciente</option>
+                <option value="oldest">Más antiguo</option>
+                <option value="price_asc">Precio menor</option>
+                <option value="price_desc">Precio mayor</option>
+                <option value="title_asc">Nombre A-Z</option>
+                <option value="title_desc">Nombre Z-A</option>
             </select>
         </div>
     );
