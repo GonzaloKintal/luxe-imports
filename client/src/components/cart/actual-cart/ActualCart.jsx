@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import { io as socketIOClient } from 'socket.io-client';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaWhatsapp, FaShippingFast } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import CartItems from './CartItems';
 import { CartContext } from '../../../context/CartContext';
@@ -281,10 +281,8 @@ export default function ActualCart({
                         disabled={loadingConfirm}
                         style={loadingConfirm ? { opacity: 0.6, pointerEvents: 'none' } : {}}
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        {loadingConfirm ? 'Procesando...' : 'Finalizar Compra'}
+                        <FaShippingFast className="w-5 h-5" />
+                        {loadingConfirm ? 'Procesando...' : 'Realizar pedido'}
                     </button>
                 </div>
 
