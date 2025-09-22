@@ -96,13 +96,14 @@
 // }
 
 
-export default function CartItem({ product, onAdd, onRemove, onRemoveInactive, loading = {} }) {
+export default function CartItem({ product, onAdd, onRemove, onRemoveInactive, loading = {}, cotizacion, loadingCotizacion, errorCotizacion }) {
   const isInactiveOrNoStock = product.stock === 0 || product.status === false;
   const superaStock = typeof product.stock === 'number' && product.quantity > product.stock;
+  const subtotalUSD = (product.price || 0) * product.quantity;
+  const subtotalARS = cotizacion ? subtotalUSD * cotizacion : null;
 
   return (
     <div className="animate-fadeInDown flex flex-col sm:flex-row items-center sm:items-start gap-4 justify-between border-b border-gray-200 pb-6 last:border-b-0">
-        
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             {/* Imagen */}
             <img
@@ -110,14 +111,22 @@ export default function CartItem({ product, onAdd, onRemove, onRemoveInactive, l
                 alt={product.title}
                 className="w-28 h-28 sm:w-24 sm:h-24 object-cover rounded-md shadow-md bg-gray-200 mx-auto sm:mx-0"
             />
-
             {/* Info */}
             <div className="flex-1 min-w-0 w-full text-center sm:text-left">
                 <h2 className="font-semibold text-lg text-black truncate text-wrap">{product.title}</h2>
-                <p className="text-gray-800 text-md">
-                Precio: ${typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}
-                </p>
-
+                {loadingCotizacion ? (
+                  <p className="text-gray-500 text-md">Cargando cotización...</p>
+                ) : errorCotizacion ? (
+                  <p className="text-red-500 text-md">{errorCotizacion}</p>
+                ) : (
+                  <>
+                    <p className="text-gray-800 text-md">
+                      Precio: <span className="font-semibold">AR$ {cotizacion ? (product.price * cotizacion).toLocaleString('es-AR', { minimumFractionDigits: 2 }) : '-'}</span>
+                      <span className="mx-2">|</span>
+                      <span className="text-gray-700">USD ${typeof product.price === 'number' ? product.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : 'N/A'}</span>
+                    </p>
+                  </>
+                )}
                 {(isInactiveOrNoStock || superaStock) && (
                 <div className="mt-2 flex flex-wrap gap-2 justify-center sm:justify-start">
                     {product.stock === 0 && (
@@ -139,7 +148,6 @@ export default function CartItem({ product, onAdd, onRemove, onRemoveInactive, l
                 )}
             </div>
         </div>
-
         {/* Controles */}
         <div className="flex flex-col items-center sm:items-end gap-3 w-full sm:w-auto">
             <div className="flex flex-row items-center gap-2 justify-center sm:justify-end">
@@ -170,11 +178,9 @@ export default function CartItem({ product, onAdd, onRemove, onRemoveInactive, l
                     </svg>
                     )}
                 </button>
-
                 <span className="font-bold text-black bg-gray-200 border border-gray-400 rounded-full px-3 py-2 text-base shadow-md text-center min-w-[40px]">
                     {product.quantity}
                 </span>
-
                 <button
                     onClick={() => onAdd(product)}
                     className="rounded-full bg-black hover:bg-gray-800 text-white h-9 w-9 flex items-center justify-center shadow-md transition-all duration-200"
@@ -187,13 +193,17 @@ export default function CartItem({ product, onAdd, onRemove, onRemoveInactive, l
                 </>
             )}
             </div>
-
             {/* Subtotal */}
-            <span className="mt-2 font-semibold text-black text-base text-center sm:text-right">
-            Subtotal: ${(product.price * product.quantity).toFixed(2)}
-            </span>
+            {loadingCotizacion ? (
+              <span className="mt-2 font-semibold text-gray-500 text-base text-center sm:text-right">Cargando cotización...</span>
+            ) : errorCotizacion ? (
+              <span className="mt-2 font-semibold text-red-500 text-base text-center sm:text-right">{errorCotizacion}</span>
+            ) : (
+              <span className="mt-2 font-semibold text-black text-base text-center sm:text-right">
+                Subtotal: AR$ {subtotalARS?.toLocaleString('es-AR', { minimumFractionDigits: 2 })} <span className="mx-2">|</span> USD ${subtotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </span>
+            )}
         </div>
-
     </div>
   );
 }

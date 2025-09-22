@@ -5,7 +5,10 @@ export default function CartItems({
     onAdd, 
     onRemove, 
     onRemoveInactive, 
-    loadingById = {}
+    loadingById = {},
+    cotizacion,
+    loadingCotizacion,
+    errorCotizacion
 }) {
     if (!products.length) {
         return (
@@ -26,6 +29,9 @@ export default function CartItems({
                         onRemove={onRemove}
                         onRemoveInactive={onRemoveInactive}
                         loading={loadingById[product._id] || {}}
+                        cotizacion={cotizacion}
+                        loadingCotizacion={loadingCotizacion}
+                        errorCotizacion={errorCotizacion}
                     />
                 ))}
             </div>

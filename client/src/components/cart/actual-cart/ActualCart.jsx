@@ -3,6 +3,9 @@ import { io as socketIOClient } from 'socket.io-client';
 import { FaWhatsapp, FaShippingFast } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import CartItems from './CartItems';
+
+// Obtener la URL de la API del dólar blue desde variable de entorno
+const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
 import { CartContext } from '../../../context/CartContext';
 import { useNotify } from "../../../components/ToastProvider";
 
@@ -21,6 +24,26 @@ export default function ActualCart({
     const { setCart } = useContext(CartContext);
     const [adminPhone, setAdminPhone] = useState('');
     const notify = useNotify();
+    const [cotizacion, setCotizacion] = useState(null);
+    const [loadingCotizacion, setLoadingCotizacion] = useState(true);
+    const [errorCotizacion, setErrorCotizacion] = useState(null);
+
+    // Fetch cotización dólar blue venta
+    useEffect(() => {
+        async function fetchDolar() {
+            try {
+                setLoadingCotizacion(true);
+                const res = await fetch(DOLAR_API_URL);
+                const data = await res.json();
+                setCotizacion(data.venta);
+            } catch (err) {
+                setErrorCotizacion('No se pudo obtener la cotización');
+            } finally {
+                setLoadingCotizacion(false);
+            }
+        }
+        fetchDolar();
+    }, []);
 
 
     useEffect(() => {
@@ -71,7 +94,8 @@ export default function ActualCart({
         };
     }, [API_URL, setProducts]);
 
-    const total = products.reduce((acc, p) => acc + (p.price || 0) * p.quantity, 0);
+    const totalUSD = products.reduce((acc, p) => acc + (p.price || 0) * p.quantity, 0);
+    const totalARS = cotizacion ? totalUSD * cotizacion : null;
 
     async function handleAddToCart(product) {
         if (!token || !cartId) return;
@@ -265,15 +289,25 @@ export default function ActualCart({
                 onRemove={handleRemoveFromCart}
                 onRemoveInactive={handleRemoveInactiveOrNoStock}
                 loadingById={loadingById}
+                cotizacion={cotizacion}
+                loadingCotizacion={loadingCotizacion}
+                errorCotizacion={errorCotizacion}
             />
 
             <div className="mt-8 flex flex-col sm:flex-row justify-between items-center max-w-3xl mx-auto p-4 bg-gray-50 rounded-lg border border-gray-200">
-                
                 <div className='flex flex-col gap-2 sm:gap-0'>
                     <p className="text-sm text-center sm:text-left text-gray-500">Total a pagar</p>
-                    <p className="text-2xl font-bold text-gray-800">${total.toFixed(2)}</p>
+                    {loadingCotizacion ? (
+                        <p className="text-lg text-gray-500">Cargando cotización...</p>
+                    ) : errorCotizacion ? (
+                        <p className="text-lg text-red-500">{errorCotizacion}</p>
+                    ) : (
+                        <>
+                            <p className="text-2xl font-bold text-gray-800">AR$ {totalARS?.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+                            <p className="text-lg text-gray-700">USD ${totalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                        </>
+                    )}
                 </div>
-
                 <div className="mt-2 sm:mt-0">
                     <button
                         onClick={handleProcessPurchase}
@@ -285,7 +319,6 @@ export default function ActualCart({
                         {loadingConfirm ? 'Procesando...' : 'Realizar pedido'}
                     </button>
                 </div>
-
             </div>
         </>
     );
