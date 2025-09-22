@@ -76,12 +76,8 @@ export default function ProductInfo({
           </div>
         )}
 
-        {/* Código y stock */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <span className="text-sm text-gray-500">Código:</span>
-            <p className="font-semibold text-gray-900">{product.code}</p>
-          </div>
+        {/* Stock */}
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <span className="text-sm text-gray-500">Stock:</span>
             <p className={`font-semibold ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
