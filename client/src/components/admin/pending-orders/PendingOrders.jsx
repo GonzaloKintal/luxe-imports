@@ -5,8 +5,10 @@ import PendingOrdersList from './PendingOrdersList';
 import ConfirmOrderAction from './ConfirmOrderAction';
 import DateRangeFilter from '../../utils/DateRangeFilter';
 import usePendingOrdersStore from '../../../store/pendingOrdersStore';
+import useHistoryOrdersStore from '../../../store/historyOrdersStore';
 
 export default function PendingOrders() {
+
 
     const {
         orders,
@@ -22,6 +24,9 @@ export default function PendingOrders() {
         applyDateFilters,
         clearFilters
     } = usePendingOrdersStore();
+
+    // Store de historial para refrescar confirmados
+    const { refreshOrders: refreshHistoryOrders } = useHistoryOrdersStore();
 
     const [confirmDialog, setConfirmDialog] = React.useState({
         open: false,
@@ -91,7 +96,8 @@ export default function PendingOrders() {
                 });
                 if (!res.ok) throw new Error('Error al confirmar el pedido');
                 toast.success('Pedido confirmado exitosamente');
-
+                // Refrescar historial de confirmados
+                await refreshHistoryOrders();
             } else if (type === 'delete') {
                 res = await fetch(`${API_URL}/api/carts/${orderId}`, {
                     method: 'DELETE',
