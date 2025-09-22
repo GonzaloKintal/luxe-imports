@@ -14,6 +14,7 @@ export default function ForgotPasswordModal({
   const [code, setCode] = useState(Array(5).fill(''));
   const [newPassword, setNewPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -57,8 +58,15 @@ export default function ForgotPasswordModal({
   };
 
   const handleUpdatePassword = async () => {
-    if (!newPassword || newPassword.length < 6) return;
-    if (newPassword !== repeatPassword) return;
+    setPasswordError('');
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    if (newPassword !== repeatPassword) {
+      setPasswordError('Las contraseñas no coinciden');
+      return;
+    }
     
     const success = await onUpdatePassword(email.trim().toLowerCase(), newPassword);
     if (success) {
@@ -72,6 +80,7 @@ export default function ForgotPasswordModal({
     setCode(Array(5).fill(''));
     setNewPassword('');
     setRepeatPassword('');
+    setPasswordError('');
     onClose();
   };
 
@@ -80,6 +89,7 @@ export default function ForgotPasswordModal({
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+        {/* Paso 0: Enviar correo */}
         {step === 0 && (
           <>
             <h3 className="text-lg font-semibold text-gray-800 mb-2 text-center">
@@ -118,6 +128,7 @@ export default function ForgotPasswordModal({
           </>
         )}
 
+        {/* Paso 1: Ingresar código */}
         {step === 1 && (
           <>
             <h3 className="text-lg font-semibold text-gray-800 mb-2 text-center">
@@ -159,6 +170,7 @@ export default function ForgotPasswordModal({
           </>
         )}
 
+        {/* Paso 2: Nueva contraseña */}
         {step === 2 && (
           <>
             <h3 className="text-lg font-semibold text-gray-800 mb-2 text-center">
@@ -178,9 +190,14 @@ export default function ForgotPasswordModal({
               value={repeatPassword}
               autoComplete="new-password"
               onChange={(e) => setRepeatPassword(e.target.value)}
-              className="w-full mb-4 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-800"
+              className="w-full mb-2 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-800"
             />
-            <div className="flex justify-between">
+
+            {passwordError && (
+              <p className="text-red-600 text-sm mb-2">{passwordError}</p>
+            )}
+
+            <div className="flex justify-between mt-2">
               <button 
                 onClick={handleClose} 
                 className="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300"
@@ -200,5 +217,4 @@ export default function ForgotPasswordModal({
       </div>
     </div>
   );
-
 }
