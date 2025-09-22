@@ -230,7 +230,7 @@ export default function ActualCart({
             const url = `https://wa.me/${phone}?text=${mensaje}`;
 
             setProducts([]);
-            setCartId(null);z
+            setCartId(null);
 
             setTimeout(() => window.location.reload(), 1000);
 
