@@ -90,7 +90,7 @@ const Footer = () => {
             © {new Date().getFullYear()} Luxe Imports. Todos los derechos reservados.
           </p>
           <p className="text-gray-500 text-sm mb-4 md:mb-0">
-            Desarrollado por [].
+            Desarrollado por Novara Soft.
           </p>
         </div>
       </div>
