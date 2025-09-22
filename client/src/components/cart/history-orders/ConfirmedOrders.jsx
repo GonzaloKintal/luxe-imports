@@ -21,7 +21,7 @@ export default function ConfirmedOrders({ orders, totalConfirmed, expandedHistor
                     loading={loading}
                     title="Filtrar por fecha"
                     showTitle={true}
-                    className="mb-6"
+                    className="mb-6 w-full"
                 />
             )}
             

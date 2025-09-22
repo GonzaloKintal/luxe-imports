@@ -581,7 +581,6 @@ export default function EditProductForm({ product, onSave, onCancel }) {
     const initialForm = {
         title: '',
         description: '',
-        code: '',
         price: '',
         status: true,
         stock: '',
@@ -601,7 +600,6 @@ export default function EditProductForm({ product, onSave, onCancel }) {
             setForm({
                 title: product.title || '',
                 description: product.description || '',
-                code: product.code || '',
                 price: product.price || '',
                 status: product.status !== undefined ? product.status : true,
                 stock: product.stock || '',
@@ -740,34 +738,18 @@ export default function EditProductForm({ product, onSave, onCancel }) {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-gray-700 mb-1 font-semibold text-sm">
-                            Título <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            name="title"
-                            value={form.title}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
-                            placeholder="Nombre del producto"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-gray-700 mb-1 font-semibold text-sm">
-                            Código <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            name="code"
-                            value={form.code}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
-                            placeholder="Código único del producto"
-                        />
-                    </div>
+                <div className="mb-4">
+                    <label className="block text-gray-700 mb-1 font-semibold text-sm">
+                        Título <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        name="title"
+                        value={form.title}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                        placeholder="Nombre del producto"
+                    />
                 </div>
 
                 <div>
