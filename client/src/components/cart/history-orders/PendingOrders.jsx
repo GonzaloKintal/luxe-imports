@@ -16,7 +16,7 @@ export default function PendingOrders({ orders, totalPending, expandedHistorial,
             </div>
             
             {onFilterPending && (
-                <DateRangeFilter onFilter={onFilterPending} loading={loading} />
+                <DateRangeFilter onFilter={onFilterPending} loading={loading} className="mb-6 w-full" />
             )}
             
             {orders && orders.length ? (
