@@ -142,6 +142,15 @@ export default function AdminProducts() {
     const confirmDelete = async () => {
         const result = await deleteProduct(deleteId);
         toast[result.success ? 'success' : 'error'](result.message);
+        // Refrescar el listado con los filtros actuales tras baja lógica
+        const currentFilters = {
+            search,
+            category: categoryFilter,
+            stock: stockFilter,
+            status: showActivos ? 'active' : 'inactive',
+            sort: sortFilter
+        };
+        await fetchProductos(currentFilters);
         setShowConfirm(false);
         setDeleteId(null);
         setDeleteProductName('');
@@ -149,6 +158,15 @@ export default function AdminProducts() {
     const handleReactivate = async (id) => {
         const result = await reactivateProduct(id);
         toast[result.success ? 'success' : 'error'](result.message);
+        // Refrescar el listado con los filtros actuales
+        const currentFilters = {
+            search,
+            category: categoryFilter,
+            stock: stockFilter,
+            status: showActivos ? 'active' : 'inactive',
+            sort: sortFilter
+        };
+        await fetchProductos(currentFilters);
     };
     const handleEdit = async ({ id, formData }) => {
         const result = await editProduct(id, formData);
