@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { FaTimes, FaCheck, FaSpinner } from 'react-icons/fa';
 
 export default function ConfirmDeleteAdmin({ open, adminName, adminEmail, onConfirm, onCancel }) {
     const [loading, setLoading] = useState(false);
+
     useEffect(() => {
         if (open) {
             document.body.style.overflow = 'hidden';
@@ -14,7 +15,6 @@ export default function ConfirmDeleteAdmin({ open, adminName, adminEmail, onConf
             document.body.style.overflow = '';
         };
     }, [open]);
-
 
     if (!open) return null;
 
@@ -27,9 +27,9 @@ export default function ConfirmDeleteAdmin({ open, adminName, adminEmail, onConf
         }
     };
 
-    return (
+    const modalContent = (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50 px-4">
-            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-200">
+            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md sm:max-w-lg md:max-w-xl border border-gray-200">
                 <h2 className="text-lg font-bold mb-3 text-gray-900 text-center">
                     ¿Eliminar este admin?
                 </h2>
@@ -72,4 +72,6 @@ export default function ConfirmDeleteAdmin({ open, adminName, adminEmail, onConf
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }

@@ -1,27 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { FaTimes, FaCheck, FaSpinner } from 'react-icons/fa';
-
-import { useState } from 'react';
 
 export default function ConfirmDeleteProduct({ open, title, message, onConfirm, onCancel, productName }) {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (open) {
-            // bloquea scroll
             document.body.style.overflow = 'hidden';
         } else {
-            // lo vuelve a habilitar
             document.body.style.overflow = '';
         }
-
-        // cleanup por seguridad si el componente se desmonta
         return () => {
             document.body.style.overflow = '';
         };
     }, [open]);
-
-    if (!open) return null;
 
     if (!open) return null;
 
@@ -34,16 +27,12 @@ export default function ConfirmDeleteProduct({ open, title, message, onConfirm, 
         }
     };
 
-    return (
+    const modalContent = (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50 px-4">
-            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-200">
-                <h2 className="text-lg font-bold mb-3 text-gray-900 text-center">
-                    {title}
-                </h2>
+            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md sm:max-w-lg md:max-w-xl border border-gray-200">
+                <h2 className="text-lg font-bold mb-3 text-gray-900 text-center">{title}</h2>
 
-                <p className="mb-4 text-gray-700 text-center text-sm font-medium">
-                    {message}
-                </p>
+                <p className="mb-4 text-gray-700 text-center text-sm font-medium">{message}</p>
 
                 {productName && (
                     <p className="mb-6 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-center font-semibold">
@@ -83,4 +72,5 @@ export default function ConfirmDeleteProduct({ open, title, message, onConfirm, 
         </div>
     );
 
+    return createPortal(modalContent, document.body);
 }

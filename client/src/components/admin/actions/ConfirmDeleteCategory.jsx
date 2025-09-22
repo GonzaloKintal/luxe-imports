@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { FaTimes, FaCheck, FaSpinner } from 'react-icons/fa';
 
 export default function ConfirmDeleteCategory({ open, title, message, onConfirm, onCancel, categoryName }) {
@@ -6,19 +7,14 @@ export default function ConfirmDeleteCategory({ open, title, message, onConfirm,
 
     useEffect(() => {
         if (open) {
-            // bloquea scroll
             document.body.style.overflow = 'hidden';
         } else {
-            // lo vuelve a habilitar
             document.body.style.overflow = '';
         }
-
-        // cleanup por seguridad si el componente se desmonta
         return () => {
             document.body.style.overflow = '';
         };
     }, [open]);
-
 
     if (!open) return null;
 
@@ -31,9 +27,9 @@ export default function ConfirmDeleteCategory({ open, title, message, onConfirm,
         }
     };
 
-    return (
+    const modalContent = (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50 px-4">
-            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-200">
+            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md sm:max-w-lg md:max-w-xl border border-gray-200">
                 <h2 className="text-lg font-bold mb-3 text-gray-900 text-center">
                     {title || '¿Eliminar esta categoría?'}
                 </h2>
@@ -80,4 +76,5 @@ export default function ConfirmDeleteCategory({ open, title, message, onConfirm,
         </div>
     );
 
+    return createPortal(modalContent, document.body);
 }
