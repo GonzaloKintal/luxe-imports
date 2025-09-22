@@ -83,7 +83,7 @@ export default function HistoryOrders({ history }) {
                 </div>
 
                 {/* Filtros de fecha */}
-                <div className="w-full lg:w-[600px] mx-auto">
+                <div className="w-full mx-auto mb-6">
                     <DateRangeFilter
                         onFilter={handleDateFilter}
                         loading={loading}
