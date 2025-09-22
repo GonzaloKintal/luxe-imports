@@ -89,7 +89,6 @@ export default function Cart() {
 
             } catch (err) {
                 setError(err.message);
-                notify.error(err.message);
             } finally {
                 setLoading(false);
             }
