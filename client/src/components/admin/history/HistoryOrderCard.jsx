@@ -1,20 +1,16 @@
+
+import { useState } from 'react';
 import { FaWhatsapp } from 'react-icons/fa';
 
-export default function HistoryOrderCard({
-    order,
-    expanded,
-    details,
-    onToggleExpand,
-    onFetchDetails
-}) {
-
+export default function HistoryOrderCard({ order, details, onFetchDetails }) {
+    const [expanded, setExpanded] = useState(false);
     const cartId = order._id;
 
     const handleToggleExpand = async () => {
-        onToggleExpand(cartId);
         if (!expanded && Array.isArray(order.products)) {
-            await onFetchDetails(cartId, order.products);
+            await onFetchDetails && onFetchDetails(cartId, order.products);
         }
+        setExpanded(prev => !prev);
     };
 
     return (
@@ -117,28 +113,39 @@ export default function HistoryOrderCard({
                         <div className="space-y-3">
                             {order.products.map((p, idx) => {
                                 const title = p.title || (p.productId && (p.productId.title || p.productId.name)) || 'Producto';
-                                const price = typeof p.price === 'number' ? p.price : (p.productId && typeof p.productId.price === 'number' ? p.productId.price : 0);
+                                const priceUSD = typeof p.priceUSD === 'number' ? p.priceUSD : (typeof p.price === 'number' ? p.price : 0);
+                                const priceARS = typeof p.priceARS === 'number' ? p.priceARS : 0;
                                 const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
-                                const subtotal = price * quantity;
+                                const subtotalUSD = priceUSD * quantity;
+                                const subtotalARS = priceARS * quantity;
                                 return (
                                     <div key={p._id || p.id || idx} className="flex flex-col md:flex-row justify-between py-3 px-4 bg-white rounded-lg border border-gray-100">
                                         <div className="flex-1 font-medium text-gray-900">{title}</div>
                                         <div className="flex flex-col gap-0 md:flex-row md:items-center md:gap-2 text-sm">
-                                            <span className="text-gray-600">Precio unitario: <span className="font-semibold text-gray-900">${price.toFixed(2)}</span></span>
+                                            <span className="text-gray-600">Unitario USD: <span className="font-semibold text-gray-900">${priceUSD.toFixed(2)}</span></span>
+                                            <span className="text-gray-600">Unitario AR$: <span className="font-semibold text-green-700">{priceARS.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span></span>
                                             <span className="text-gray-600">Cantidad: <span className="font-semibold">x{quantity}</span></span>
-                                            <span className="text-gray-600">Subtotal: <span className="font-semibold text-blue-700">${subtotal.toFixed(2)}</span></span>
+                                            <span className="text-gray-600">Subtotal USD: <span className="font-semibold text-blue-700">${subtotalUSD.toFixed(2)}</span></span>
+                                            <span className="text-gray-600">Subtotal AR$: <span className="font-semibold text-green-700">{subtotalARS.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span></span>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
-                        <div className="mt-4 pt-4 border-t border-gray-200 text-right">
+                        <div className="mt-4 pt-4 border-t border-gray-200 text-right flex flex-col gap-1">
                             <span className="text-lg font-bold text-gray-900">
-                                Total: ${order.products.reduce((acc, p) => {
-                                    const price = typeof p.price === 'number' ? p.price : (p.productId && typeof p.productId.price === 'number' ? p.productId.price : 0);
+                                Total USD: ${order.products.reduce((acc, p) => {
+                                    const priceUSD = typeof p.priceUSD === 'number' ? p.priceUSD : (typeof p.price === 'number' ? p.price : 0);
                                     const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
-                                    return acc + price * quantity;
+                                    return acc + priceUSD * quantity;
                                 }, 0).toFixed(2)}
+                            </span>
+                            <span className="text-lg font-bold text-green-700">
+                                Total AR$: {order.products.reduce((acc, p) => {
+                                    const priceARS = typeof p.priceARS === 'number' ? p.priceARS : 0;
+                                    const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
+                                    return acc + priceARS * quantity;
+                                }, 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                             </span>
                         </div>
                     </div>

@@ -3,8 +3,13 @@ export default function HistoryItem({ carrito: order, expanded, onToggleExpanded
     const products = order.products || order.productos || [];
     const productCount = products.length;
 
-    const total = products.reduce((acc, p) => {
-        const price = typeof p.price === 'number' ? p.price : 0;
+    const totalUSD = products.reduce((acc, p) => {
+        const price = typeof p.priceUSD === 'number' ? p.priceUSD : (typeof p.price === 'number' ? p.price : 0);
+        const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
+        return acc + price * quantity;
+    }, 0);
+    const totalARS = products.reduce((acc, p) => {
+        const price = typeof p.priceARS === 'number' ? p.priceARS : 0;
         const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
         return acc + price * quantity;
     }, 0);
@@ -96,53 +101,55 @@ export default function HistoryItem({ carrito: order, expanded, onToggleExpanded
             {expanded && (
                 <ul className="mt-4 space-y-4 list-none">
                     {products.map((p, idx) => {
-                    const title =
-                        p.title ||
-                        (p.productId && (p.productId.title || p.productId.name)) ||
-                        "Producto";
-                    const price =
-                        typeof p.price === "number"
-                        ? p.price
-                        : p.productId && typeof p.productId.price === "number"
-                        ? p.productId.price
-                        : 0;
-                    const quantity = typeof p.quantity === "number" ? p.quantity : 0;
-                    const subtotal = price * quantity;
+                        const title =
+                            p.title ||
+                            (p.productId && (p.productId.title || p.productId.name)) ||
+                            "Producto";
+                        const priceUSD = typeof p.priceUSD === "number" ? p.priceUSD : (typeof p.price === "number" ? p.price : 0);
+                        const priceARS = typeof p.priceARS === "number" ? p.priceARS : 0;
+                        const quantity = typeof p.quantity === "number" ? p.quantity : 0;
+                        const subtotalUSD = priceUSD * quantity;
+                        const subtotalARS = priceARS * quantity;
 
-                    return (
-                        <li
-                        key={p._id || idx}
-                        className="grid grid-cols-[auto_1fr] gap-3 items-center border-b border-gray-300 pb-3"
-                        >
-                        {/* Columna izquierda (imagen) */}
-                        <img
-                            src={p.thumbnails?.[0] || "https://placehold.co/80x80"}
-                            alt={title}
-                            className="w-20 h-20 object-cover rounded-md shadow bg-gray-200"
-                        />
+                        return (
+                            <li
+                                key={p._id || idx}
+                                className="grid grid-cols-[auto_1fr] gap-3 items-center border-b border-gray-300 pb-3"
+                            >
+                                {/* Columna izquierda (imagen) */}
+                                <img
+                                    src={p.thumbnails?.[0] || "https://placehold.co/80x80"}
+                                    alt={title}
+                                    className="w-20 h-20 object-cover rounded-md shadow bg-gray-200"
+                                />
 
-                        {/* Columna derecha (texto e info) */}
-                        <div className="flex flex-col">
-                            <span className="font-semibold text-black mb-1">{title}</span>
-                            <div className="flex flex-wrap gap-2 text-sm text-gray-700">
-                            <span>x{quantity}</span>
-                            <span>${price.toFixed(2)}</span>
-                            <span className="text-blue-700 font-semibold">
-                                Subtotal: ${subtotal.toFixed(2)}
-                            </span>
-                            </div>
-                        </div>
-                        </li>
-                    );
+                                {/* Columna derecha (texto e info) */}
+                                <div className="flex flex-col">
+                                    <span className="font-semibold text-black mb-1">{title}</span>
+                                    <div className="flex flex-wrap gap-2 text-sm text-gray-700">
+                                        <span>x{quantity}</span>
+                                        <span>USD ${priceUSD.toFixed(2)}</span>
+                                        <span>AR$ {priceARS.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 text-xs text-gray-500 mt-1">
+                                        <span className="text-blue-700 font-semibold">Subtotal USD: ${subtotalUSD.toFixed(2)}</span>
+                                        <span className="text-green-700 font-semibold">Subtotal AR$: {subtotalARS.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                </div>
+                            </li>
+                        );
                     })}
                 </ul>
-                )}
+            )}
 
 
 
-            <div className="mt-4 pt-4 border-t border-gray-200 text-right">
+            <div className="mt-4 pt-4 border-t border-gray-200 text-right flex flex-col gap-1">
                 <span className="text-lg font-bold text-gray-900">
-                    Total: ${total.toFixed(2)}
+                    Total USD: ${totalUSD.toFixed(2)}
+                </span>
+                <span className="text-lg font-bold text-green-700">
+                    Total AR$: {totalARS.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </span>
             </div>
 

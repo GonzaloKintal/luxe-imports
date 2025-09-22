@@ -106,10 +106,21 @@ class CartManager {
         throw error;
       }
     }
-    // Guardar snapshot de productos (titulo, precio) en cada item
+    // Obtener cotización actual del dólar (API pública)
+    let cotizacion = 0;
+    const DOLAR_API_URL = process.env.DOLAR_API_URL;
+    try {
+      const res = await fetch(DOLAR_API_URL);
+      const data = await res.json();
+      cotizacion = data.venta || 0;
+    } catch (e) {
+      cotizacion = 0;
+    }
+    // Guardar snapshot de productos (titulo, precioUSD, precioARS) en cada item
     cart.products.forEach((p) => {
       p.title = p.productId?.title || "";
-      p.price = typeof p.productId?.price === "number" ? p.productId.price : 0;
+      p.priceUSD = typeof p.productId?.price === "number" ? p.productId.price : 0;
+      p.priceARS = cotizacion && p.priceUSD ? Math.round(p.priceUSD * cotizacion * 100) / 100 : 0;
     });
     cart.status = "pendiente de confirmacion";
     cart.pendingAt = new Date();
