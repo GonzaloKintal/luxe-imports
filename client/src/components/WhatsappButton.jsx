@@ -19,7 +19,7 @@ export default function WhatsappButton() {
         bg-green-500 text-white 
         hover:scale-110 transition-transform 
         w-12 h-12 md:w-16 md:h-16
-        z-1000
+        z-500
       "
     >
       <FaWhatsapp className="w-6 h-6 md:w-8 md:h-8" />
