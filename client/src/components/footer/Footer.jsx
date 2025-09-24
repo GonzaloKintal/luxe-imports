@@ -19,7 +19,7 @@ const Footer = () => {
             </h3>
             <p className="text-gray-400 max-w-md text-lg leading-relaxed">
               Descubrí nuestra selección exclusiva de productos de tecnología y estilo. 
-              Calidad premium y diseño innovador en cada artículo.
+              Calidad premium en cada artículo.
             </p>
           </div>
           
