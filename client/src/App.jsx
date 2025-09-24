@@ -13,14 +13,18 @@ import About from './components/about/About';
 import ToastProvider from "./components/ToastProvider";
 import { TokenExpiryProvider } from './context/TokenExpiryContext';
 import TokenExpiryModal from './components/TokenExpiryModal';
+import WhatsappButton from './components/WhatsappButton';
 
 export default function App() {
   const location = useLocation();
   
   return (
     <ToastProvider>
+
       <TokenExpiryProvider>
+
         <Navbar />
+
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<PageTransition><Home /></PageTransition>} />
@@ -32,11 +36,17 @@ export default function App() {
             <Route path="/about" element={<PageTransition><About /></PageTransition>} />
           </Routes>
         </AnimatePresence>
+
         <Footer />
         
         {/* Modal de token expirado */}
         <TokenExpiryModal />
+
+        {/* Globo de WhatsApp */}
+        <WhatsappButton />
+
       </TokenExpiryProvider>
+
     </ToastProvider>
   );
 }
