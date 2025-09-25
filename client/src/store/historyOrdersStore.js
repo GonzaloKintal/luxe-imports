@@ -5,7 +5,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 10;
 
 const useHistoryOrdersStore = create((set, get) => ({
-  // Estado
   orders: [],
   total: 0,
   currentPage: 0,
@@ -16,22 +15,18 @@ const useHistoryOrdersStore = create((set, get) => ({
   error: null,
   isInitialized: false,
   
-  // Filtros actuales (para futuras expansiones)
   currentFilters: {
     from: '',
     to: ''
   },
 
-  // Detalles expandidos y productos detallados
   expanded: {},
   details: {},
 
-  // Acciones básicas
   setLoading: (loading) => set({ loading }),
   setLoadingMore: (loadingMore) => set({ loadingMore }),
   setError: (error) => set({ error }),
 
-  // Función para construir query string de filtros
   buildQueryString: (filters, page = 1) => {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -50,17 +45,15 @@ const useHistoryOrdersStore = create((set, get) => ({
 
   // Función para cargar pedidos con filtros
   fetchOrders: async (filters = {}) => {
-    console.log('fetchOrders llamado con filtros:', filters);
+  //
     const { currentFilters } = get();
     
-    // Verificar si los filtros cambiaron
     const filtersChanged = JSON.stringify(currentFilters) !== JSON.stringify(filters);
     
     try {
       set({ 
         loading: true, 
         error: null,
-        // Si cambiaron los filtros, resetear pedidos
         ...(filtersChanged && { 
           orders: [], 
           currentPage: 0,
@@ -161,7 +154,7 @@ const useHistoryOrdersStore = create((set, get) => ({
 
   // Función inicial de carga
   fetchOrdersIniciales: async () => {
-    console.log('fetchOrdersIniciales llamado');
+  //
     const { isInitialized, orders } = get();
     
     // Si ya tenemos pedidos cargados, no hacer fetch innecesario
@@ -220,7 +213,6 @@ const useHistoryOrdersStore = create((set, get) => ({
     }
   },
 
-  // Función para resetear el store
   resetOrders: () => set({
     orders: [],
     total: 0,
@@ -239,7 +231,6 @@ const useHistoryOrdersStore = create((set, get) => ({
     details: {}
   }),
 
-  // Función para refrescar pedidos con filtros actuales
   refreshOrders: async () => {
     const { currentFilters } = get();
     await get().fetchOrders(currentFilters);

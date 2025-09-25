@@ -14,23 +14,23 @@ export const TokenExpiryProvider = ({ children }) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleTokenExpiry = useCallback(() => {
-    console.log('🔑 Token expirado detectado');
+      // 
     if (!showModal) {
-      console.log('📋 Mostrando modal de sesión expirada');
+        // 
       setShowModal(true);
     }
   }, [showModal]);
 
   const closeModal = useCallback(() => {
-    console.log('🚪 Cerrando sesión y redirigiendo al home');
+     // 
     setShowModal(false);
     
     // Limpiar datos de sesión
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     
-    console.log('🧹 Token y user eliminados');
-    console.log('🏠 Redirigiendo al home...');
+     // 
+     // 
     
     // Redirigir al home de forma simple y confiable
     window.location.href = '/';

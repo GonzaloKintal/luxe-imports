@@ -18,16 +18,16 @@ export const useAuthFetch = () => {
     };
 
     try {
-      console.log('🌐 Haciendo petición a:', url);
+      //
       const response = await fetch(url, config);
-      console.log('📡 Respuesta status:', response.status);
+      //
       
       if (response.status === 401) {
         const errorData = await response.json().catch(() => ({}));
-        console.log('🔍 Datos de error 401:', errorData);
+        //
         
         if (errorData.expired === true) {
-          console.log('⚠️ Token expirado confirmado - activando modal');
+          //
           handleTokenExpiry();
           return null;
         }
