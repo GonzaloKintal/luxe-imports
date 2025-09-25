@@ -33,21 +33,24 @@ router.get("/active", async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
-    
+
+    // Log para verificar comunicación y parámetros
+    console.log('[GET /products/active] page:', page, 'limit:', limit, 'skip:', skip, 'query:', req.query);
+
     // Construir filtros dinámicamente
     const filter = { status: true };
     const sort = {};
-    
+
     // Filtro de búsqueda por título
     if (req.query.search && req.query.search.trim()) {
       filter.title = { $regex: req.query.search.trim(), $options: 'i' };
     }
-    
+
     // Filtro por categoría
     if (req.query.category && req.query.category !== '') {
       filter.category = req.query.category;
     }
-    
+
     // Filtro por rango de precio
     const priceFilter = {};
     if (req.query.priceMin && !isNaN(parseFloat(req.query.priceMin))) {
@@ -60,7 +63,7 @@ router.get("/active", async (req, res, next) => {
     if (Object.keys(priceFilter).length > 0) {
       filter.price = priceFilter;
     }
-    
+
     // Ordenamiento por precio
     if (req.query.sort) {
       if (req.query.sort === 'asc') {
@@ -104,7 +107,7 @@ router.get("/active", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     
     // Construir filtros dinámicamente

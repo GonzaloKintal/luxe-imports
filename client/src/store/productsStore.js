@@ -64,10 +64,10 @@ const useProductsStore = create((set, get) => ({
   // Función para cargar productos con filtros
   fetchProductos: async (filters = {}) => {
     const { currentFilters } = get();
-    
+
     // Verificar si los filtros cambiaron
     const filtersChanged = JSON.stringify(currentFilters) !== JSON.stringify(filters);
-    
+
     try {
       set({ 
         loading: true, 
@@ -82,12 +82,14 @@ const useProductsStore = create((set, get) => ({
       });
 
       const queryString = get().buildQueryString(filters, 1);
-      const res = await fetch(`${API_URL}/api/products/active?${queryString}`);
-      
+      const url = `${API_URL}/api/products/active?${queryString}`;
+      console.log('[fetchProductos] Filtros:', filters, 'URL:', url);
+      const res = await fetch(url);
+
       if (!res.ok) throw new Error('Error al cargar productos');
-      
+
       const data = await res.json();
-      
+
       set({
         productos: data.products,
         currentPage: 1,
@@ -116,15 +118,17 @@ const useProductsStore = create((set, get) => ({
         loadingMore: true, 
         error: null 
       });
-      
+
       const nextPage = currentPage + 1;
       const queryString = get().buildQueryString(currentFilters, nextPage);
+      const url = `${API_URL}/api/products/active?${queryString}`;
+      console.log('[cargarMasProductos] Página:', nextPage, 'Filtros:', currentFilters, 'URL:', url);
       
-      const res = await fetch(`${API_URL}/api/products/active?${queryString}`);
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Error al cargar más productos');
-      
+
       const data = await res.json();
-      
+      console.log('[cargarMasProductos] Datos recibidos:', data);
       // Agregar nuevos productos a los existentes
       const nuevosProductos = data.products.filter(
         p => !productos.some(existing => existing._id === p._id)
