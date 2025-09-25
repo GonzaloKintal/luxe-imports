@@ -33,7 +33,7 @@ export default function ProductCard({ title, price, thumbnails, category, stock,
         <img 
           src={thumbnails[0] || "https://placehold.co/250x250"} 
           alt={title} 
-          className="w-full aspect-square object-cover rounded-t-2xl" 
+          className="w-full aspect-square object-cover rounded-t-lg" 
         />
 
         {/* Badge de categoría en esquina superior derecha */}

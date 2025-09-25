@@ -223,7 +223,6 @@ router.post("/", authenticateToken, isAdmin, uploadProductImages.array('images',
     const {
       title,
       description,
-      code,
       price,
       status,
       stock,
@@ -236,7 +235,6 @@ router.post("/", authenticateToken, isAdmin, uploadProductImages.array('images',
     if (
       !title ||
       !description ||
-      !code ||
       price == null ||
       status == null ||
       stock == null ||
@@ -275,7 +273,6 @@ router.post("/", authenticateToken, isAdmin, uploadProductImages.array('images',
     const productData = {
       title,
       description,
-      code,
       price: parseFloat(price),
       status: status === 'true',
       stock: parseInt(stock),
@@ -438,80 +435,6 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
     next(error);
   }
 });
-// router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('images', 5), async (req, res, next) => {
-//   try {
-//     const updateData = { ...req.body };
-    
-//     let finalThumbnails = [];
-    
-//     // Si hay información de orden, reconstruir el array respetando el orden
-//     if (req.body.imageOrder) {
-//       try {
-//         const imageOrder = JSON.parse(req.body.imageOrder);
-//         const currentImages = req.body.currentImages ? JSON.parse(req.body.currentImages) : [];
-//         const newImages = req.files ? req.files.map(file => file.path) : [];
-        
-//         let currentImageIndex = 0;
-//         let newImageIndex = 0;
-        
-//         // Reconstruir el array según el orden especificado
-//         for (const orderItem of imageOrder) {
-//           if (orderItem.isExisting) {
-//             if (currentImageIndex < currentImages.length) {
-//               finalThumbnails.push(currentImages[currentImageIndex]);
-//               currentImageIndex++;
-//             }
-//           } else {
-//             if (newImageIndex < newImages.length) {
-//               finalThumbnails.push(newImages[newImageIndex]);
-//               newImageIndex++;
-//             }
-//           }
-//         }
-//       } catch (e) {
-//         console.log('Error parsing imageOrder, fallback to original logic:', e);
-//         // Fallback a la lógica original...
-//       }
-//     } else {
-//       // Lógica original como fallback...
-//       if (req.body.currentImages) {
-//         try {
-//           const currentImages = JSON.parse(req.body.currentImages);
-//           if (Array.isArray(currentImages)) {
-//             finalThumbnails = [...currentImages];
-//           }
-//         } catch (e) {
-//           console.log('Error parsing currentImages:', e);
-//         }
-//       }
-
-//       if (req.files && req.files.length > 0) {
-//         const newImages = req.files.map(file => file.path);
-//         finalThumbnails = [...finalThumbnails, ...newImages];
-//       }
-//     }
-
-//     // Resto del código igual...
-//     // Eliminar imágenes de Cloudinary si corresponde
-//     if (req.body.deletedImages) {
-//       // ... código de eliminación igual
-//     }
-
-//     // Actualizar thumbnails solo si hay cambios en las imágenes
-//     if (req.files?.length > 0 || req.body.currentImages) {
-//       updateData.thumbnails = finalThumbnails;
-//     }
-
-//     // Limpiar campos temporales
-//     delete updateData.currentImages;
-//     delete updateData.deletedImages;
-//     delete updateData.imageOrder; // Nuevo campo a limpiar
-
-//     // Resto del código igual...
-//   } catch (error) {
-//     next(error);
-//   }
-// });
 
 // Ruta DELETE '/:pid' -> Elimina un producto por ID (solo admin)
 router.delete("/:pid", authenticateToken, isAdmin, async (req, res, next) => {
