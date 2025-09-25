@@ -151,39 +151,59 @@ function Navbar() {
                                             <span className="hidden sm:inline">Perfil</span>
                                             <FaChevronDown className={`ml-1 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
                                         </button>
+                                        
                                         {profileOpen && (
                                             <div>
+                                                {/* Overlay clickeable para cerrar */}
                                                 <div
-                                                    className="fixed inset-0 z-40"
-                                                    onClick={() => setProfileOpen(false)}
+                                                className="fixed inset-0 z-40"
+                                                onClick={() => setProfileOpen(false)}
                                                 />
+                                                
+                                                {/* Dropdown */}
                                                 <div
-                                                    className="absolute right-0 mt-4 w-72 bg-white rounded-xl shadow-2xl border border-gray-300 p-6 z-50 flex flex-col items-center text-black"
-                                                    onClick={e => e.stopPropagation()}
+                                                className="absolute right-0 mt-4 w-72 bg-white rounded-xl shadow-lg border border-gray-200 p-5 z-50 flex flex-col items-center text-gray-900 animate-fadeIn"
+                                                onClick={e => e.stopPropagation()}
                                                 >
-                                                    <div className="mb-2 flex flex-col items-center">
-                                                        <FaUserCircle className="text-6xl text-gray-900 mb-2" />
-                                                        <div className="flex items-center gap-2 text-sm text-gray-900 mb-2">
-                                                            {user.role === 'admin' ? <FaUserShield className="text-base" /> : <FaUser className="text-base" />}
-                                                            <span className="font-semibold">{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
-                                                        </div>
-                                                    </div>
-                                                    {(user.firstName || user.lastName) && (
-                                                        <div className="text-base font-bold text-gray-900 mb-1 text-center">
-                                                            {[user.firstName, user.lastName].filter(Boolean).join(' ')}
-                                                        </div>
+                                                {/* Avatar + rol */}
+                                                <div className="flex flex-col items-center mb-4">
+                                                    <FaUserCircle className="text-6xl text-gray-800 mb-3" />
+                                                    
+                                                    {/* Rol */}
+                                                    <div className="flex items-center gap-1 text-xs uppercase tracking-wide text-gray-500">
+                                                    {user.role === 'admin' ? (
+                                                        <FaUserShield className="text-sm" />
+                                                    ) : (
+                                                        <FaUser className="text-sm" />
                                                     )}
-                                                    <div className="text-sm font-semibold text-gray-900 mb-1 text-center">{user.email}</div>
-                                                    <button
-                                                        onClick={handleLogout}
-                                                        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-300 shadow-sm border border-red-200"
-                                                    >
-                                                        <FaSignOutAlt className="text-lg group-hover:scale-105 transition-transform duration-200" />
-                                                        <span className="cursor-pointer group-hover:underline">Cerrar sesión</span>
-                                                    </button>
+                                                    <span>{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Nombre */}
+                                                {(user.firstName || user.lastName) && (
+                                                    <div className="text-lg font-semibold text-gray-900 mb-1 text-center">
+                                                    {[user.firstName, user.lastName].filter(Boolean).join(' ')}
+                                                    </div>
+                                                )}
+                                                
+                                                {/* Email */}
+                                                <div className="text-sm text-gray-600 mb-5 text-center">
+                                                    {user.email}
+                                                </div>
+
+                                                {/* Botón logout */}
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
+                                                >
+                                                    <FaSignOutAlt className="text-base" />
+                                                    <span className="text-sm font-medium">Cerrar sesión</span>
+                                                </button>
                                                 </div>
                                             </div>
                                         )}
+
                                     </div>
                                 </>
                             )}
@@ -257,29 +277,34 @@ function Navbar() {
                                         </button>
 
                                         {profileOpen && (
-                                            <div className="mt-2 relative z-20 flex flex-col gap-3 p-4 w-60 bg-white/95 backdrop-blur-md rounded-xl shadow-lg border border-gray-200 text-black">
-                                                <div className="flex flex-col items-center">
-                                                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                                                        {user.role === 'admin' ? <FaUserShield /> : <FaUser />}
-                                                        <span>{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
-                                                    </div>
+                                            <div className="mt-2 relative z-20 flex flex-col gap-3 p-4 w-64 bg-white rounded-xl shadow-md border border-gray-200 text-gray-900 animate-fadeIn">
+                                                {/* Rol */}
+                                                <div className="flex justify-center items-center gap-2 text-xs font-medium text-gray-500">
+                                                {user.role === 'admin' ? <FaUserShield className="text-sm" /> : <FaUser className="text-sm" />}
+                                                <span className="uppercase tracking-wide">{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
                                                 </div>
 
+                                                {/* Nombre */}
                                                 {(user.firstName || user.lastName) && (
-                                                    <div className="text-center text-base font-bold text-gray-900">{[user.firstName, user.lastName].filter(Boolean).join(' ')}</div>
+                                                <div className="text-center text-lg font-semibold text-gray-900">
+                                                    {[user.firstName, user.lastName].filter(Boolean).join(' ')}
+                                                </div>
                                                 )}
 
-                                                <div className="text-center text-sm text-gray-800">{user.email}</div>
+                                                {/* Email */}
+                                                <div className="text-center text-sm text-gray-600">{user.email}</div>
 
+                                                {/* Botón logout */}
                                                 <button
-                                                    onClick={handleLogout}
-                                                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-300 shadow-sm border border-red-200"
+                                                onClick={handleLogout}
+                                                className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
                                                 >
-                                                    <FaSignOutAlt className="text-lg group-hover:scale-105 transition-transform duration-200" />
-                                                    <span className="cursor-pointer group-hover:underline">Cerrar sesión</span>
+                                                <FaSignOutAlt className="text-base" />
+                                                <span className="text-sm font-medium">Cerrar sesión</span>
                                                 </button>
                                             </div>
                                         )}
+
                                     </div>
                                 </>
                             )}
