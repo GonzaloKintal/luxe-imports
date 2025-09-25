@@ -12,6 +12,14 @@ export default function FeaturedProducts() {
     const navigate = useNavigate();
     const [destacados, setDestacados] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 640);
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
 
     useEffect(() => {
         const fetchFeatured = async () => {
@@ -39,7 +47,12 @@ export default function FeaturedProducts() {
                 </h2>
             </div>
 
-            <Marquee pauseOnHover gradient={false} speed={40} className='py-4'>
+            <Marquee
+                pauseOnHover={!isMobile}
+                gradient={false}
+                speed={40}
+                className='py-4'
+            >
                 {loading
                     ? skeletonArray.map((_, idx) => (
                         <div key={idx} className="w-[250px] h-[440px] sm:h-[470px] flex-shrink-0 mx-2">
