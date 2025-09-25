@@ -146,8 +146,8 @@ const Contact = () => {
             <h3 className="text-3xl md:text-4xl font-semibold text-white mb-10 text-center">
               Seguinos en nuestras redes
             </h3>
-            <p className="text-gray-300 text-base md:text-lg font-light mb-8 leading-snug text-center max-w-md mx-auto">
-              Conectá con nosotros en nuestras redes sociales y sé parte de nuestra comunidad. No te pierdas ninguna novedad, promoción o lanzamiento exclusivo.
+            <p className="text-gray-100 text-lg md:text-xl font-light mb-12 leading-relaxed text-center max-w-2xl mx-auto">
+              Conectá con nosotros en nuestras redes sociales y sé parte de nuestra comunidad. No te pierdas ninguna novedad, promoción o lanzamiento.
             </p>
 
             {/* Botones redes sociales */}
