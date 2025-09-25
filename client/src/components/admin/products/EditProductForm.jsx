@@ -27,7 +27,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
     const [isFormReady, setIsFormReady] = useState(false);
 
     useEffect(() => {
-        console.log('EditProductForm - product recibido:', product);
+    //
         if (product) {
             const newForm = {
                 title: product.title || '',
@@ -39,7 +39,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                 category: product.category?._id || product.category || '',
                 displayOrder: product.displayOrder || 1,
             };
-            console.log('EditProductForm - form que se va a setear:', newForm);
+            //
             setForm(newForm);
             setIsFormReady(true);
 
@@ -60,7 +60,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
 
     // Debug del estado del form
     useEffect(() => {
-        console.log('EditProductForm - form actual:', form);
+    //
     }, [form]);
 
     async function fetchCategories() {

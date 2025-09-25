@@ -59,7 +59,7 @@ const useAdminProductsStore = create((set, get) => ({
 
   // Función para cargar productos con filtros (reemplaza fetchProductosIniciales)
   fetchProductos: async (filters = {}) => {
-    console.log('fetchProductos llamado con filtros:', filters);
+  //
     const { currentFilters } = get();
     
     // Verificar si los filtros cambiaron
@@ -155,7 +155,7 @@ const useAdminProductsStore = create((set, get) => ({
 
   // Mantener fetchProductosIniciales para compatibilidad (ahora usa filtros por defecto)
   fetchProductosIniciales: async () => {
-    console.log('fetchProductosIniciales llamado');
+  //
     const { isInitialized, products } = get();
     
     // Si ya tenemos productos cargados, no hacer fetch innecesario

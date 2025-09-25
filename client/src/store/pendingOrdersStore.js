@@ -4,7 +4,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 10;
 
 const usePendingOrdersStore = create((set, get) => ({
-  // Estado
   orders: [],
   total: 0,
   currentPage: 0,
@@ -15,18 +14,15 @@ const usePendingOrdersStore = create((set, get) => ({
   error: null,
   isInitialized: false,
   
-  // Filtros actuales
   currentFilters: {
     from: '',
     to: ''
   },
 
-  // Acciones básicas
   setLoading: (loading) => set({ loading }),
   setLoadingMore: (loadingMore) => set({ loadingMore }),
   setError: (error) => set({ error }),
 
-  // Función para construir query string de filtros
   buildQueryString: (filters, page = 1) => {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -43,19 +39,16 @@ const usePendingOrdersStore = create((set, get) => ({
     return params.toString();
   },
 
-  // Función para cargar pedidos con filtros
   fetchOrders: async (filters = {}) => {
-    console.log('fetchOrders llamado con filtros:', filters);
+  //
     const { currentFilters } = get();
     
-    // Verificar si los filtros cambiaron
     const filtersChanged = JSON.stringify(currentFilters) !== JSON.stringify(filters);
     
     try {
       set({ 
         loading: true, 
         error: null,
-        // Si cambiaron los filtros, resetear pedidos
         ...(filtersChanged && { 
           orders: [], 
           currentPage: 0,
@@ -92,7 +85,6 @@ const usePendingOrdersStore = create((set, get) => ({
     }
   },
 
-  // Función para aplicar filtros de fecha
   applyDateFilters: async (fromDate, toDate) => {
     const filters = {
       from: fromDate || '',
@@ -101,7 +93,6 @@ const usePendingOrdersStore = create((set, get) => ({
     await get().fetchOrders(filters);
   },
 
-  // Función para limpiar filtros
   clearFilters: async () => {
     const defaultFilters = {
       from: '',
@@ -110,7 +101,6 @@ const usePendingOrdersStore = create((set, get) => ({
     await get().fetchOrders(defaultFilters);
   },
 
-  // Función para cargar más pedidos (mantiene filtros actuales)
   cargarMasPedidos: async () => {
     const { hasMoreOrders, loadingMore, currentPage, orders, currentFilters } = get();
     
@@ -134,7 +124,6 @@ const usePendingOrdersStore = create((set, get) => ({
       
       const data = await res.json();
       
-      // Agregar nuevos pedidos a los existentes
       const nuevosPedidos = data.results.filter(
         order => !orders.some(existing => existing._id === order._id)
       );
@@ -154,17 +143,15 @@ const usePendingOrdersStore = create((set, get) => ({
     }
   },
 
-  // Función para remover un pedido del estado (cuando se confirma o elimina)
   removeOrder: (orderId) => {
     const { orders, total } = get();
     const newOrders = orders.filter(order => order._id !== orderId);
     set({
       orders: newOrders,
-      total: Math.max(0, total - 1) // Reducir el total en 1
+  total: Math.max(0, total - 1)
     });
   },
 
-  // Función para resetear el store
   resetOrders: () => set({
     orders: [],
     total: 0,
@@ -181,7 +168,6 @@ const usePendingOrdersStore = create((set, get) => ({
     }
   }),
 
-  // Función para refrescar pedidos con filtros actuales
   refreshOrders: async () => {
     const { currentFilters } = get();
     await get().fetchOrders(currentFilters);
