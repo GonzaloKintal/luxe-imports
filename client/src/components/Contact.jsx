@@ -207,7 +207,7 @@ const Contact = () => {
             <h3 className="text-3xl md:text-4xl font-semibold text-white mb-6 text-center">
               ¿Cómo comprar en Luxe Imports?
             </h3>
-            <ol className="list-decimal list-inside text-gray-200 text-lg space-y-3 mb-10 text-left max-w-xl mx-auto">
+            <ol className="list-decimal list-inside text-gray-200 text-lg space-y-1 mb-10 text-left max-w-xl mx-auto">
               <li><span className="font-semibold text-white">Registrate</span> en nuestra web.</li>
               <li><span className="font-semibold text-white">Llená tu carrito</span> con los productos que necesitás.</li>
               <li>Cuando estés listo, hacé click en <span className="font-semibold text-white">"Finalizar compra"</span>.</li>
