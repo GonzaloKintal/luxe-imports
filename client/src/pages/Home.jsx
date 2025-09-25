@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import Hero from '../components/home/hero/Hero';
 import FeaturedProducts from '../components/home/featured-products/FeaturedProducts';
-import Contact from '../components/Contact'; 
+import Contact from '../components/home/Contact'; 
 
 export default function Home() {
     useEffect(() => {

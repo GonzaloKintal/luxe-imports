@@ -55,7 +55,7 @@ export default function SearchAndFilters({
                             placeholder="Buscar productos..."
                             value={busqueda}
                             onChange={e => setBusqueda(e.target.value)}
-                            className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-white text-gray-900 transition text-sm"
+                            className="w-full px-2 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-white text-gray-900 transition text-sm"
                         />
                     </div>
                 </div>
@@ -70,7 +70,7 @@ export default function SearchAndFilters({
                             name="categoria"
                             value={filtroCategoria}
                             onChange={e => setFiltroCategoria(e.target.value)}
-                            className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-white text-gray-900 transition text-sm"
+                            className="w-full px-2 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-white text-gray-900 transition text-sm"
                         >
                             <option value="">Todas las categorías</option>
                             {categorias.map(cat => (
@@ -98,7 +98,7 @@ export default function SearchAndFilters({
                             name="ordenPrecio"
                             value={ordenPrecio}
                             onChange={e => setOrdenPrecio(e.target.value)}
-                            className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-white text-gray-900 transition text-sm"
+                            className="w-full px-2 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-white text-gray-900 transition text-sm"
                         >
                             <option value="">Sin orden</option>
                             <option value="asc">Precio menor a mayor</option>

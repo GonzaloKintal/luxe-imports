@@ -26,7 +26,7 @@ export default function ProductCard({ title, price, thumbnails, category, stock,
   const precioPesos = cotizacion ? price * cotizacion : null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-md border border-gray-100 hover:border-gray-200 w-full max-w-sm mx-auto flex flex-col hover:shadow-lg transition-all duration-300 h-full">  
+    <div className="bg-white rounded-lg shadow-md border border-gray-100 hover:border-gray-200 w-full max-w-sm mx-auto flex flex-col hover:shadow-lg transition-all duration-300 h-full">  
 
       {/* Contenedor de imagen con categoría superpuesta */}
       <div className="relative">
@@ -61,21 +61,32 @@ export default function ProductCard({ title, price, thumbnails, category, stock,
         {/* Espacio flexible para empujar precio y botón hacia abajo */}
         <div className="flex flex-col mt-auto">
           {/* Precio en pesos */}
-          <div className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
-            {loading ? 'Cargando cotización...' : error ? error : precioPesos ? `AR$ ${precioPesos.toLocaleString('es-AR', { minimumFractionDigits: 2 })}` : 'Sin cotización'}
+          <div className="text-base sm:text-xl font-bold text-gray-900">
+            {loading
+              ? 'Cargando cotización...'
+              : error
+              ? error
+              : precioPesos
+              ? `AR$ ${precioPesos.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
+              : 'Sin cotización'}
           </div>
+
           {/* Precio en dólares */}
-          <div className="text-base sm:text-lg text-gray-700 mb-3 sm:mb-4">
+          <div className="text-sm sm:text-lg text-gray-700 mb-3 sm:mb-4">
             USD ${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
+
 
           {/* Botón */}
           <button
             onClick={onClick}
             className="w-full cursor-pointer bg-gray-900 text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors text-sm sm:text-base font-medium"
           >
-            <FaShoppingCart className="text-sm" /> Ver detalle
+            <FaShoppingCart className="text-sm" />
+            <span className="sm:hidden">Detalle</span> 
+            <span className="hidden sm:inline">Ver detalle</span>
           </button>
+
         </div>
       </div>
     </div>

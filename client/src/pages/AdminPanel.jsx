@@ -114,7 +114,7 @@ export default function AdminPanel() {
 
     return (
         <main className="bg-gray-100 px-6 md:px-12 pt-12 relative overflow-hidden min-h-screen w-full">
-            <div className="flex flex-col relative z-10 md:px-6 py-20">                 
+            <div className="flex flex-col relative z-10 md:px-6 py-10 sm:py-20">                 
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-extrabold text-black mb-2 text-center animate-fadeInDown drop-shadow-lg">

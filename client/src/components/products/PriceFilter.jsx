@@ -83,7 +83,7 @@ export default function PriceFilter({
                         type="button"
                         onClick={() => setIsOpen(!isOpen)}
                         className={`
-                            flex items-center justify-between w-full px-4 py-2 rounded-md border border-gray-300 
+                            flex items-center justify-between w-full px-3 py-2 rounded-md border border-gray-300 
                             focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent 
                             bg-white text-gray-900 transition text-sm hover:bg-gray-50
                             ${hasFilters ? 'border-blue-400 bg-blue-50' : ''}
