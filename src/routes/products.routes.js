@@ -68,13 +68,16 @@ router.get("/active", async (req, res, next) => {
     if (req.query.sort) {
       if (req.query.sort === 'asc') {
         sort.price = 1;
+        sort._id = 1;
       } else if (req.query.sort === 'desc') {
         sort.price = -1;
+        sort._id = 1;
       }
     } else {
-      // Ordenamiento por defecto: displayOrder ASC, luego createdAt DESC
+      // Ordenamiento por defecto: displayOrder ASC, luego createdAt DESC, luego _id ASC
       sort.displayOrder = 1;
       sort.createdAt = -1;
+      sort._id = 1;
     }
 
     const [products, total] = await Promise.all([
@@ -162,10 +165,13 @@ router.get("/", async (req, res, next) => {
         sort.displayOrder = 1;
         sort.createdAt = -1;
       }
+      
+      sort._id = 1;
     } else {
-      // Ordenamiento por defecto: displayOrder ASC, luego createdAt DESC
+      // Ordenamiento por defecto: displayOrder ASC, luego createdAt DESC, luego _id ASC
       sort.displayOrder = 1;
       sort.createdAt = -1;
+      sort._id = 1;
     }
 
     const [products, total] = await Promise.all([

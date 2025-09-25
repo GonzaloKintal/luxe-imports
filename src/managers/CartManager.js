@@ -280,21 +280,24 @@ class CartManager {
   }
 
   async getPurchaseHistoryByUserId(filters, limit = 10, skip = 0) {
-    // Determinar el campo de ordenamiento basado en el status
-    let sortField = 'createdAt'; // default
-    if (filters.status === 'confirmado') {
-      sortField = 'confirmedAt';
-    } else if (filters.status === 'pendiente de confirmacion') {
-      sortField = 'pendingAt';
-    }
-    
-    return await Cart.find(filters)
-      .populate("products.productId")
-      .populate("userId")
-      .sort({ [sortField]: -1 }) // -1 para descendente (más reciente primero)
-      .limit(limit)
-      .skip(skip);
+  // Determinar el campo de ordenamiento basado en el status
+  let sortField = 'createdAt'; // default
+  if (filters.status === 'confirmado') {
+    sortField = 'confirmedAt';
+  } else if (filters.status === 'pendiente de confirmacion') {
+    sortField = 'pendingAt';
   }
+  
+  return await Cart.find(filters)
+    .populate("products.productId")
+    .populate("userId")
+    .sort({ 
+      [sortField]: -1,  // Campo principal (más reciente primero)
+      _id: -1
+    })
+    .limit(limit)
+    .skip(skip);
+}
 
   async countPurchaseHistoryByUserId(filters) {
     return await Cart.countDocuments(filters);
