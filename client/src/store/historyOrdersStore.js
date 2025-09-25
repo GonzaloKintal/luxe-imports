@@ -181,38 +181,6 @@ const useHistoryOrdersStore = create((set, get) => ({
     });
   },
 
-  // Cargar detalles de productos
-  fetchDetails: async (cartId, products) => {
-    const { details } = get();
-    
-    if (details[cartId]) return; // Ya cargado
-    
-    try {
-      const productosConDetalles = await Promise.all(
-        products.map(async (p) => {
-          const prodId = p.productId?._id || p.productId || p._id;
-          try {
-            const res = await fetch(`${API_URL}/api/products/${prodId}`);
-            if (!res.ok) return { ...p, title: 'Producto eliminado', price: 0 };
-            const prod = await res.json();
-            return { ...prod, quantity: p.quantity };
-          } catch {
-            return { ...p, title: 'Error', price: 0 };
-          }
-        })
-      );
-      
-      set({
-        details: {
-          ...details,
-          [cartId]: productosConDetalles
-        }
-      });
-    } catch (err) {
-      console.error('Error al cargar detalles:', err);
-    }
-  },
-
   resetOrders: () => set({
     orders: [],
     total: 0,
