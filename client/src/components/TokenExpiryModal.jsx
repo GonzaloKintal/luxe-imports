@@ -4,7 +4,6 @@ import { useTokenExpiry } from '../context/TokenExpiryContext';
 const TokenExpiryModal = () => {
   const { showModal, closeModal } = useTokenExpiry();
 
-  // Removed console.log for production
 
   if (!showModal) return null;
 

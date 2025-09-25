@@ -45,7 +45,7 @@ const useHistoryOrdersStore = create((set, get) => ({
 
   // Función para cargar pedidos con filtros
   fetchOrders: async (filters = {}) => {
-  //
+
     const { currentFilters } = get();
     
     const filtersChanged = JSON.stringify(currentFilters) !== JSON.stringify(filters);
@@ -64,7 +64,7 @@ const useHistoryOrdersStore = create((set, get) => ({
 
       const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(filters, 1);
-      const res = await fetch(`${API_URL}/api/carts/confirmados?${queryString}`, {
+      const res = await fetch(`${API_URL}/api/carts/confirmados?limit=10?${queryString}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       

@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 
 const API_URL = import.meta.env.VITE_API_URL;
-const LIMIT = 12;
+const LIMIT = 10;
 
 const useProductsStore = create((set, get) => ({
   // Estado
@@ -63,7 +63,6 @@ const useProductsStore = create((set, get) => ({
 
   // Función para cargar productos con filtros
   fetchProductos: async (filters = {}) => {
-    console.log('fetchProductos llamado con filtros:', filters);
     const { currentFilters } = get();
     
     // Verificar si los filtros cambiaron
@@ -148,7 +147,6 @@ const useProductsStore = create((set, get) => ({
 
   // Mantener fetchProductosIniciales para compatibilidad (ahora usa filtros por defecto)
   fetchProductosIniciales: async () => {
-    console.log('fetchProductosIniciales llamado');
     const { isInitialized, productos } = get();
     
     // Si ya tenemos productos cargados, no hacer fetch innecesario

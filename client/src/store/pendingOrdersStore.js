@@ -59,7 +59,7 @@ const usePendingOrdersStore = create((set, get) => ({
 
       const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(filters, 1);
-      const res = await fetch(`${API_URL}/api/carts/pendientes?${queryString}`, {
+      const res = await fetch(`${API_URL}/api/carts/pendientes?limit=10?${queryString}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
