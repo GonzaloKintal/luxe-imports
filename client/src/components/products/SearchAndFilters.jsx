@@ -1,5 +1,8 @@
+
+
 import { useState } from 'react';
-import { FaSearch, FaTag, FaFilter, FaSortAmountDownAlt } from 'react-icons/fa';
+import { FaSearch, FaTag, FaSortAmountDownAlt } from 'react-icons/fa';
+import PriceFilter from './PriceFilter';
 
 export default function SearchAndFilters({ 
     categorias = [],
@@ -7,17 +10,21 @@ export default function SearchAndFilters({
     setBusqueda: externalSetBusqueda,
     filtroCategoria: externalFiltroCategoria,
     setFiltroCategoria: externalSetFiltroCategoria,
-    filtroStock: externalFiltroStock,
-    setFiltroStock: externalSetFiltroStock,
+    precioMin: externalPrecioMin,
+    setPrecioMin: externalSetPrecioMin,
+    precioMax: externalPrecioMax,
+    setPrecioMax: externalSetPrecioMax,
     ordenPrecio: externalOrdenPrecio,
     setOrdenPrecio: externalSetOrdenPrecio,
     productosFiltrados = [],
     onLimpiarFiltros
 }) {
+    
     // Si no se pasan props externas, usar estados internos
     const [internalBusqueda, internalSetBusqueda] = useState('');
     const [internalFiltroCategoria, internalSetFiltroCategoria] = useState('');
-    const [internalFiltroStock, internalSetFiltroStock] = useState('all');
+    const [internalPrecioMin, internalSetPrecioMin] = useState('');
+    const [internalPrecioMax, internalSetPrecioMax] = useState('');
     const [internalOrdenPrecio, internalSetOrdenPrecio] = useState('');
 
     // Usar estados externos si se proporcionan, de lo contrario usar internos
@@ -25,8 +32,10 @@ export default function SearchAndFilters({
     const setBusqueda = externalSetBusqueda !== undefined ? externalSetBusqueda : internalSetBusqueda;
     const filtroCategoria = externalFiltroCategoria !== undefined ? externalFiltroCategoria : internalFiltroCategoria;
     const setFiltroCategoria = externalSetFiltroCategoria !== undefined ? externalSetFiltroCategoria : internalSetFiltroCategoria;
-    const filtroStock = externalFiltroStock !== undefined ? externalFiltroStock : internalFiltroStock;
-    const setFiltroStock = externalSetFiltroStock !== undefined ? externalSetFiltroStock : internalSetFiltroStock;
+    const precioMin = externalPrecioMin !== undefined ? externalPrecioMin : internalPrecioMin;
+    const setPrecioMin = externalSetPrecioMin !== undefined ? externalSetPrecioMin : internalSetPrecioMin;
+    const precioMax = externalPrecioMax !== undefined ? externalPrecioMax : internalPrecioMax;
+    const setPrecioMax = externalSetPrecioMax !== undefined ? externalSetPrecioMax : internalSetPrecioMax;
     const ordenPrecio = externalOrdenPrecio !== undefined ? externalOrdenPrecio : internalOrdenPrecio;
     const setOrdenPrecio = externalSetOrdenPrecio !== undefined ? externalSetOrdenPrecio : internalSetOrdenPrecio;
 
@@ -71,24 +80,13 @@ export default function SearchAndFilters({
                     </div>
                 </div>
 
-                {/* Filtro de stock */}
-                <div className="flex flex-col w-full">
-                    <label htmlFor="stock" className="mb-2 text-sm font-semibold text-gray-700">Stock</label>
-                    <div className="flex items-center gap-2">
-                        <FaFilter className="text-gray-500 text-lg" />
-                        <select
-                            id="stock"
-                            name="stock"
-                            value={filtroStock}
-                            onChange={e => setFiltroStock(e.target.value)}
-                            className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-white text-gray-900 transition text-sm"
-                        >
-                            <option value="all">Todos</option>
-                            <option value="in">Con stock</option>
-                            <option value="out">Sin stock</option>
-                        </select>
-                    </div>
-                </div>
+                {/* Filtro de precio */}
+                <PriceFilter
+                    precioMin={precioMin}
+                    setPrecioMin={setPrecioMin}
+                    precioMax={precioMax}
+                    setPrecioMax={setPrecioMax}
+                />
 
                 {/* Filtro de orden de precio */}
                 <div className="flex flex-col w-full">
@@ -115,4 +113,5 @@ export default function SearchAndFilters({
             </div>
         </section>
     );
+
 }

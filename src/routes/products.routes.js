@@ -27,7 +27,7 @@ router.get("/featured", async (req, res, next) => {
 });
 
 // Ruta GET '/active' -> Lista productos activos con filtros, paginado
-// /active?page=1&limit=12&search=termo&category=categoryId&stock=in&sort=price_asc
+// /active?page=1&limit=12&search=termo&category=categoryId&priceMin=100&priceMax=500&sort=price_asc
 router.get("/active", async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -48,21 +48,24 @@ router.get("/active", async (req, res, next) => {
       filter.category = req.query.category;
     }
     
-    // Filtro por stock
-    if (req.query.stock) {
-      if (req.query.stock === 'in') {
-        filter.stock = { $gt: 0 };
-      } else if (req.query.stock === 'out') {
-        filter.stock = { $lte: 0 };
-      }
-      // 'all' no agrega filtro
+    // Filtro por rango de precio
+    const priceFilter = {};
+    if (req.query.priceMin && !isNaN(parseFloat(req.query.priceMin))) {
+      priceFilter.$gte = parseFloat(req.query.priceMin);
+    }
+    if (req.query.priceMax && !isNaN(parseFloat(req.query.priceMax))) {
+      priceFilter.$lte = parseFloat(req.query.priceMax);
+    }
+    // Solo agregar el filtro de precio si hay al menos un valor
+    if (Object.keys(priceFilter).length > 0) {
+      filter.price = priceFilter;
     }
     
     // Ordenamiento por precio
     if (req.query.sort) {
-      if (req.query.sort === 'price_asc') {
+      if (req.query.sort === 'asc') {
         sort.price = 1;
-      } else if (req.query.sort === 'price_desc') {
+      } else if (req.query.sort === 'desc') {
         sort.price = -1;
       }
     } else {
@@ -85,7 +88,8 @@ router.get("/active", async (req, res, next) => {
       appliedFilters: {
         search: req.query.search || '',
         category: req.query.category || '',
-        stock: req.query.stock || 'all',
+        priceMin: req.query.priceMin || '',
+        priceMax: req.query.priceMax || '',
         sort: req.query.sort || 'newest'
       }
     });

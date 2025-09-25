@@ -6,6 +6,7 @@ import ProductList from '../components/products/ProductList';
 import useProductsStore from '../store/productsStore';
 
 export default function Products() {
+    
     const navigate = useNavigate();
 
     const {
@@ -25,7 +26,8 @@ export default function Products() {
     const filtrosGuardados = JSON.parse(sessionStorage.getItem('productosFiltros') || '{}');
     const [busqueda, setBusqueda] = useState(filtrosGuardados.busqueda || '');
     const [filtroCategoria, setFiltroCategoria] = useState(filtrosGuardados.filtroCategoria || '');
-    const [filtroStock, setFiltroStock] = useState(filtrosGuardados.filtroStock || 'all');
+    const [precioMin, setPrecioMin] = useState(filtrosGuardados.precioMin || '');
+    const [precioMax, setPrecioMax] = useState(filtrosGuardados.precioMax || '');
     const [ordenPrecio, setOrdenPrecio] = useState(filtrosGuardados.ordenPrecio || '');
 
     const [esCargaInicial, setEsCargaInicial] = useState(true);
@@ -40,10 +42,11 @@ export default function Products() {
         sessionStorage.setItem('productosFiltros', JSON.stringify({
             busqueda,
             filtroCategoria,
-            filtroStock,
+            precioMin,
+            precioMax,
             ordenPrecio
         }));
-    }, [busqueda, filtroCategoria, filtroStock, ordenPrecio]);
+    }, [busqueda, filtroCategoria, precioMin, precioMax, ordenPrecio]);
 
     // Fetch inicial de productos SOLO si no están cargados
     useEffect(() => {
@@ -51,12 +54,13 @@ export default function Products() {
             const filters = {
                 search: busqueda,
                 category: filtroCategoria,
-                stock: filtroStock,
+                priceMin: precioMin,
+                priceMax: precioMax,
                 sort: ordenPrecio
             };
             fetchProductos(filters);
         }
-    }, [isInitialized, fetchProductos]); // SOLO dependemos de isInitialized y la función del store
+    }, [isInitialized, fetchProductos]);
 
     // Función central para aplicar filtros
     const applyFilters = (filters) => {
@@ -69,7 +73,8 @@ export default function Products() {
         applyFilters({
             search: value,
             category: filtroCategoria,
-            stock: filtroStock,
+            priceMin: precioMin,
+            priceMax: precioMax,
             sort: ordenPrecio
         });
     };
@@ -79,17 +84,30 @@ export default function Products() {
         applyFilters({
             search: busqueda,
             category: value,
-            stock: filtroStock,
+            priceMin: precioMin,
+            priceMax: precioMax,
             sort: ordenPrecio
         });
     };
 
-    const handleStockChange = (value) => {
-        setFiltroStock(value);
+    const handlePriceMinChange = (value) => {
+        setPrecioMin(value);
         applyFilters({
             search: busqueda,
             category: filtroCategoria,
-            stock: value,
+            priceMin: value,
+            priceMax: precioMax,
+            sort: ordenPrecio
+        });
+    };
+
+    const handlePriceMaxChange = (value) => {
+        setPrecioMax(value);
+        applyFilters({
+            search: busqueda,
+            category: filtroCategoria,
+            priceMin: precioMin,
+            priceMax: value,
             sort: ordenPrecio
         });
     };
@@ -99,7 +117,8 @@ export default function Products() {
         applyFilters({
             search: busqueda,
             category: filtroCategoria,
-            stock: filtroStock,
+            priceMin: precioMin,
+            priceMax: precioMax,
             sort: value
         });
     };
@@ -128,13 +147,15 @@ export default function Products() {
     const limpiarFiltros = () => {
         setBusqueda('');
         setFiltroCategoria('');
-        setFiltroStock('all');
+        setPrecioMin('');
+        setPrecioMax('');
         setOrdenPrecio('');
         
         const defaultFilters = {
             search: '',
             category: '',
-            stock: 'all',
+            priceMin: '',
+            priceMax: '',
             sort: ''
         };
         
@@ -154,8 +175,10 @@ export default function Products() {
                     setBusqueda={handleSearchChange}
                     filtroCategoria={filtroCategoria}
                     setFiltroCategoria={handleCategoryChange}
-                    filtroStock={filtroStock}
-                    setFiltroStock={handleStockChange}
+                    precioMin={precioMin}
+                    setPrecioMin={handlePriceMinChange}
+                    precioMax={precioMax}
+                    setPrecioMax={handlePriceMaxChange}
                     ordenPrecio={ordenPrecio}
                     setOrdenPrecio={handleSortChange}
                     productosFiltrados={productos}
@@ -209,4 +232,5 @@ export default function Products() {
             </div>
         </main>
     );
+
 }

@@ -101,7 +101,7 @@ export default function ProductInfo({
             {product.title}
           </h1>
           {product.category && (
-            <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+            <span className="inline-block px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-sm">
               {getCategoryName(product.category)}
             </span>
           )}
@@ -170,18 +170,6 @@ export default function ProductInfo({
             buttonText
           )}
         </button>
-
-        {/* Estado del producto */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">Estado:</span>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            product.status 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-red-100 text-red-800'
-          }`}>
-            {product.status ? 'Activo' : 'Inactivo'}
-          </span>
-        </div>
 
       </div>
     </div>

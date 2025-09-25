@@ -7,7 +7,7 @@ const Footer = () => {
   const navigate = useNavigate();
 
   return (
-    <footer className="relative bg-black text-white pt-16 pb-8 px-4 z-700">
+    <footer className="relative bg-black text-white pt-16 pb-8 px-4 z-[1000]">
       <div className="container mx-auto max-w-6xl">
         {/* Contenido principal del footer */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
