@@ -1,5 +1,61 @@
 import { FaShoppingCart } from 'react-icons/fa';
 
+// Función para renderizar contenido Lexical con formato
+function renderLexicalContent(lexicalJson) {
+  if (!lexicalJson) return null;
+  
+  try {
+    const parsed = JSON.parse(lexicalJson);
+    const children = parsed.root?.children || [];
+    
+    return children.map((node, nodeIndex) => {
+      if (node.type === 'paragraph') {
+        const content = node.children?.map((child, childIndex) => {
+          if (child.type === 'text') {
+            let text = child.text || '';
+            
+            // Aplicar formato según las propiedades
+            if (child.format & 1) { // Bold
+              text = <strong key={childIndex}>{text}</strong>;
+            }
+            if (child.format & 2) { // Italic
+              text = <em key={childIndex}>{text}</em>;
+            }
+            
+            return text;
+          }
+          return child.text || '';
+        }) || [];
+        
+        return <p key={nodeIndex} className="mb-2">{content}</p>;
+      }
+      
+      if (node.type === 'list') {
+        const listItems = node.children?.map((item, itemIndex) => {
+          const itemContent = item.children?.map((child, childIndex) => {
+            if (child.type === 'text') {
+              let text = child.text || '';
+              if (child.format & 1) text = <strong key={childIndex}>{text}</strong>;
+              if (child.format & 2) text = <em key={childIndex}>{text}</em>;
+              return text;
+            }
+            return child.text || '';
+          }) || [];
+          
+          return <li key={itemIndex}>{itemContent}</li>;
+        }) || [];
+        
+        return <ul key={nodeIndex} className="list-disc list-inside mb-2">{listItems}</ul>;
+      }
+      
+      return null;
+    });
+  } catch {
+    // Si no es JSON válido, devolver el texto tal como está
+    return <p>{lexicalJson}</p>;
+  }
+}
+
 export default function ProductInfo({
   product,
   cartInfo,
@@ -59,7 +115,7 @@ export default function ProductInfo({
           <div className="text-xl text-gray-700">
             USD ${formatPrice(product.price)}
           </div>
-          <div className="text-[10px] text-gray-400 mt-1">
+          <div className="text-[12px] text-gray-400 mt-1">
             * Los precios en pesos argentinos se calculan automáticamente según la cotización oficial y pueden variar al momento de la compra.
           </div>
         </div>
@@ -70,9 +126,9 @@ export default function ProductInfo({
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Descripción
             </h3>
-            <p className="text-gray-700 leading-relaxed">
-              {product.description}
-            </p>
+            <div className="text-gray-700 leading-relaxed">
+              {renderLexicalContent(product.description)}
+            </div>
           </div>
         )}
 

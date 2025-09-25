@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { FaPlus, FaSpinner } from 'react-icons/fa';
 import ProductImageManager from '../products/ProductImageManager';
+import RichTextEditor from '../../utils/RichTextEditor';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -130,7 +131,7 @@ export default function CreateProductForm({ onSave }) {
 
                 <div>
                     <label htmlFor="description" className="block text-gray-700 mb-1 font-semibold text-sm">Descripción</label>
-                    <textarea
+                    {/* <textarea
                         id='description'
                         name="description"
                         value={form.description}
@@ -138,6 +139,10 @@ export default function CreateProductForm({ onSave }) {
                         rows={3}
                         className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm resize-vertical"
                         placeholder="Descripción detallada del producto"
+                    /> */}
+                    <RichTextEditor
+                        value={form.description}
+                        onChange={(content) => setForm({ ...form, description: content })}
                     />
                 </div>
 
