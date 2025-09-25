@@ -7,8 +7,22 @@ export default function LoginForm({
     onBlurField, 
     onSubmit, 
     loading,
-    onForgot // <-- nuevo prop
+    onForgot
 }) {
+    // Función para validar formato de email
+    const isValidEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    // Determinar si hay error en el email
+    const hasEmailError = touchedFields.email && (!formData.email || !isValidEmail(formData.email));
+    const emailErrorMessage = touchedFields.email && !formData.email 
+        ? 'El email es obligatorio' 
+        : touchedFields.email && !isValidEmail(formData.email) 
+        ? 'Formato de email no válido' 
+        : '';
+
     return (
         <form onSubmit={onSubmit} className="space-y-4">
             <div>
@@ -24,7 +38,7 @@ export default function LoginForm({
                         onChange={onFormChange} 
                         onBlur={() => onBlurField('email')} 
                         className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent ${
-                            touchedFields.email && !formData.email 
+                            hasEmailError
                                 ? 'border-red-500' 
                                 : 'border-gray-300'
                         }`} 
@@ -32,8 +46,8 @@ export default function LoginForm({
                         required 
                     />
                 </div>
-                {touchedFields.email && !formData.email && (
-                    <span className="text-xs text-red-500 mt-1">El email es obligatorio</span>
+                {emailErrorMessage && (
+                    <span className="text-xs text-red-500 mt-1">{emailErrorMessage}</span>
                 )}
             </div>
             
@@ -62,7 +76,6 @@ export default function LoginForm({
                     <span className="text-xs text-red-500 mt-1">La contraseña es obligatoria</span>
                 )}
             </div>
-
             {/* Botón de iniciar sesión */}
             <button 
                 type="submit" 
@@ -72,7 +85,6 @@ export default function LoginForm({
             >
                 <FaUserCircle /> {loading ? 'Iniciando...' : 'Iniciar sesión'}
             </button>
-
             {/* Botón Olvidé mi contraseña */}
             <button
                 type="button"
