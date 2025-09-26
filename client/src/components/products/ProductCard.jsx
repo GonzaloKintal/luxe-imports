@@ -1,28 +1,6 @@
 import { FaTags, FaShoppingCart } from 'react-icons/fa';
-import { useEffect, useState } from 'react';
 
-export default function ProductCard({ title, price, thumbnails, category, stock, onClick }) {
-  const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
-  const [cotizacion, setCotizacion] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    async function fetchDolar() {
-      try {
-        setLoading(true);
-        const res = await fetch(DOLAR_API_URL);
-        const data = await res.json();
-        setCotizacion(data.venta);
-      } catch (err) {
-        setError('No se pudo obtener la cotización');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchDolar();
-  }, []);
-
+export default function ProductCard({ title, price, thumbnails, category, stock, onClick, cotizacion, loadingCotizacion, errorCotizacion }) {
   const precioPesos = cotizacion ? price * cotizacion : null;
 
   return (
@@ -33,7 +11,7 @@ export default function ProductCard({ title, price, thumbnails, category, stock,
         <img 
           src={thumbnails[0] || "https://placehold.co/250x250"} 
           alt={title} 
-          className="w-full aspect-square object-cover rounded-t-2xl" 
+          className="w-full aspect-square object-cover rounded-t-lg" 
         />
 
         {/* Badge de categoría en esquina superior derecha */}
@@ -62,10 +40,10 @@ export default function ProductCard({ title, price, thumbnails, category, stock,
         <div className="flex flex-col mt-auto">
           {/* Precio en pesos */}
           <div className="text-base sm:text-xl font-bold text-gray-900">
-            {loading
+            {loadingCotizacion
               ? 'Cargando cotización...'
-              : error
-              ? error
+              : errorCotizacion
+              ? errorCotizacion
               : precioPesos
               ? `AR$ ${precioPesos.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
               : 'Sin cotización'}

@@ -87,30 +87,6 @@ export default function AdminPanel() {
         fetchProducts();
     }, [API_URL]);
 
-    useEffect(() => {
-        async function fetchHistory() {
-            setLoadingHistory(true);
-            try {
-                const token = localStorage.getItem('token');
-                const res = await fetch(`${API_URL}/api/carts/confirmados?limit=100`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Error al obtener historial');
-                // Usar results del objeto paginado
-                setHistory(data.results || []);
-            } catch (err) {
-                notify.error(err.message || 'Error al obtener historial');
-            } finally {
-                setLoadingHistory(false);
-            }
-        }
-
-        if (activeTab === 'history') {
-            fetchHistory();
-        }
-    }, [activeTab, API_URL, notify]);
-
 
     return (
         <main className="bg-gray-100 px-6 md:px-12 pt-12 relative overflow-hidden min-h-screen w-full">

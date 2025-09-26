@@ -45,7 +45,7 @@ const useHistoryOrdersStore = create((set, get) => ({
 
   // Función para cargar pedidos con filtros
   fetchOrders: async (filters = {}) => {
-  //
+
     const { currentFilters } = get();
     
     const filtersChanged = JSON.stringify(currentFilters) !== JSON.stringify(filters);
@@ -64,7 +64,7 @@ const useHistoryOrdersStore = create((set, get) => ({
 
       const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(filters, 1);
-      const res = await fetch(`${API_URL}/api/carts/confirmados?${queryString}`, {
+      const res = await fetch(`${API_URL}/api/carts/confirmados?limit=10?${queryString}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -179,38 +179,6 @@ const useHistoryOrdersStore = create((set, get) => ({
         [cartId]: !expanded[cartId]
       }
     });
-  },
-
-  // Cargar detalles de productos
-  fetchDetails: async (cartId, products) => {
-    const { details } = get();
-    
-    if (details[cartId]) return; // Ya cargado
-    
-    try {
-      const productosConDetalles = await Promise.all(
-        products.map(async (p) => {
-          const prodId = p.productId?._id || p.productId || p._id;
-          try {
-            const res = await fetch(`${API_URL}/api/products/${prodId}`);
-            if (!res.ok) return { ...p, title: 'Producto eliminado', price: 0 };
-            const prod = await res.json();
-            return { ...prod, quantity: p.quantity };
-          } catch {
-            return { ...p, title: 'Error', price: 0 };
-          }
-        })
-      );
-      
-      set({
-        details: {
-          ...details,
-          [cartId]: productosConDetalles
-        }
-      });
-    } catch (err) {
-      console.error('Error al cargar detalles:', err);
-    }
   },
 
   resetOrders: () => set({

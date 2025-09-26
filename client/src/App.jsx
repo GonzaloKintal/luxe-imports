@@ -13,7 +13,6 @@ import About from './components/about/About';
 import ToastProvider from "./components/ToastProvider";
 import { TokenExpiryProvider } from './context/TokenExpiryContext';
 import TokenExpiryModal from './components/TokenExpiryModal';
-import WhatsappButton from './components/WhatsappButton';
 
 export default function App() {
   const location = useLocation();
@@ -41,9 +40,6 @@ export default function App() {
         
         {/* Modal de token expirado */}
         <TokenExpiryModal />
-
-        {/* Globo de WhatsApp */}
-        <WhatsappButton />
 
       </TokenExpiryProvider>
 

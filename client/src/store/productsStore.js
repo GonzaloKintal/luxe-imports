@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 
 const API_URL = import.meta.env.VITE_API_URL;
-const LIMIT = 12;
+const LIMIT = 10;
 
 const useProductsStore = create((set, get) => ({
   // Estado
@@ -63,12 +63,11 @@ const useProductsStore = create((set, get) => ({
 
   // Función para cargar productos con filtros
   fetchProductos: async (filters = {}) => {
-    console.log('fetchProductos llamado con filtros:', filters);
     const { currentFilters } = get();
-    
+
     // Verificar si los filtros cambiaron
     const filtersChanged = JSON.stringify(currentFilters) !== JSON.stringify(filters);
-    
+
     try {
       set({ 
         loading: true, 
@@ -83,12 +82,14 @@ const useProductsStore = create((set, get) => ({
       });
 
       const queryString = get().buildQueryString(filters, 1);
-      const res = await fetch(`${API_URL}/api/products/active?${queryString}`);
-      
+      const url = `${API_URL}/api/products/active?${queryString}`;
+      console.log('[fetchProductos] Filtros:', filters, 'URL:', url);
+      const res = await fetch(url);
+
       if (!res.ok) throw new Error('Error al cargar productos');
-      
+
       const data = await res.json();
-      
+
       set({
         productos: data.products,
         currentPage: 1,
@@ -107,48 +108,112 @@ const useProductsStore = create((set, get) => ({
   },
 
   // Función para cargar más productos (mantiene filtros actuales)
-  cargarMasProductos: async () => {
-    const { hasMoreProducts, loadingMore, currentPage, productos, currentFilters } = get();
+  // cargarMasProductos: async () => {
+  //   const { hasMoreProducts, loadingMore, currentPage, productos, currentFilters } = get();
     
-    if (!hasMoreProducts || loadingMore) return;
+  //   if (!hasMoreProducts || loadingMore) return;
 
-    try {
-      set({ 
-        loadingMore: true, 
-        error: null 
-      });
-      
-      const nextPage = currentPage + 1;
-      const queryString = get().buildQueryString(currentFilters, nextPage);
-      
-      const res = await fetch(`${API_URL}/api/products/active?${queryString}`);
-      if (!res.ok) throw new Error('Error al cargar más productos');
-      
-      const data = await res.json();
-      
-      // Agregar nuevos productos a los existentes
-      const nuevosProductos = data.products.filter(
-        p => !productos.some(existing => existing._id === p._id)
-      );
+  //   try {
+  //     set({ 
+  //       loadingMore: true, 
+  //       error: null 
+  //     });
 
-      set({
-        productos: [...productos, ...nuevosProductos],
-        currentPage: nextPage,
-        hasMoreProducts: nextPage < data.totalPages,
-        loadingMore: false
-      });
+  //     const nextPage = currentPage + 1;
+  //     const queryString = get().buildQueryString(currentFilters, nextPage);
+  //     const url = `${API_URL}/api/products/active?${queryString}`;
+  //     console.log('[cargarMasProductos] Página:', nextPage, 'Filtros:', currentFilters, 'URL:', url);
+      
+  //     const res = await fetch(url);
+  //     if (!res.ok) throw new Error('Error al cargar más productos');
 
-    } catch (err) {
-      set({ 
-        error: err.message || 'Error al cargar más productos',
-        loadingMore: false 
-      });
-    }
-  },
+  //     const data = await res.json();
+  //     console.log('[cargarMasProductos] Datos recibidos:', data);
+  //     // Agregar nuevos productos a los existentes
+  //     const nuevosProductos = data.products.filter(
+  //       p => !productos.some(existing => existing._id === p._id)
+  //     );
+
+  //     set({
+  //       productos: [...productos, ...nuevosProductos],
+  //       currentPage: nextPage,
+  //       hasMoreProducts: nextPage < data.totalPages,
+  //       loadingMore: false
+  //     });
+
+  //   } catch (err) {
+  //     set({ 
+  //       error: err.message || 'Error al cargar más productos',
+  //       loadingMore: false 
+  //     });
+  //   }
+  // },
+  cargarMasProductos: async () => {
+  const { hasMoreProducts, loadingMore, currentPage, productos, currentFilters } = get();
+  
+  if (!hasMoreProducts || loadingMore) return;
+
+  try {
+    set({ 
+      loadingMore: true, 
+      error: null 
+    });
+
+    const nextPage = currentPage + 1;
+    const queryString = get().buildQueryString(currentFilters, nextPage);
+    const url = `${API_URL}/api/products/active?${queryString}`;
+    console.log('[cargarMasProductos] Página:', nextPage, 'Filtros:', currentFilters, 'URL:', url);
+    
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Error al cargar más productos');
+
+    const data = await res.json();
+    console.log('[cargarMasProductos] Datos recibidos:', data);
+    console.log('[cargarMasProductos] Productos actuales antes de agregar:', productos.length);
+    console.log('[cargarMasProductos] Nuevos productos del servidor:', data.products.length);
+    
+    // Debugging: verificar duplicados
+    const productosExistentesIds = productos.map(p => p._id);
+    const nuevosProductosIds = data.products.map(p => p._id);
+    console.log('[cargarMasProductos] IDs existentes:', productosExistentesIds);
+    console.log('[cargarMasProductos] IDs nuevos:', nuevosProductosIds);
+    
+    // Verificar intersección
+    const duplicados = nuevosProductosIds.filter(id => productosExistentesIds.includes(id));
+    console.log('[cargarMasProductos] IDs duplicados encontrados:', duplicados);
+
+    // Agregar nuevos productos a los existentes
+    const nuevosProductos = data.products.filter(
+      p => !productos.some(existing => existing._id === p._id)
+    );
+    
+    console.log('[cargarMasProductos] Productos únicos a agregar:', nuevosProductos.length);
+    console.log('[cargarMasProductos] Total después de agregar:', productos.length + nuevosProductos.length);
+
+    set({
+      productos: [...productos, ...nuevosProductos],
+      currentPage: nextPage,
+      hasMoreProducts: nextPage < data.totalPages,
+      loadingMore: false
+    });
+
+    // Verificar el estado final
+    setTimeout(() => {
+      const finalState = get();
+      console.log('[cargarMasProductos] Estado final - Total productos:', finalState.productos.length);
+    }, 100);
+
+  } catch (err) {
+    set({ 
+      error: err.message || 'Error al cargar más productos',
+      loadingMore: false 
+    });
+  }
+},
+  
 
   // Mantener fetchProductosIniciales para compatibilidad (ahora usa filtros por defecto)
   fetchProductosIniciales: async () => {
-    console.log('fetchProductosIniciales llamado');
     const { isInitialized, productos } = get();
     
     // Si ya tenemos productos cargados, no hacer fetch innecesario

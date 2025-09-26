@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
 import { useRef } from "react";
-import { Instagram } from "lucide-react";
-import { FaWhatsapp, FaStar } from "react-icons/fa";
+import { FaWhatsapp, FaStar, FaInstagram, FaTiktok } from "react-icons/fa";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -33,24 +32,24 @@ const Contact = () => {
   const socialLinks = [
     {
       name: "Instagram",
-      icon: Instagram,
+      icon: FaInstagram,
       url: "https://www.instagram.com/luxeimports.ar",
       hoverEffect: "hover:scale-110 hover:-translate-y-1",
-      color: "bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500",
+      color: "bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400",
     },
     {
       name: "TikTok",
-      icon: TikTokIcon,
+      icon: FaTiktok,
       url: "https://www.tiktok.com/@luxeimports.ar",
-      hoverEffect: "hover:scale-110 hover:rotate-6",
-      color: "bg-gradient-to-tr from-black via-gray-800 to-pink-600",
+      hoverEffect: "hover:scale-110 hover:rotate-3",
+      color: "bg-gradient-to-tr from-gray-900 via-gray-700 to-pink-500",
     },
     {
       name: "WhatsApp",
       icon: FaWhatsapp,
       url: "https://wa.me/5491122334455",
-      hoverEffect: "hover:scale-110 hover:-rotate-6",
-      color: "bg-gradient-to-tr from-green-400 to-green-600",
+      hoverEffect: "hover:scale-110 hover:-rotate-3",
+      color: "bg-gradient-to-tr from-green-500 to-green-600",
     },
   ];
 
@@ -162,19 +161,18 @@ const Contact = () => {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`group relative flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full shadow-2xl ${social.color} ${social.hoverEffect} transition-all duration-500`}
+                    className={`group relative flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full shadow-2xl ${social.color} ${social.hoverEffect} transition-all duration-500`}
                   >
                     {/* Icono */}
                     <IconComponent
-                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white relative z-10 transition-transform duration-500 group-hover:scale-125"
-                      strokeWidth={1.5}
+                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white relative z-10 transition-transform duration-500 group-hover:scale-110"
                     />
 
                     {/* Efecto Glow */}
                     <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500"></div>
 
-                    {/* Borde animado */}
-                    <span className="absolute inset-0 rounded-full border-2 sm:border-4 border-white/20 animate-spin-slow group-hover:border-white/40"></span>
+                    {/* Borde sutil */}
+                    <span className="absolute inset-0 rounded-full border border-white/20 group-hover:border-white/40 transition-all duration-500"></span>
                   </a>
                 );
               })}
@@ -190,7 +188,7 @@ const Contact = () => {
               {reviews.map((r, i) => (
                 <div
                   key={i}
-                  className="bg-white/10 rounded-2xl p-4 sm:p-6 shadow-lg flex flex-col items-center text-center border border-white/10 hover:scale-[1.02] sm:hover:scale-[1.03] transition-transform duration-300"
+                  className="bg-white/10 rounded-4xl p-4 sm:p-6 shadow-lg flex flex-col items-center text-center border border-white/10 hover:scale-[1.02] sm:hover:scale-[1.03] transition-transform duration-300"
                 >
                   <div className="flex gap-1 mb-2">
                     {[...Array(r.stars)].map((_, idx) => (

@@ -28,7 +28,7 @@ export default function Cart() {
 
     useEffect(() => {
         if (isLoading) return;
-        
+
         if (!user || user.role === 'admin') {
             notify.warning("Redirigiendo a la página principal");
             navigate('/');
@@ -65,11 +65,18 @@ export default function Cart() {
                 setLoading(true);
                 setError(null);
 
-                const activeCartRes = await fetch(`${API_URL}/api/carts/active`, {
-                    method: 'POST',
+                const activeCartRes = await fetch(`${API_URL}/api/carts/current`, {
+                    method: 'GET',
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const activeCart = await activeCartRes.json();
+
+                if (activeCartRes.status === 404) {
+                    setError('No tenés un carrito activo');
+                    setProducts([]);
+                    setLoading(false);
+                    return;
+                }
 
                 if (!activeCartRes.ok) throw new Error(activeCart.error || 'Error al obtener carrito activo');
 
@@ -113,10 +120,6 @@ export default function Cart() {
                 <h1 className="text-4xl font-extrabold text-black mb-10 text-center animate-fadeInDown drop-shadow-lg">
                     Tu Carrito
                 </h1>
-
-                {error && (
-                    <p className="text-red-600 text-center mb-4">{error}</p>
-                )}
 
                 <ActualCart
                     products={products}

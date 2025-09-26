@@ -20,7 +20,6 @@ export default function HistoryOrders({ history }) {
         expanded,
         details,
         toggleExpand,
-        fetchDetails,
         clearExpandedData,
         isInitialized,
         applyDateFilters,
@@ -45,14 +44,6 @@ export default function HistoryOrders({ history }) {
 
     const handleToggleExpand = async (cartId) => {
         toggleExpand(cartId);
-        
-        // Si se está expandiendo y no tenemos detalles, cargarlos
-        if (!expanded[cartId]) {
-            const order = orders.find(o => o._id === cartId);
-            if (order && Array.isArray(order.products)) {
-                await fetchDetails(cartId, order.products);
-            }
-        }
     };
 
     const handleDateFilter = async (fromDate, toDate) => {
@@ -101,7 +92,6 @@ export default function HistoryOrders({ history }) {
                     expanded={expanded}
                     details={details}
                     onToggleExpand={handleToggleExpand}
-                    onFetchDetails={fetchDetails}
                 />
 
                 {/* Botón Cargar más */}
