@@ -1,51 +1,34 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const TokenExpiryContext = createContext();
-
-export const useTokenExpiry = () => {
-  const context = useContext(TokenExpiryContext);
-  if (!context) {
-    throw new Error('useTokenExpiry debe usarse dentro de TokenExpiryProvider');
-  }
-  return context;
-};
 
 export const TokenExpiryProvider = ({ children }) => {
   const [showModal, setShowModal] = useState(false);
 
-  const handleTokenExpiry = useCallback(() => {
-      // 
-    if (!showModal) {
-        // 
-      setShowModal(true);
-    }
-  }, [showModal]);
-
-  const closeModal = useCallback(() => {
-     // 
-    setShowModal(false);
+  const handleTokenExpiry = () => {
+    console.log('🔔 handleTokenExpiry llamado');
+    console.log('📋 Estado actual showModal:', showModal);
     
-    // Limpiar datos de sesión
+    // Limpiar token primero
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    console.log('🗑️ Token eliminado del localStorage');
     
-     // 
-     // 
-    
-    // Redirigir al home de forma simple y confiable
-    window.location.href = '/';
-    
-  }, []);
+    // Mostrar modal
+    setShowModal(true);
+    console.log('✅ Modal debería mostrarse ahora');
+  };
 
-  const value = {
-    showModal,
-    handleTokenExpiry,
-    closeModal
+  const closeModal = () => {
+    console.log('❌ Cerrando modal y redirigiendo');
+    setShowModal(false);
+    window.location.href = '/'; 
   };
 
   return (
-    <TokenExpiryContext.Provider value={value}>
+    <TokenExpiryContext.Provider value={{ showModal, handleTokenExpiry, closeModal }}>
       {children}
     </TokenExpiryContext.Provider>
   );
 };
+
+export const useTokenExpiry = () => useContext(TokenExpiryContext);

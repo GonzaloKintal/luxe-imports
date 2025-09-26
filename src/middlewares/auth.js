@@ -27,7 +27,8 @@ export function authenticateToken(req, res, next) {
       
       // Otros errores de token (malformado, firma inválida, etc.)
       return res.status(403).json({ 
-        error: 'El token proporcionado no es válido'
+        error: 'El token proporcionado no es válido',
+	expired: true
       });
     }
     

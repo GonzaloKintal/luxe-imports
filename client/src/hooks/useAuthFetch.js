@@ -7,7 +7,7 @@ export const useAuthFetch = () => {
 
   const authFetch = async (url, options = {}) => {
     const token = localStorage.getItem('token');
-    
+
     const config = {
       ...options,
       headers: {
@@ -18,28 +18,32 @@ export const useAuthFetch = () => {
     };
 
     try {
-      //
       const response = await fetch(url, config);
-      //
-      
+
+      // Detectar cualquier 401 y abrir modal
       if (response.status === 401) {
-        const errorData = await response.json().catch(() => ({}));
-        //
-        
-        if (errorData.expired === true) {
-          //
+
+        // Parsear respuesta para verificar si es por token expirado
+        let errorData = {};
+        try {
+          errorData = await response.clone().json();
+        } catch (e) {
+        }
+
+        // Si es token expirado, mostrar modal
+        if (errorData.expired === true || errorData.error?.includes('expirado') || errorData.error?.includes('expired')) {
           handleTokenExpiry();
-          return null;
+        } else {
+          // Solo notificar otros errores 401
+          notify.error(errorData.error || 'Acceso no autorizado');
         }
-        
-        if (errorData.error) {
-          notify.error(errorData.error);
-        }
+
+        return null; // no procesar más
       }
-      
+
       return response;
     } catch (error) {
-      console.error('❌ Error en petición:', error);
+      console.error('Error en fetch:', error);
       notify.error('Error de conexión');
       throw error;
     }
