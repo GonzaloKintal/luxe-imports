@@ -168,11 +168,12 @@ export default function AdminProducts() {
         };
         await fetchProductos(currentFilters);
     };
+
     const handleEdit = async ({ id, formData }) => {
         const result = await editProduct(id, formData);
         toast[result.success ? 'success' : 'error'](result.message);
         if (result.success) {
-            setEditingProductId(null);
+            
             // Forzar refresh completo para aplicar nuevo ordenamiento
             const currentFilters = {
                 search,

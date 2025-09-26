@@ -70,7 +70,6 @@ export default function FilteredProductCard({
                             product={product}
                             onSave={(updatedProduct) => {
                                 onEdit(updatedProduct);
-                                onCancelEditing();
                             }}
                             onCancel={onCancelEditing}
                         />

@@ -27,7 +27,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
     const [isFormReady, setIsFormReady] = useState(false);
 
     useEffect(() => {
-    //
+
         if (product) {
             const newForm = {
                 title: product.title || '',
