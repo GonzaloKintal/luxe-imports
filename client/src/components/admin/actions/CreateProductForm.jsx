@@ -23,6 +23,7 @@ export default function CreateProductForm({ onSave }) {
     const [selectedImages, setSelectedImages] = useState([]);
     const [deletedImages, setDeletedImages] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
+    const [resetKey, setResetKey] = useState(0);
 
     useEffect(() => {
         setForm(initialForm);
@@ -96,6 +97,7 @@ export default function CreateProductForm({ onSave }) {
             selectedImages.forEach(img => URL.revokeObjectURL(img.preview));
             setSelectedImages([]);
             setDeletedImages([]);
+            setResetKey(prev => prev + 1);
 
         } catch (error) {
             console.error('Error al crear producto:', error);
@@ -132,6 +134,7 @@ export default function CreateProductForm({ onSave }) {
                 <div>
                     <label htmlFor="description" className="block text-gray-700 mb-1 font-semibold text-sm">Descripción</label>
                     <RichTextEditor
+                        key={resetKey}
                         value={form.description}
                         onChange={(content) => setForm({ ...form, description: content })}
                     />
