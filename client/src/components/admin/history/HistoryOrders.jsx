@@ -1,12 +1,12 @@
-
-
 import { useState, useEffect } from 'react';
 import { FaHistory } from 'react-icons/fa';
 import HistoryOrdersList from './HistoryOrdersList';
 import useHistoryOrdersStore from '../../../store/historyOrdersStore';
 import DateRangeFilter from '../../utils/DateRangeFilter';
+import { useAuthFetch } from '../../../hooks/useAuthFetch'; // AGREGADO
 
 export default function HistoryOrders({ history }) {
+    const { authFetch } = useAuthFetch(); // AGREGADO
     
     const {
         orders,
@@ -33,9 +33,10 @@ export default function HistoryOrders({ history }) {
                 from: '',
                 to: ''
             };
-            fetchOrders(defaultFilters);
+            // CAMBIO: Pasar authFetch al store
+            fetchOrders(defaultFilters, authFetch);
         }
-    }, [isInitialized, fetchOrders]);
+    }, [isInitialized, fetchOrders, authFetch]);
 
     // Limpiar detalles expandidos al cargar
     useEffect(() => {
@@ -43,20 +44,24 @@ export default function HistoryOrders({ history }) {
     }, [history, clearExpandedData]);
 
     const handleToggleExpand = async (cartId) => {
-        toggleExpand(cartId);
+        // CAMBIO: Pasar authFetch al store
+        toggleExpand(cartId, authFetch);
     };
 
     const handleDateFilter = async (fromDate, toDate) => {
-        await applyDateFilters(fromDate, toDate);
+        // CAMBIO: Pasar authFetch al store
+        await applyDateFilters(fromDate, toDate, authFetch);
     };
 
     const handleClearFilters = async () => {
-        await clearFilters();
+        // CAMBIO: Pasar authFetch al store
+        await clearFilters(authFetch);
     };
 
     const handleLoadMore = () => {
         if (!loadingMore && hasMoreOrders) {
-            cargarMasPedidos();
+            // CAMBIO: Pasar authFetch al store
+            cargarMasPedidos(authFetch);
         }
     };
 
@@ -82,7 +87,6 @@ export default function HistoryOrders({ history }) {
                         showTitle={false}
                     />
                 </div>
-
 
                 <HistoryOrdersList
                     orders={orders}
@@ -118,9 +122,7 @@ export default function HistoryOrders({ history }) {
                         </p>
                     </div>
                 )}
-
             </div>
         </div>
     );
-
 }

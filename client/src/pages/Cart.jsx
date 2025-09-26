@@ -7,6 +7,7 @@ import CartSkeleton from '../components/cart/CartSkeleton.jsx';
 import 'react-toastify/dist/ReactToastify.css';
 import { CartContext } from '../context/CartContext.jsx';
 import { useNotify } from "../components/ToastProvider";
+import { useAuthFetch } from "../hooks/useAuthFetch";
 
 export default function Cart() {
     const navigate = useNavigate();
@@ -20,11 +21,11 @@ export default function Cart() {
     const token = localStorage.getItem('token');
     const API_URL = import.meta.env.VITE_API_URL;
     const notify = useNotify();
-
+    const { authFetch } = useAuthFetch();
 
     useEffect(() => {
         window.scrollTo(0, 0);
-    });
+    }, []);
 
     useEffect(() => {
         if (isLoading) return;
@@ -51,8 +52,8 @@ export default function Cart() {
                     } else {
                         prodId = productId;
                     }
-                    const res = await fetch(`${API_URL}/api/products/${prodId}`);
-                    if (!res.ok) throw new Error('Error al cargar producto ' + prodId);
+                    const res = await authFetch(`${API_URL}/api/products/${prodId}`);
+                    if (!res || !res.ok) throw new Error('Error al cargar producto ' + prodId);
                     const product = await res.json();
                     return { ...product, quantity };
                 })
@@ -65,11 +66,12 @@ export default function Cart() {
                 setLoading(true);
                 setError(null);
 
-                const activeCartRes = await fetch(`${API_URL}/api/carts/current`, {
-                    method: 'GET',
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const activeCart = await activeCartRes.json();
+                const activeCartRes = await authFetch(`${API_URL}/api/carts/current`);
+                if (!activeCartRes) {
+                    // token expirado → el modal ya lo maneja useAuthFetch
+                    setLoading(false);
+                    return;
+                }
 
                 if (activeCartRes.status === 404) {
                     setError('No tenés un carrito activo');
@@ -78,17 +80,27 @@ export default function Cart() {
                     return;
                 }
 
-                if (!activeCartRes.ok) throw new Error(activeCart.error || 'Error al obtener carrito activo');
+                if (!activeCartRes.ok) {
+                    const body = await activeCartRes.json();
+                    throw new Error(body.error || 'Error al obtener carrito activo');
+                }
 
+                const activeCart = await activeCartRes.json();
                 const carritoId = activeCart._id;
                 setCartId(carritoId);
 
-                const productosRes = await fetch(`${API_URL}/api/carts/${carritoId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const productosInCart = await productosRes.json();
-                if (!productosRes.ok) throw new Error(productosInCart.error || 'Error al cargar carrito');
+                const productosRes = await authFetch(`${API_URL}/api/carts/${carritoId}`);
+                if (!productosRes) {
+                    setLoading(false);
+                    return;
+                }
 
+                if (!productosRes.ok) {
+                    const errorBody = await productosRes.json();
+                    throw new Error(errorBody.error || 'Error al cargar carrito');
+                }
+
+                const productosInCart = await productosRes.json();
                 const productosConDetalles = await fetchProductDetails(productosInCart);
 
                 setProducts(productosConDetalles);

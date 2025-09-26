@@ -1,12 +1,12 @@
-
-
 import { useState } from 'react';
 import LoadHistoryButton from './LoadHistoryButton';
 import HistoryHeader from './HistoryHeader';
 import PendingOrders from './PendingOrders';
 import ConfirmedOrders from './ConfirmedOrders';
+import { useAuthFetch } from '../../../hooks/useAuthFetch'; // AGREGADO
 
 export default function CartHistory({ token, API_URL }) {
+    const { authFetch } = useAuthFetch(); // AGREGADO
 
     const [historialCarritos, setHistorialCarritos] = useState({
         confirmados: [],
@@ -27,6 +27,7 @@ export default function CartHistory({ token, API_URL }) {
 
     const ITEMS_PER_PAGE = 5;
 
+    // CAMBIO: fetchProductDetails mantiene fetch normal (endpoint público)
     async function fetchProductDetails(products) {
         return await Promise.all(
             products.map(async ({ productId, quantity }) => {
@@ -38,7 +39,7 @@ export default function CartHistory({ token, API_URL }) {
                 }
                 
                 try {
-                    const res = await fetch(`${API_URL}/api/products/${prodId}`);
+                    const res = await fetch(`${API_URL}/api/products/${prodId}`); // Público - no cambiar
                     if (!res.ok) return { title: 'Producto eliminado', price: 0, quantity };
                     const prod = await res.json();
                     return { ...prod, quantity };
@@ -58,7 +59,7 @@ export default function CartHistory({ token, API_URL }) {
                 setCurrentPageConfirmed(1);
                 setCurrentPagePending(1);
                 setHistorialCarritos({ confirmados: [], pendientes: [] });
-                setCurrentFilters({ from: null, to: null }); // Reset filters on initial load
+                setCurrentFilters({ from: null, to: null });
             }
             
             // Cargar ambos tipos en paralelo
@@ -76,76 +77,78 @@ export default function CartHistory({ token, API_URL }) {
         }
     }
 
+    // CAMBIO: usar authFetch para endpoint protegido
     async function cargarConfirmados(page = 1, filters = currentFilters) {
         try {
             let url = `${API_URL}/api/carts/history/confirmed?limit=${ITEMS_PER_PAGE}&page=${page}`;
             if (filters.from) url += `&from=${filters.from}`;
             if (filters.to) url += `&to=${filters.to}`;
             
-            const res = await fetch(url, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Error al obtener confirmados');
-            
-            const carritos = data.results || [];
-            const confirmadosConDetalles = await Promise.all(
-                carritos.map(async (carrito) => {
-                    const productos = await fetchProductDetails(carrito.products || []);
-                    return { ...carrito, productos };
-                })
-            );
+            const res = await authFetch(url);
+            if (res) {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al obtener confirmados');
+                
+                const carritos = data.results || [];
+                const confirmadosConDetalles = await Promise.all(
+                    carritos.map(async (carrito) => {
+                        const productos = await fetchProductDetails(carrito.products || []);
+                        return { ...carrito, productos };
+                    })
+                );
 
-            if (page === 1) {
-                setHistorialCarritos(prev => ({ ...prev, confirmados: confirmadosConDetalles }));
-            } else {
-                setHistorialCarritos(prev => ({ 
-                    ...prev, 
-                    confirmados: [...prev.confirmados, ...confirmadosConDetalles] 
-                }));
+                if (page === 1) {
+                    setHistorialCarritos(prev => ({ ...prev, confirmados: confirmadosConDetalles }));
+                } else {
+                    setHistorialCarritos(prev => ({ 
+                        ...prev, 
+                        confirmados: [...prev.confirmados, ...confirmadosConDetalles] 
+                    }));
+                }
+
+                setCurrentPageConfirmed(page);
+                setHasMoreConfirmed((page * ITEMS_PER_PAGE) < (data.total || 0));
+                setTotalConfirmed(data.total || 0);
             }
-
-            setCurrentPageConfirmed(page);
-            setHasMoreConfirmed((page * ITEMS_PER_PAGE) < (data.total || 0));
-            setTotalConfirmed(data.total || 0);
 
         } catch (err) {
             throw err;
         }
     }
 
+    // CAMBIO: usar authFetch para endpoint protegido
     async function cargarPendientes(page = 1, filters = currentFilters) {
         try {
             let url = `${API_URL}/api/carts/history/pending?limit=${ITEMS_PER_PAGE}&page=${page}`;
             if (filters.from) url += `&from=${filters.from}`;
             if (filters.to) url += `&to=${filters.to}`;
             
-            const res = await fetch(url, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Error al obtener pendientes');
-            
-            const carritos = data.results || [];
-            const pendientesConDetalles = await Promise.all(
-                carritos.map(async (carrito) => {
-                    const productos = await fetchProductDetails(carrito.products || []);
-                    return { ...carrito, productos };
-                })
-            );
+            const res = await authFetch(url);
+            if (res) {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al obtener pendientes');
+                
+                const carritos = data.results || [];
+                const pendientesConDetalles = await Promise.all(
+                    carritos.map(async (carrito) => {
+                        const productos = await fetchProductDetails(carrito.products || []);
+                        return { ...carrito, productos };
+                    })
+                );
 
-            if (page === 1) {
-                setHistorialCarritos(prev => ({ ...prev, pendientes: pendientesConDetalles }));
-            } else {
-                setHistorialCarritos(prev => ({ 
-                    ...prev, 
-                    pendientes: [...prev.pendientes, ...pendientesConDetalles] 
-                }));
+                if (page === 1) {
+                    setHistorialCarritos(prev => ({ ...prev, pendientes: pendientesConDetalles }));
+                } else {
+                    setHistorialCarritos(prev => ({ 
+                        ...prev, 
+                        pendientes: [...prev.pendientes, ...pendientesConDetalles] 
+                    }));
+                }
+
+                setCurrentPagePending(page);
+                setHasMorePending((page * ITEMS_PER_PAGE) < (data.total || 0));
+                setTotalPending(data.total || 0);
             }
-
-            setCurrentPagePending(page);
-            setHasMorePending((page * ITEMS_PER_PAGE) < (data.total || 0));
-            setTotalPending(data.total || 0);
 
         } catch (err) {
             throw err;
@@ -159,7 +162,6 @@ export default function CartHistory({ token, API_URL }) {
             const newFilters = { from, to };
             setCurrentFilters(newFilters);
             
-            // Reset pagination when applying filters
             setCurrentPageConfirmed(1);
             setHistorialCarritos(prev => ({ ...prev, confirmados: [] }));
             
@@ -179,7 +181,6 @@ export default function CartHistory({ token, API_URL }) {
             const newFilters = { from, to };
             setCurrentFilters(newFilters);
             
-            // Reset pagination when applying filters  
             setCurrentPagePending(1);
             setHistorialCarritos(prev => ({ ...prev, pendientes: [] }));
             
@@ -280,5 +281,4 @@ export default function CartHistory({ token, API_URL }) {
             )}
         </div>
     );
-
 }

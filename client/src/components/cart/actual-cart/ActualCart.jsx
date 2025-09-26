@@ -3,6 +3,7 @@ import { io as socketIOClient } from 'socket.io-client';
 import { FaWhatsapp, FaShippingFast } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import CartItems from './CartItems';
+import { useAuthFetch } from '../../../hooks/useAuthFetch'; // AGREGADO
 
 // Obtener la URL de la API del dólar blue desde variable de entorno
 const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
@@ -27,13 +28,15 @@ export default function ActualCart({
     const [cotizacion, setCotizacion] = useState(null);
     const [loadingCotizacion, setLoadingCotizacion] = useState(true);
     const [errorCotizacion, setErrorCotizacion] = useState(null);
+    
+    const { authFetch } = useAuthFetch(); // AGREGADO
 
-    // Fetch cotización dólar blue venta
+    // Fetch cotización dólar blue venta - MANTENER fetch normal (API externa)
     useEffect(() => {
         async function fetchDolar() {
             try {
                 setLoadingCotizacion(true);
-                const res = await fetch(DOLAR_API_URL);
+                const res = await fetch(DOLAR_API_URL); // API externa, no necesita token
                 const data = await res.json();
                 setCotizacion(data.venta);
             } catch (err) {
@@ -45,21 +48,21 @@ export default function ActualCart({
         fetchDolar();
     }, []);
 
-
+    // CAMBIO: usar authFetch para endpoint protegido
     useEffect(() => {
         async function fetchAdminInfo() {
             try {
-                const res = await fetch(`${API_URL}/api/admin/admin-info`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const data = await res.json();
-                if (res.ok && data.telefono) setAdminPhone(data.telefono);
+                const res = await authFetch(`${API_URL}/api/admin/admin-info`);
+                if (res) {
+                    const data = await res.json();
+                    if (res.ok && data.telefono) setAdminPhone(data.telefono);
+                }
             } catch (err) {
                 console.error('Error al obtener admin-info:', err);
             }
         }
         if (products.length && token) fetchAdminInfo();
-    }, [products.length, token, API_URL]);
+    }, [products.length, token, API_URL, authFetch]);
 
     useEffect(() => {
         setCart(products);
@@ -97,18 +100,20 @@ export default function ActualCart({
     const totalUSD = products.reduce((acc, p) => acc + (p.price || 0) * p.quantity, 0);
     const totalARS = cotizacion ? totalUSD * cotizacion : null;
 
+    // CAMBIO: usar authFetch
     async function handleAddToCart(product) {
         if (!token || !cartId) return;
         setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), add: true } }));
         try {
-            const res = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
+            const res = await authFetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
+                method: 'POST'
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Error al agregar producto');
-            setProducts(prev => prev.map(p => p._id === product._id ? { ...p, quantity: p.quantity + 1 } : p));
-            notify.success('Producto agregado al carrito'); 
+            if (res) {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al agregar producto');
+                setProducts(prev => prev.map(p => p._id === product._id ? { ...p, quantity: p.quantity + 1 } : p));
+                notify.success('Producto agregado al carrito'); 
+            }
         } catch (err) {
             notify.error(err.message); 
         } finally {
@@ -116,41 +121,43 @@ export default function ActualCart({
         }
     }
 
+    // CAMBIO: usar authFetch
     async function handleRemoveFromCart(product) {
         if (!token || !cartId || product.quantity === 0) return;
         setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), remove: true } }));
         try {
             if (product.quantity > 1) {
-                const res = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
+                const res = await authFetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ quantity: product.quantity - 1 })
                 });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Error al descontar producto');
-                setProducts(prev => prev.map(p => p._id === product._id ? { ...p, quantity: p.quantity - 1 } : p));
-                notify.success('Cantidad actualizada'); 
+                if (res) {
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Error al descontar producto');
+                    setProducts(prev => prev.map(p => p._id === product._id ? { ...p, quantity: p.quantity - 1 } : p));
+                    notify.success('Cantidad actualizada'); 
+                }
             } else {
-                const res = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${token}` },
+                const res = await authFetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
+                    method: 'DELETE'
                 });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Error al quitar producto');
-                setProducts(prev => {
-                    const updated = prev.filter(p => p._id !== product._id);
-                    if (updated.length === 0) {
-                        fetch(`${API_URL}/api/carts/${cartId}`, {
-                            method: 'DELETE',
-                            headers: { Authorization: `Bearer ${token}` },
-                        }).then(() => setCartId(null));
-                    }
-                    return updated;
-                });
-                notify.success('Producto quitado del carrito'); 
+                if (res) {
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Error al quitar producto');
+                    setProducts(prev => {
+                        const updated = prev.filter(p => p._id !== product._id);
+                        if (updated.length === 0) {
+                            authFetch(`${API_URL}/api/carts/${cartId}`, {
+                                method: 'DELETE'
+                            }).then(() => setCartId(null));
+                        }
+                        return updated;
+                    });
+                    notify.success('Producto quitado del carrito'); 
+                }
             }
         } catch (err) {
             notify.error(err.message); 
@@ -159,18 +166,20 @@ export default function ActualCart({
         }
     }
 
+    // CAMBIO: usar authFetch
     async function handleRemoveInactiveOrNoStock(product) {
         if (!token || !cartId || product.quantity === 0) return;
         setLoadingById(prev => ({ ...prev, [product._id]: { ...(prev[product._id] || {}), removeInactive: true } }));
         try {
-            const res = await fetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
+            const res = await authFetch(`${API_URL}/api/carts/${cartId}/product/${product._id}`, {
+                method: 'DELETE'
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Error al quitar producto');
-            setProducts(prev => prev.filter(p => p._id !== product._id));
-            notify.success('Producto quitado del carrito'); 
+            if (res) {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al quitar producto');
+                setProducts(prev => prev.filter(p => p._id !== product._id));
+                notify.success('Producto quitado del carrito'); 
+            }
         } catch (err) {
             notify.error(err.message); 
         } finally {
@@ -178,6 +187,7 @@ export default function ActualCart({
         }
     }
 
+    // CAMBIO: usar authFetch
     async function handleProcessPurchase() {
         setLoadingConfirm(true);
         try {
@@ -196,45 +206,46 @@ export default function ActualCart({
                 return;
             }
 
-            const res = await fetch(`${API_URL}/api/carts/${cartId}/confirm-request`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
+            const res = await authFetch(`${API_URL}/api/carts/${cartId}/confirm-request`, {
+                method: 'POST'
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Error al solicitar confirmación de compra. Por favor, refresca la página e intenta nuevamente.');
+            if (res) {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al solicitar confirmación de compra. Por favor, refresca la página e intenta nuevamente.');
 
-            await Swal.fire({
-                title: '¡Compra realizada con éxito!',
-                text: 'Tu compra ha sido procesada correctamente y ya está disponible en tu historial de compras. Ahora serás derivado al WhatsApp del vendedor para coordinar la entrega o pago.',
-                icon: 'success',
-                confirmButtonText: 'Continuar',
-                confirmButtonColor: '#25D366',
-            });
+                await Swal.fire({
+                    title: '¡Compra realizada con éxito!',
+                    text: 'Tu compra ha sido procesada correctamente y ya está disponible en tu historial de compras. Ahora serás derivado al WhatsApp del vendedor para coordinar la entrega o pago.',
+                    icon: 'success',
+                    confirmButtonText: 'Continuar',
+                    confirmButtonColor: '#25D366',
+                });
 
-            notify.success('Compra realizada con éxito'); 
-            const productos = products
-                .map(p => `- ${p.title} x${p.quantity} ($${(p.price * p.quantity).toFixed(2)})`)
-                .join('%0A');
+                notify.success('Compra realizada con éxito'); 
+                const productos = products
+                    .map(p => `- ${p.title} x${p.quantity} ($${(p.price * p.quantity).toFixed(2)})`)
+                    .join('%0A');
 
-            let nombreUsuario = (userInfo?.firstName || '') + (userInfo?.lastName ? ' ' + userInfo.lastName : '') || userInfo?.email || 'Cliente';
-            const mensaje = `Hola, mi nombre es ${nombreUsuario.trim()}, acabo de realizar una compra:%0A${productos}%0A%0AMuchas gracias`;
+                let nombreUsuario = (userInfo?.firstName || '') + (userInfo?.lastName ? ' ' + userInfo.lastName : '') || userInfo?.email || 'Cliente';
+                const mensaje = `Hola, mi nombre es ${nombreUsuario.trim()}, acabo de realizar una compra:%0A${productos}%0A%0AMuchas gracias`;
 
-            let phone = adminPhone ? adminPhone.replace(/\D/g, '') : '';
-            if (phone && !phone.startsWith('549')) {
-                if (phone.startsWith('54')) {
-                    phone = '549' + phone.slice(2);
-                } else {
-                    phone = '549' + phone;
+                let phone = adminPhone ? adminPhone.replace(/\D/g, '') : '';
+                if (phone && !phone.startsWith('549')) {
+                    if (phone.startsWith('54')) {
+                        phone = '549' + phone.slice(2);
+                    } else {
+                        phone = '549' + phone;
+                    }
                 }
+                const url = `https://wa.me/${phone}?text=${mensaje}`;
+
+                setProducts([]);
+                setCartId(null);
+
+                setTimeout(() => window.location.reload(), 1000);
+
+                window.open(url, '_blank');
             }
-            const url = `https://wa.me/${phone}?text=${mensaje}`;
-
-            setProducts([]);
-            setCartId(null);
-
-            setTimeout(() => window.location.reload(), 1000);
-
-            window.open(url, '_blank');
         } catch (err) {
             notify.error(err.message); 
         } finally {
@@ -322,5 +333,4 @@ export default function ActualCart({
             </div>
         </>
     );
-
 }
