@@ -6,9 +6,10 @@ import ConfirmOrderAction from './ConfirmOrderAction';
 import DateRangeFilter from '../../utils/DateRangeFilter';
 import usePendingOrdersStore from '../../../store/pendingOrdersStore';
 import useHistoryOrdersStore from '../../../store/historyOrdersStore';
+import { useAuthFetch } from '../../../hooks/useAuthFetch';
 
 export default function PendingOrders() {
-
+    const { authFetch } = useAuthFetch(); // agregado
 
     const {
         orders,
@@ -25,12 +26,11 @@ export default function PendingOrders() {
         clearFilters
     } = usePendingOrdersStore();
 
-    // Store de historial para refrescar confirmados
     const { refreshOrders: refreshHistoryOrders } = useHistoryOrdersStore();
 
     const [confirmDialog, setConfirmDialog] = React.useState({
         open: false,
-        type: null, // 'confirm' or 'delete'
+        type: null,
         orderId: null,
         orderInfo: null
     });
@@ -40,15 +40,11 @@ export default function PendingOrders() {
     // Fetch inicial de pedidos SOLO si no están cargados
     React.useEffect(() => {
         if (!isInitialized) {
-            const defaultFilters = {
-                from: '',
-                to: ''
-            };
-            fetchOrders(defaultFilters);
+            const defaultFilters = { from: '', to: '' };
+            fetchOrders(defaultFilters, authFetch).catch(err => console.error(err));
         }
-    }, [isInitialized, fetchOrders]);
-
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isInitialized]); // authFetch no en deps para evitar loop
 
     function handleConfirmClick(cartId) {
         const order = orders.find(o => o._id === cartId);
@@ -56,13 +52,7 @@ export default function PendingOrders() {
             open: true,
             type: 'confirm',
             orderId: cartId,
-            orderInfo: {
-                id: cartId,
-                userName: order?.userId ? `${order.userId.firstName} ${order.userId.lastName}` : '',
-                date: order?.createdAt ? `${new Date(order.createdAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.createdAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : '',
-                pendingAt: order?.pendingAt ? `${new Date(order.pendingAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.pendingAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : '',
-                confirmedAt: order?.confirmedAt ? `${new Date(order.confirmedAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.confirmedAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : ''
-            }
+            orderInfo: formatOrderInfo(order)
         });
     }
 
@@ -72,68 +62,60 @@ export default function PendingOrders() {
             open: true,
             type: 'delete',
             orderId: cartId,
-            orderInfo: {
-                id: cartId,
-                userName: order?.userId ? `${order.userId.firstName} ${order.userId.lastName}` : '',
-                date: order?.createdAt ? `${new Date(order.createdAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.createdAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : '',
-                pendingAt: order?.pendingAt ? `${new Date(order.pendingAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.pendingAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : '',
-                confirmedAt: order?.confirmedAt ? `${new Date(order.confirmedAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })} ${new Date(order.confirmedAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })}hs` : ''
-            }
+            orderInfo: formatOrderInfo(order)
         });
     }
 
+    const formatOrderInfo = (order) => ({
+        id: order?._id,
+        userName: order?.userId ? `${order.userId.firstName} ${order.userId.lastName}` : '',
+        date: formatDateTime(order?.createdAt),
+        pendingAt: formatDateTime(order?.pendingAt),
+        confirmedAt: formatDateTime(order?.confirmedAt)
+    });
+
+    const formatDateTime = (date) => {
+        if (!date) return '';
+        const d = new Date(date);
+        return `${d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}hs`;
+    };
+
     async function handleConfirmAction() {
         const { type, orderId } = confirmDialog;
-
         try {
-            const token = localStorage.getItem('token');
             let res;
-
             if (type === 'confirm') {
-                res = await fetch(`${API_URL}/api/carts/${orderId}/confirmar`, {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (!res.ok) throw new Error('Error al confirmar el pedido');
+                res = await authFetch(`${API_URL}/api/carts/${orderId}/confirmar`, { method: 'POST' });
                 toast.success('Pedido confirmado exitosamente');
-                // Refrescar historial de confirmados
-                await refreshHistoryOrders();
+                await refreshHistoryOrders(authFetch);
             } else if (type === 'delete') {
-                res = await fetch(`${API_URL}/api/carts/${orderId}`, {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (!res.ok) throw new Error('Error al eliminar el pedido');
+                res = await authFetch(`${API_URL}/api/carts/${orderId}`, { method: 'DELETE' });
                 toast.success('Pedido eliminado exitosamente');
             }
 
-            // Actualizar la lista de pedidos
             removeOrder(orderId);
-
-            // Cerrar el dialog
             setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
-
         } catch (err) {
             toast.error(err.message || 'Error al procesar la solicitud');
             setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
         }
     }
 
-    function handleCancelAction() {
+    const handleCancelAction = () => {
         setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
-    }
+    };
 
     const handleDateFilter = async (fromDate, toDate) => {
-        await applyDateFilters(fromDate, toDate);
+        await applyDateFilters(fromDate, toDate, authFetch);
     };
 
     const handleClearFilters = async () => {
-        await clearFilters();
+        await clearFilters(authFetch);
     };
 
-    const handleLoadMore = () => {
+    const handleLoadMore = async () => {
         if (!loadingMore && hasMoreOrders) {
-            cargarMasPedidos();
+            await cargarMasPedidos(authFetch);
         }
     };
 
@@ -151,7 +133,6 @@ export default function PendingOrders() {
                         </p>
                     </div>
 
-                    {/* Filtros de fecha */}
                     <div className="w-full mx-auto mb-6">
                         <DateRangeFilter
                             onFilter={handleDateFilter}
@@ -170,14 +151,13 @@ export default function PendingOrders() {
                         onDelete={handleDeleteClick}
                     />
 
-                    {/* Botón Cargar más */}
                     {!loading && !error && hasMoreOrders && (
                         <div className="flex justify-center mt-8">
                             <button
                                 onClick={handleLoadMore}
                                 disabled={loadingMore}
                                 className={`
-                                    px-6 py-3 bg-transparent cursor-pointer text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300
+                                    px-6 py-3 text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300
                                     ${loadingMore ? 'bg-gray-400 cursor-not-allowed' : 'bg-transparent'}
                                 `}
                             >
@@ -186,7 +166,6 @@ export default function PendingOrders() {
                         </div>
                     )}
 
-                    {/* Mensaje cuando se han visto todos */}
                     {!loading && !error && !hasMoreOrders && orders.length > 0 && (
                         <div className="text-center mt-8">
                             <p className="text-gray-600 font-medium">
@@ -212,5 +191,4 @@ export default function PendingOrders() {
             />
         </>
     );
-
 }

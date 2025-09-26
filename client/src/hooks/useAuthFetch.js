@@ -43,8 +43,6 @@ export const useAuthFetch = () => {
 
       return response;
     } catch (error) {
-      console.error('Error en fetch:', error);
-      notify.error('Error de conexión');
       throw error;
     }
   };

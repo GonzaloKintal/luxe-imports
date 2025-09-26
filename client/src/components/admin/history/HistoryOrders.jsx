@@ -3,11 +3,11 @@ import { FaHistory } from 'react-icons/fa';
 import HistoryOrdersList from './HistoryOrdersList';
 import useHistoryOrdersStore from '../../../store/historyOrdersStore';
 import DateRangeFilter from '../../utils/DateRangeFilter';
-import { useAuthFetch } from '../../../hooks/useAuthFetch'; // AGREGADO
+import { useAuthFetch } from '../../../hooks/useAuthFetch';
 
 export default function HistoryOrders({ history }) {
-    const { authFetch } = useAuthFetch(); // AGREGADO
-    
+    const { authFetch } = useAuthFetch();
+
     const {
         orders,
         total,
@@ -29,39 +29,48 @@ export default function HistoryOrders({ history }) {
     // Fetch inicial de pedidos SOLO si no están cargados
     useEffect(() => {
         if (!isInitialized) {
-            const defaultFilters = {
-                from: '',
-                to: ''
-            };
-            // CAMBIO: Pasar authFetch al store
-            fetchOrders(defaultFilters, authFetch);
+            const defaultFilters = { from: '', to: '' };
+            fetchOrders(defaultFilters, authFetch).catch(err => console.error(err));
         }
-    }, [isInitialized, fetchOrders, authFetch]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isInitialized]); // authFetch no debe estar en deps para evitar loop
 
-    // Limpiar detalles expandidos al cargar
+    // Limpiar detalles expandidos al cambiar de historia
     useEffect(() => {
         clearExpandedData();
     }, [history, clearExpandedData]);
 
     const handleToggleExpand = async (cartId) => {
-        // CAMBIO: Pasar authFetch al store
-        toggleExpand(cartId, authFetch);
+        try {
+            await toggleExpand(cartId, authFetch);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const handleDateFilter = async (fromDate, toDate) => {
-        // CAMBIO: Pasar authFetch al store
-        await applyDateFilters(fromDate, toDate, authFetch);
+        try {
+            await applyDateFilters(fromDate, toDate, authFetch);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const handleClearFilters = async () => {
-        // CAMBIO: Pasar authFetch al store
-        await clearFilters(authFetch);
+        try {
+            await clearFilters(authFetch);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
-    const handleLoadMore = () => {
+    const handleLoadMore = async () => {
         if (!loadingMore && hasMoreOrders) {
-            // CAMBIO: Pasar authFetch al store
-            cargarMasPedidos(authFetch);
+            try {
+                await cargarMasPedidos(authFetch);
+            } catch (err) {
+                console.error(err);
+            }
         }
     };
 
@@ -105,7 +114,7 @@ export default function HistoryOrders({ history }) {
                             onClick={handleLoadMore}
                             disabled={loadingMore}
                             className={`
-                                px-6 py-3 bg-transparent cursor-pointer text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300
+                                px-6 py-3 text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300
                                 ${loadingMore ? 'bg-gray-400 cursor-not-allowed' : 'bg-transparent'}
                             `}
                         >
