@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaEdit, FaTrash, FaEye, FaTimes } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye, FaTimes, FaSpinner } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import ConfirmDeleteCategory from './ConfirmDeleteCategory';
 
@@ -12,6 +12,7 @@ export default function CategoryManager() {
 
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchCategories();
@@ -43,6 +44,7 @@ export default function CategoryManager() {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setLoading(true);
         try {
             const token = localStorage.getItem('token');
             let res, data;
@@ -76,6 +78,8 @@ export default function CategoryManager() {
             fetchCategories();
         } catch (err) {
             toast.error(err.message);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -167,9 +171,13 @@ export default function CategoryManager() {
                     )}
                     <button
                         type="submit"
-                        className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 text-sm shadow-md"
+                        className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 text-sm shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                        disabled={loading}
                     >
-                        {editingId ? 'Guardar cambios' : 'Crear categoría'}
+                        {loading && (
+                            <FaSpinner className="animate-spin-slow" />
+                        )}
+                        {loading ? (editingId ? 'Guardando...' : 'Creando...') : (editingId ? 'Guardar cambios' : 'Crear categoría')}
                     </button>
                 </div>
             </form>

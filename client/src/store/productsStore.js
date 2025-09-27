@@ -83,7 +83,6 @@ const useProductsStore = create((set, get) => ({
 
       const queryString = get().buildQueryString(filters, 1);
       const url = `${API_URL}/api/products/active?${queryString}`;
-      console.log('[fetchProductos] Filtros:', filters, 'URL:', url);
       const res = await fetch(url);
 
       if (!res.ok) throw new Error('Error al cargar productos');
@@ -122,34 +121,24 @@ const useProductsStore = create((set, get) => ({
     const nextPage = currentPage + 1;
     const queryString = get().buildQueryString(currentFilters, nextPage);
     const url = `${API_URL}/api/products/active?${queryString}`;
-    console.log('[cargarMasProductos] Página:', nextPage, 'Filtros:', currentFilters, 'URL:', url);
     
     const res = await fetch(url);
     if (!res.ok) throw new Error('Error al cargar más productos');
 
     const data = await res.json();
-    console.log('[cargarMasProductos] Datos recibidos:', data);
-    console.log('[cargarMasProductos] Productos actuales antes de agregar:', productos.length);
-    console.log('[cargarMasProductos] Nuevos productos del servidor:', data.products.length);
     
     // Debugging: verificar duplicados
     const productosExistentesIds = productos.map(p => p._id);
     const nuevosProductosIds = data.products.map(p => p._id);
-    console.log('[cargarMasProductos] IDs existentes:', productosExistentesIds);
-    console.log('[cargarMasProductos] IDs nuevos:', nuevosProductosIds);
     
     // Verificar intersección
     const duplicados = nuevosProductosIds.filter(id => productosExistentesIds.includes(id));
-    console.log('[cargarMasProductos] IDs duplicados encontrados:', duplicados);
 
     // Agregar nuevos productos a los existentes
     const nuevosProductos = data.products.filter(
       p => !productos.some(existing => existing._id === p._id)
     );
     
-    console.log('[cargarMasProductos] Productos únicos a agregar:', nuevosProductos.length);
-    console.log('[cargarMasProductos] Total después de agregar:', productos.length + nuevosProductos.length);
-
     set({
       productos: [...productos, ...nuevosProductos],
       currentPage: nextPage,
@@ -160,7 +149,6 @@ const useProductsStore = create((set, get) => ({
     // Verificar el estado final
     setTimeout(() => {
       const finalState = get();
-      console.log('[cargarMasProductos] Estado final - Total productos:', finalState.productos.length);
     }, 100);
 
   } catch (err) {

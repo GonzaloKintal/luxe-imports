@@ -405,10 +405,8 @@ async function seed() {
   // Eliminar el índice único de 'code' si existe
   try {
     await mongoose.connection.db.collection('products').dropIndex('code_1');
-    console.log("Índice único 'code_1' eliminado de la colección products.");
   } catch (err) {
     if (err.codeName === 'IndexNotFound' || err.message.includes('index not found')) {
-      console.log("El índice 'code_1' no existe, no es necesario eliminarlo.");
     } else {
       console.warn("No se pudo eliminar el índice 'code_1':", err.message);
     }
@@ -419,7 +417,6 @@ async function seed() {
     { code: { $exists: true } },
     { $unset: { code: "" } }
   );
-  console.log("Campo 'code' eliminado de todos los productos existentes.");
 
   await Product.deleteMany({});
   await Category.deleteMany({});
@@ -439,7 +436,6 @@ async function seed() {
 
   await Product.insertMany(productsWithCategoryId);
 
-  console.log("Base de datos reseteada, productos/categorías creados y campo 'code' eliminado.");
   await mongoose.disconnect();
 }
 

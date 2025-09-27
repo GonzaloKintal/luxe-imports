@@ -84,7 +84,6 @@ const TokenExpiryModal = () => {
   useEffect(() => {
     if (showModal) {
       document.body.style.overflow = 'hidden';
-      console.log('🔒 Modal de token expirado mostrado - scroll bloqueado');
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -99,7 +98,6 @@ const TokenExpiryModal = () => {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape' && showModal) {
-        console.log('⌨️ Modal cerrado con tecla ESC');
         closeModal();
       }
     };
@@ -116,7 +114,6 @@ const TokenExpiryModal = () => {
   if (!showModal) return null;
 
   const handleCloseModal = () => {
-    console.log('🚪 Cerrando modal y redirigiendo al inicio...');
     closeModal();
   };
 
