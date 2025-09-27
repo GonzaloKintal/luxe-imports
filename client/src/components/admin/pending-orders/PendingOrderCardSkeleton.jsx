@@ -34,13 +34,8 @@ export default function PendingOrderCardSkeleton() {
                 {/* Botones skeleton */}
                 <div className="flex mt-4 justify-start md:justify-end md:mt-0">
                     <div className="flex gap-2">
-                        {/* Botón "Ver productos" skeleton */}
+                        {/* 2 botones */}
                         <div className="w-28 md:w-32 h-10 bg-gray-200 rounded-lg"></div>
-                        
-                        {/* Botón "Confirmar" skeleton */}
-                        <div className="w-10 md:w-32 h-10 bg-gray-200 rounded-lg"></div>
-                        
-                        {/* Botón "Eliminar" skeleton */}
                         <div className="w-10 md:w-32 h-10 bg-gray-200 rounded-lg"></div>
                     </div>
                 </div>
