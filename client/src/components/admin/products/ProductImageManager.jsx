@@ -165,12 +165,12 @@ export default function ProductImageManager({
 
   return (
     <div>
-      <label className="block text-gray-700 mb-2 font-semibold text-sm">
+      <div className="block text-gray-700 mb-2 font-semibold text-sm">
         Imágenes del producto
         <span className="text-xs text-gray-500 font-normal ml-1">
           (Máximo 5 imágenes, 5MB c/u)
         </span>
-      </label>
+      </div>
 
       {/* Información sobre la portada */}
       {selectedImages.length > 0 && (
@@ -192,6 +192,7 @@ export default function ProductImageManager({
           className="hidden"
           id="image-upload"
           disabled={selectedImages.length >= 5}
+          aria-hidden="true"
         />
         <label
           htmlFor="image-upload"
@@ -200,6 +201,7 @@ export default function ProductImageManager({
               ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-gray-100 hover:bg-gray-200 border-gray-300'
           }`}
+          aria-label="Seleccionar imágenes del producto"
         >
           <FaImage className="text-gray-600" />
           <span className="sm:hidden">

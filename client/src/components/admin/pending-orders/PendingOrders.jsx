@@ -45,9 +45,8 @@ export default function PendingOrders() {
         try {
             const defaultFilters = { from: '', to: '' };
             await fetchOrders(defaultFilters, authFetch);
-            toast.success('Pedidos actualizados');
         } catch (err) {
-            toast.error('Error al actualizar los pedidos');
+            throw err;
         } finally {
             setIsRefreshing(false);
         }

@@ -72,13 +72,14 @@ export default function PriceFilter({
 
     return (
         <div className="flex flex-col w-full">
-            <label className="mb-2 text-sm font-semibold text-gray-700">Precio (USD)</label>
+            <label htmlFor="precioDropdown" className="mb-2 text-sm font-semibold text-gray-700">Precio (USD)</label>
             
             {/* Contenedor para ícono y botón */}
             <div className="flex items-center gap-2">
                 <FaDollarSign className="text-gray-500 text-lg" />
                 <div className="flex flex-col w-full relative">
                     <button
+                        id="precioDropdown"
                         ref={buttonRef}
                         type="button"
                         onClick={() => setIsOpen(!isOpen)}

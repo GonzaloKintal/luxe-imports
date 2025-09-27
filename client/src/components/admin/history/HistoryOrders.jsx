@@ -35,9 +35,8 @@ export default function HistoryOrders({ history }) {
         try {
             const defaultFilters = { from: '', to: '' };
             await fetchOrders(defaultFilters, authFetch);
-            toast.success('Historial actualizado');
         } catch (err) {
-            toast.error('Error al actualizar el historial');
+            throw err;
         } finally {
             setIsRefreshing(false);
         }

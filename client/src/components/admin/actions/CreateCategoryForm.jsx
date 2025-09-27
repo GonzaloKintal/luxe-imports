@@ -55,11 +55,11 @@ export default function CreateCategoryForm({ onSave }) {
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="name" className="block text-gray-700 mb-1 font-semibold text-sm">
+                    <label htmlFor="category-name" className="block text-gray-700 mb-1 font-semibold text-sm">
                         Nombre de la categoría <span className="text-red-500">*</span>
                     </label>
                     <input
-                        id='name'
+                        id='category-name'
                         name="name"
                         value={form.name}
                         onChange={handleChange}

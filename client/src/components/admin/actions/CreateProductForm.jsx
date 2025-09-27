@@ -132,13 +132,17 @@ export default function CreateProductForm({ onSave }) {
                 </div>
 
                 <div>
-                    <label htmlFor="description" className="block text-gray-700 mb-1 font-semibold text-sm">Descripción</label>
+                    <div className="block text-gray-700 mb-1 font-semibold text-sm">
+                        Descripción
+                    </div>
                     <RichTextEditor
                         key={resetKey}
                         value={form.description}
                         onChange={(content) => setForm({ ...form, description: content })}
+                        placeholder="Escribe la descripción del producto..."
                     />
                 </div>
+
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
