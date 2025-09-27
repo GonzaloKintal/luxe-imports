@@ -32,13 +32,13 @@ export const useAuthFetch = () => {
 
         // Si es token expirado, mostrar modal
         if (errorData.expired === true || errorData.error?.includes('expirado') || errorData.error?.includes('expired')) {
-          handleTokenExpiry();
+          localStorage.removeItem('token');
         } else {
           // Solo notificar otros errores 401
           notify.error(errorData.error || 'Acceso no autorizado');
         }
 
-        return null; // no procesar más
+        return null; 
       }
 
       return response;
