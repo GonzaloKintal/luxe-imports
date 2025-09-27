@@ -97,7 +97,7 @@ export default function ProductInfo({
         
         {/* Título y categoría */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             {product.title}
           </h1>
           {product.category && (
@@ -109,16 +109,17 @@ export default function ProductInfo({
 
         {/* Precios */}
         <div className="flex flex-col gap-1 mb-2">
-          <div className="text-4xl font-bold text-gray-900">
+          <div className="text-2xl sm:text-4xl font-bold text-gray-900">
             {getPesosPrice()}
           </div>
-          <div className="text-xl text-gray-700">
+          <div className="text-lg sm:text-xl text-gray-700">
             USD ${formatPrice(product.price)}
           </div>
-          <div className="text-[12px] text-gray-400 mt-1">
+          <div className="text-[10px] sm:text-[12px] text-gray-400 mt-1">
             * Los precios en pesos argentinos se calculan automáticamente según la cotización oficial y pueden variar al momento de la compra.
           </div>
         </div>
+
 
         {/* Descripción */}
         {product.description && (
@@ -154,16 +155,17 @@ export default function ProductInfo({
         <button
           onClick={onAddToCart}
           disabled={isDisabled}
-          className={`flex items-center justify-center cursor-pointer w-full py-3 px-6 rounded-lg font-semibold text-lg transition ${
-            !isDisabled
+          className={`flex items-center justify-center cursor-pointer w-full py-3 px-6 rounded-lg font-semibold transition 
+            text-base sm:text-lg
+            ${!isDisabled
               ? 'bg-gray-900 text-white hover:bg-gray-800'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+            }`}
           style={loadingAddToCart ? { opacity: 0.6, pointerEvents: 'none' } : {}}
         >
           {product.stock > 0 ? (
             <span className="flex items-center gap-1">
-              <FaShoppingCart className="text-xl mr-3" />
+              <FaShoppingCart className="text-xl sm:text-xl mr-3" />
               {buttonText}
             </span>
           ) : (

@@ -30,14 +30,6 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <button
-                  onClick={() => navigate('/')}
-                  className="text-gray-400 cursor-pointer hover:text-white transition-colors duration-300"
-                >
-                  Inicio
-                </button>
-              </li>
-              <li>
-                <button
                   onClick={() => navigate('/products')}
                   className="text-gray-400 cursor-pointer hover:text-white transition-colors duration-300"
                 >

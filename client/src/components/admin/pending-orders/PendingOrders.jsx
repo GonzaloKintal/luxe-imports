@@ -1,5 +1,5 @@
-import React from 'react';
-import { FaClock } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaClock, FaSync } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import PendingOrdersList from './PendingOrdersList';
 import ConfirmOrderAction from './ConfirmOrderAction';
@@ -9,7 +9,7 @@ import useHistoryOrdersStore from '../../../store/historyOrdersStore';
 import { useAuthFetch } from '../../../hooks/useAuthFetch';
 
 export default function PendingOrders() {
-    const { authFetch } = useAuthFetch(); // agregado
+    const { authFetch } = useAuthFetch();
 
     const {
         orders,
@@ -36,6 +36,22 @@ export default function PendingOrders() {
     });
 
     const API_URL = import.meta.env.VITE_API_URL;
+
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    // Función para recargar los pedidos
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        try {
+            const defaultFilters = { from: '', to: '' };
+            await fetchOrders(defaultFilters, authFetch);
+            toast.success('Pedidos actualizados');
+        } catch (err) {
+            toast.error('Error al actualizar los pedidos');
+        } finally {
+            setIsRefreshing(false);
+        }
+    };
 
     // Fetch inicial de pedidos SOLO si no están cargados
     React.useEffect(() => {
@@ -123,14 +139,28 @@ export default function PendingOrders() {
         <>
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div className="p-6">
-                    <div className="mb-6">
-                        <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                            <FaClock className="text-blue-500" />
-                            Pedidos Pendientes
-                        </h3>
-                        <p className="text-gray-600 mt-1">
-                            Revisa los pedidos que aún no han sido completados
-                        </p>
+                    <div className="flex flex-col sm:flex-row justify-between items-start mb-6">
+                        <div className="mb-4 sm:mb-0">
+                            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 flex items-center gap-3">
+                                <FaClock className="text-blue-500" />
+                                Pedidos Pendientes
+                            </h3>
+                            <p className="text-gray-600 mt-1">
+                                Revisa los pedidos que aún no han sido completados
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleRefresh}
+                            disabled={isRefreshing || loading}
+                            className={`
+                                flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg 
+                                hover:bg-blue-700 transition-colors duration-200
+                                ${(isRefreshing || loading) ? 'opacity-50 cursor-not-allowed' : ''}
+                            `}
+                        >
+                            <FaSync className={`${isRefreshing ? 'animate-spin' : ''}`} />
+                            {isRefreshing ? 'Refrescando...' : 'Refrescar'}
+                        </button>
                     </div>
 
                     <div className="w-full mx-auto mb-6">

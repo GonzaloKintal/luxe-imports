@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { authFetch } from '../components/utils/useFetch';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 12;
@@ -78,7 +79,6 @@ const useAdminProductsStore = create((set, get) => ({
         currentFilters: filters
       });
 
-      const token = localStorage.getItem('token');
       const queryString = get().buildAdminQueryString(filters, 1);
       const res = await authFetch(`${API_URL}/api/products?${queryString}`);
       
@@ -116,7 +116,6 @@ const useAdminProductsStore = create((set, get) => ({
       });
       
       const nextPage = currentPage + 1;
-      const token = localStorage.getItem('token');
       const queryString = get().buildAdminQueryString(currentFilters, nextPage);
 
       const res = await authFetch(`${API_URL}/api/products?${queryString}`, {
@@ -183,7 +182,6 @@ const useAdminProductsStore = create((set, get) => ({
   // Función para marcar/desmarcar como destacado
   toggleFeatured: async (product) => {
     try {
-      const token = localStorage.getItem('token');
       const res = await authFetch(`${API_URL}/api/products/${product._id}`, {
         method: 'PUT',
         headers: {
@@ -212,7 +210,6 @@ const useAdminProductsStore = create((set, get) => ({
   // Función para eliminar (desactivar) producto
   deleteProduct: async (productId) => {
     try {
-      const token = localStorage.getItem('token');
       const res = await authFetch(`${API_URL}/api/products/${productId}`, {
         method: 'PUT',
         headers: {
@@ -240,8 +237,6 @@ const useAdminProductsStore = create((set, get) => ({
   // Función para reactivar producto
   reactivateProduct: async (productId) => {
     try {
-      const token = localStorage.getItem('token');
-
       const res = await authFetch(`${API_URL}/api/products/${productId}`, {
         method: 'PUT',
         headers: {
@@ -269,8 +264,6 @@ const useAdminProductsStore = create((set, get) => ({
   // Función para editar producto
   editProduct: async (productId, formData) => {
     try {
-      const token = localStorage.getItem('token');
-
       const res = await authFetch(`${API_URL}/api/products/${productId}`, {
         method: 'PUT',
         body: formData,

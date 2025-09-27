@@ -165,7 +165,7 @@ export default function Products() {
     return (
         <main className="bg-gray-100 px-0 pt-12 relative overflow-hidden">
             <div className="relative z-10 px-2 sm:px-6 py-10 sm:py-20">
-                <h1 className="text-4xl font-extrabold text-black mb-10 text-center animate-fadeInDown drop-shadow-lg">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-10 text-center relative after:block after:h-1 after:w-24 after:bg-blue-500 after:mx-auto after:mt-4">
                     Nuestros Productos
                 </h1>
 

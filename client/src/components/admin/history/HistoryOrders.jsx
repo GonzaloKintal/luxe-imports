@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { FaHistory } from 'react-icons/fa';
+import { FaHistory, FaSync } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 import HistoryOrdersList from './HistoryOrdersList';
 import useHistoryOrdersStore from '../../../store/historyOrdersStore';
 import DateRangeFilter from '../../utils/DateRangeFilter';
@@ -25,6 +26,22 @@ export default function HistoryOrders({ history }) {
         applyDateFilters,
         clearFilters
     } = useHistoryOrdersStore();
+
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    
+    // Función para recargar los pedidos
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        try {
+            const defaultFilters = { from: '', to: '' };
+            await fetchOrders(defaultFilters, authFetch);
+            toast.success('Historial actualizado');
+        } catch (err) {
+            toast.error('Error al actualizar el historial');
+        } finally {
+            setIsRefreshing(false);
+        }
+    };
 
     // Fetch inicial de pedidos SOLO si no están cargados
     useEffect(() => {
@@ -77,14 +94,29 @@ export default function HistoryOrders({ history }) {
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="p-6">
-                <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+
+                <div className="flex flex-col sm:flex-row justify-between items-start mb-6">
+                    <div className="mb-4 sm:mb-0">
+                        <h3 className="text-lg sm:text-2xl font-bold text-gray-900 flex items-center gap-3">
                         <FaHistory className="text-blue-600" />
-                        Historial de Compras
-                    </h3>
-                    <p className="text-gray-600 mt-1">
-                        Consulta todas las compras realizadas en el sistema
-                    </p>
+                            Historial de Compras
+                        </h3>
+                        <p className="text-gray-600 mt-1">
+                            Consulta todas las compras realizadas en el sistema
+                        </p>
+                    </div>
+                    <button
+                        onClick={handleRefresh}
+                        disabled={isRefreshing || loading}
+                        className={`
+                            flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg 
+                            hover:bg-blue-700 transition-colors duration-200
+                            ${(isRefreshing || loading) ? 'opacity-50 cursor-not-allowed' : ''}
+                        `}
+                    >
+                        <FaSync className={`${isRefreshing ? 'animate-spin' : ''}`} />
+                        {isRefreshing ? 'Refrescando...' : 'Refrescar'}
+                    </button>
                 </div>
 
                 {/* Filtros de fecha */}

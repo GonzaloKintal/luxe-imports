@@ -42,7 +42,7 @@ export default function FeaturedProducts() {
     return (
         <section id="featured-products" className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
             <div className="text-center mb-10">
-                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-10 text-center relative after:block after:h-1 after:w-24 after:bg-blue-500 after:mx-auto after:mt-4">
                     Productos Destacados
                 </h2>
             </div>

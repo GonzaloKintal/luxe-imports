@@ -4,6 +4,7 @@ import FeaturedProducts from '../components/home/featured-products/FeaturedProdu
 import Contact from '../components/home/Contact'; 
 
 export default function Home() {
+    
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);

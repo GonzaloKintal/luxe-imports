@@ -35,6 +35,9 @@ export default function PendingOrdersList({ orders, total, loading, error, onCon
                 <h4 className="text-xl font-medium text-gray-600 mb-2">
                     No hay pedidos pendientes
                 </h4>
+                <p className="text-gray-500">
+                    Los pedidos pendientes aparecerán aquí
+                </p>
             </div>
         );
     }

@@ -1,4 +1,4 @@
-// utils/authFetch.js
+
 export const authFetch = async (url, options = {}, { handleTokenExpiry, notify } = {}) => {
   const token = localStorage.getItem('token');
 

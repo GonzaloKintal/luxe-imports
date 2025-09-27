@@ -218,7 +218,7 @@ export default function AdminProducts() {
 
             {/* Contador */}
             <div className="flex justify-between items-center mt-4 mb-4">
-                <h2 className="text-lg text-gray-500 flex items-center gap-2">
+                <h2 className="text-base sm:text-lg text-gray-500 flex items-center gap-2">
                     <FaList className="text-gray-400" />
                     Mostrando {products.length} productos
                 </h2>

@@ -6,6 +6,7 @@ import CategoryManager from './CategoryManager';
 import { AnimatePresence } from "framer-motion";
 import PageTransition from '../../PageTransition';
 import ActionButtonsList from './ActionButtonsList';
+import { FaWrench } from 'react-icons/fa';
 
 export default function AdminActions({ products, setProducts, API_URL }) {
     const [openForm, setOpenForm] = useState('product');
@@ -69,7 +70,6 @@ export default function AdminActions({ products, setProducts, API_URL }) {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-6">Acciones administrativas</h2>
                 
                 {/* Botones (cards) */}
                 <ActionButtonsList 
