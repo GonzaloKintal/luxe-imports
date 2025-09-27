@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { authFetch } from '../components/utils/useFetch';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 12;
@@ -270,9 +271,11 @@ const useAdminProductsStore = create((set, get) => ({
   editProduct: async (productId, formData) => {
     try {
       const token = localStorage.getItem('token');
-
-      const res = await authFetch(`${API_URL}/api/products/${productId}`, {
+      const res = await fetch(`${API_URL}/api/products/${productId}`, {
         method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
         body: formData,
       });
 
