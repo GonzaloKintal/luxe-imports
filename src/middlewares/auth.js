@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { io } from '../app.js';
 
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -26,9 +27,14 @@ export function authenticateToken(req, res, next) {
       }
       
       // Otros errores de token (malformado, firma inválida, etc.)
+      io.emit('tokenExpired', { 
+        message: 'Token inválido. Por favor, inicie sesión nuevamente.',
+        timestamp: Date.now()
+      });
+
       return res.status(403).json({ 
         error: 'El token proporcionado no es válido',
-	expired: true
+	      expired: true
       });
     }
     

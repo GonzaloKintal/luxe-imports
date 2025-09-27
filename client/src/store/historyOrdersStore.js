@@ -1,5 +1,6 @@
 
 import { create } from 'zustand';
+import { authFetch } from '../components/utils/useFetch';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 10;
@@ -64,9 +65,7 @@ const useHistoryOrdersStore = create((set, get) => ({
 
       const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(filters, 1);
-      const res = await fetch(`${API_URL}/api/carts/confirmados?limit=10?${queryString}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await authFetch(`${API_URL}/api/carts/confirmados?limit=10&${queryString}`);
       
       if (!res.ok) throw new Error('Error al cargar pedidos');
       
@@ -124,9 +123,7 @@ const useHistoryOrdersStore = create((set, get) => ({
       const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(currentFilters, nextPage);
       
-      const res = await fetch(`${API_URL}/api/carts/confirmados?${queryString}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await authFetch(`${API_URL}/api/carts/confirmados?${queryString}`);
       
       if (!res.ok) throw new Error('Error al cargar más pedidos');
       

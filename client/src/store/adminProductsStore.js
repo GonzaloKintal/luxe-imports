@@ -80,11 +80,7 @@ const useAdminProductsStore = create((set, get) => ({
 
       const token = localStorage.getItem('token');
       const queryString = get().buildAdminQueryString(filters, 1);
-      const res = await fetch(`${API_URL}/api/products?${queryString}`, {
-        headers: { 
-          Authorization: `Bearer ${token}` 
-        }
-      });
+      const res = await authFetch(`${API_URL}/api/products?${queryString}`);
       
       if (!res.ok) throw new Error('Error al cargar productos');
       
@@ -123,10 +119,8 @@ const useAdminProductsStore = create((set, get) => ({
       const token = localStorage.getItem('token');
       const queryString = get().buildAdminQueryString(currentFilters, nextPage);
 
-      const res = await fetch(`${API_URL}/api/products?${queryString}`, {
-        headers: { 
-          Authorization: `Bearer ${token}` 
-        }
+      const res = await authFetch(`${API_URL}/api/products?${queryString}`, {
+        method: 'GET',
       });
       
       if (!res.ok) throw new Error('Error al cargar más productos');
@@ -190,11 +184,10 @@ const useAdminProductsStore = create((set, get) => ({
   toggleFeatured: async (product) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/products/${product._id}`, {
+      const res = await authFetch(`${API_URL}/api/products/${product._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ featured: !product.featured }),
       });
@@ -220,11 +213,10 @@ const useAdminProductsStore = create((set, get) => ({
   deleteProduct: async (productId) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/products/${productId}`, {
+      const res = await authFetch(`${API_URL}/api/products/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: false }),
       });
@@ -249,11 +241,11 @@ const useAdminProductsStore = create((set, get) => ({
   reactivateProduct: async (productId) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/products/${productId}`, {
+
+      const res = await authFetch(`${API_URL}/api/products/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: true }),
       });
@@ -279,11 +271,8 @@ const useAdminProductsStore = create((set, get) => ({
     try {
       const token = localStorage.getItem('token');
 
-      const res = await fetch(`${API_URL}/api/products/${productId}`, {
+      const res = await authFetch(`${API_URL}/api/products/${productId}`, {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         body: formData,
       });
 
@@ -334,7 +323,7 @@ const useAdminProductsStore = create((set, get) => ({
 
   fetchCategorias: async () => {
     try {
-      const res = await fetch(`${API_URL}/api/products/categories`);
+      const res = await authFetch(`${API_URL}/api/products/categories`);
       if (!res.ok) throw new Error('Error al cargar categorías');
       const data = await res.json();
       set({ categorias: data });
