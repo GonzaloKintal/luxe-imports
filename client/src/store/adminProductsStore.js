@@ -264,12 +264,8 @@ const useAdminProductsStore = create((set, get) => ({
   // Función para editar producto
   editProduct: async (productId, formData) => {
     try {
-<<<<<<< HEAD
-      const res = await authFetch(`${API_URL}/api/products/${productId}`, {
-=======
       const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/api/products/${productId}`, {
->>>>>>> 28f9365604d83e3dd186454219dd563788395fa5
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`

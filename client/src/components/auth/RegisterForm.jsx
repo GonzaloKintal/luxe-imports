@@ -33,46 +33,48 @@ export default function RegisterForm({
     <form onSubmit={onSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label htmlFor="firstName" className="block text-gray-700 mb-2 text-sm font-medium">Nombre</label>
+                    <label htmlFor="firstName" className="block text-gray-700 mb-2 text-sm font-medium">
+                        Nombre
+                    </label>
                     <div className="relative">
                         <span className="absolute left-3 top-3 text-gray-400"><FaUser /></span>
                         <input
-                            id="firstName"
-                            name="firstName"
-                            autoComplete="given-name"
-                            value={formData.firstName}
-                            onChange={onFormChange}
-                            onBlur={() => onBlurField('firstName')}
-                            className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent ${touchedFields.firstName && !formData.firstName
-                                ? 'border-red-500'
-                                : 'border-gray-300'
-                                }`}
-                            placeholder="Nombre"
-                            required
+                        id="firstName"
+                        name="firstName"
+                        autoComplete="given-name"
+                        value={formData.firstName}
+                        onChange={onFormChange}
+                        onBlur={() => onBlurField('firstName')}
+                        className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent
+                            placeholder:text-sm sm:placeholder:text-base
+                            ${touchedFields.firstName && !formData.firstName ? 'border-red-500' : 'border-gray-300'}`}
+                        placeholder="Nombre"
+                        required
                         />
                     </div>
                     {touchedFields.firstName && !formData.firstName && (
                         <span className="text-xs text-red-500 mt-1">Requerido</span>
                     )}
-                </div>
+                    </div>
 
-                <div>
-                    <label htmlFor="lastName" className="block text-gray-700 mb-2 text-sm font-medium">Apellido</label>
+                    <div>
+                    <label htmlFor="lastName" className="block text-gray-700 mb-2 text-sm font-medium">
+                        Apellido
+                    </label>
                     <div className="relative">
                         <span className="absolute left-3 top-3 text-gray-400"><FaUser /></span>
                         <input
-                            id="lastName"
-                            name="lastName"
-                            autoComplete="family-name"
-                            value={formData.lastName}
-                            onChange={onFormChange}
-                            onBlur={() => onBlurField('lastName')}
-                            className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent ${touchedFields.lastName && !formData.lastName
-                                ? 'border-red-500'
-                                : 'border-gray-300'
-                                }`}
-                            placeholder="Apellido"
-                            required
+                        id="lastName"
+                        name="lastName"
+                        autoComplete="family-name"
+                        value={formData.lastName}
+                        onChange={onFormChange}
+                        onBlur={() => onBlurField('lastName')}
+                        className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent
+                            placeholder:text-sm sm:placeholder:text-base
+                            ${touchedFields.lastName && !formData.lastName ? 'border-red-500' : 'border-gray-300'}`}
+                        placeholder="Apellido"
+                        required
                         />
                     </div>
                     {touchedFields.lastName && !formData.lastName && (

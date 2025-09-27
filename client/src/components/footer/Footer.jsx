@@ -13,12 +13,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Logo y descripción */}
           <div className="md:col-span-2">
-            <div className="text-4xl font-bold tracking-tighter relative group mb-4 w-fit">
+            <div className="text-3xl sm:text-4xl font-bold tracking-tighter relative group mb-4 w-fit">
               <span className="luxe-font text-white">LUXE</span>
               <span className="luxe-font text-gray-400">IMPORTS</span>
               <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 animate-shimmer"></div>
             </div>
-            <p className="text-gray-400 max-w-md text-lg leading-relaxed">
+            <p className="text-gray-400 max-w-md text-sm sm:text-lg leading-relaxed">
               Descubrí nuestra selección exclusiva de productos de tecnología y estilo. 
               Calidad premium en cada artículo.
             </p>
@@ -79,7 +79,7 @@ const Footer = () => {
         
         {/* Copyright y créditos */}
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-500 text-sm mb-4 md:mb-0">
+          <p className="text-gray-500 text-sm mb-4 md:mb-0 text-center inline-block">
             © {new Date().getFullYear()} Luxe Imports. Todos los derechos reservados.
           </p>
 
