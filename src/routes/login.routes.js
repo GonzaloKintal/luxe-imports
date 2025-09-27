@@ -200,7 +200,6 @@ router.post("/forgot-password/verify-code", (req, res, next) => {
 // POST /forgot-password/update -> Actualizar contraseña
 router.post("/forgot-password/update", async (req, res, next) => {
   try {
-    console.log("BODY RECEIVED:", req.body); //
     const { email, newPassword } = req.body || {};
     if (!email || !newPassword) return res.status(400).json({ error: "Faltan campos" });
     if (newPassword.length < 6)

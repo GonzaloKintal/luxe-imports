@@ -4,7 +4,6 @@ export const authFetch = async (url, options = {}, { handleTokenExpiry, notify }
 
   // Si no hay token
   if (!token) {
-    console.log('❌ No hay token disponible en authFetch');
     if (handleTokenExpiry) handleTokenExpiry();
     return null;
   }
@@ -32,7 +31,6 @@ export const authFetch = async (url, options = {}, { handleTokenExpiry, notify }
         errorData.error?.includes('expirado') ||
         errorData.error?.includes('expired')
       ) {
-        console.log('⚠️ Token expirado detectado en authFetch');
         if (handleTokenExpiry) handleTokenExpiry();
         return null;
       } else {

@@ -46,21 +46,16 @@ export const TokenExpiryProvider = ({ children }) => {
     // Crear conexión WebSocket
     const newSocket = socketIOClient(API_URL);
     setSocket(newSocket);
-    
-    console.log('🔌 Conectando WebSocket para token expiry...');
-    
+        
     // Escuchar evento de token expirado
     newSocket.on('tokenExpired', (data) => {
-      console.log('⚠️ Token expirado recibido por WebSocket:', data);
       handleTokenExpiry();
     });
     
     newSocket.on('connect', () => {
-      console.log('✅ WebSocket conectado para token expiry');
     });
     
     newSocket.on('disconnect', () => {
-      console.log('❌ WebSocket desconectado para token expiry');
     });
     
     // Cleanup al desmontar

@@ -34,9 +34,6 @@ router.get("/active", async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
 
-    // Log para verificar comunicación y parámetros
-    console.log('[GET /products/active] page:', page, 'limit:', limit, 'skip:', skip, 'query:', req.query);
-
     // Construir filtros dinámicamente
     const filter = { status: true };
     const sort = {};
@@ -271,7 +268,6 @@ router.post("/", authenticateToken, isAdmin, uploadProductImages.array('images',
             }
           }
         } catch (e) {
-          console.log('Error parsing imageOrder, using original order:', e);
           thumbnails = uploadedImages;
         }
       } else {
@@ -336,7 +332,6 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
           }
         }
       } catch (e) {
-        console.log('Error parsing imageOrder, fallback to original logic:', e);
         // Fallback a la lógica original...
         if (req.body.currentImages) {
           try {
@@ -345,7 +340,6 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
               finalThumbnails = [...currentImages];
             }
           } catch (e) {
-            console.log('Error parsing currentImages:', e);
           }
         }
         if (req.files && req.files.length > 0) {
@@ -362,7 +356,6 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
             finalThumbnails = [...currentImages];
           }
         } catch (e) {
-          console.log('Error parsing currentImages:', e);
         }
       }
       if (req.files && req.files.length > 0) {
@@ -383,13 +376,11 @@ router.put("/:pid", authenticateToken, isAdmin, uploadProductImages.array('image
               try {
                 await cloudinary.uploader.destroy(publicId);
               } catch (err) {
-                console.log('Error eliminando imagen de Cloudinary:', err);
               }
             }
           }
         }
       } catch (e) {
-        console.log('Error parsing deletedImages:', e);
       }
     }
 
