@@ -11,11 +11,15 @@ export const authFetch = async (url, options = {}, { handleTokenExpiry, notify }
   const config = {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
       ...options.headers,
     },
   };
+
+  // Solo agregar Content-Type si no es FormData
+  if (!(options.body instanceof FormData)) {
+    config.headers['Content-Type'] = 'application/json';
+  }
 
   try {
     const response = await fetch(url, config);

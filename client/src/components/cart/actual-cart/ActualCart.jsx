@@ -8,7 +8,7 @@ import { useAuthFetch } from '../../../hooks/useAuthFetch'; // AGREGADO
 // Obtener la URL de la API del dólar blue desde variable de entorno
 const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
 import { CartContext } from '../../../context/CartContext';
-import { useNotify } from "../../../components/ToastProvider";
+import { useNotify } from "../../common/ToastProvider";
 
 export default function ActualCart({
     products, 

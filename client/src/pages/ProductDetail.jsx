@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from "react-icons/fa";
-import { useNotify } from "../components/ToastProvider";
+import { useNotify } from "../components/common/ToastProvider";
 import { UserContext } from '../context/UserContext';
 import { CartContext } from '../context/CartContext';
 import ProductImageGallery from '../components/product-detail/images/ProductImageGallery';

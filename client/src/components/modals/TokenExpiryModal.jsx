@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { useTokenExpiry } from '../context/TokenExpiryContext';
+import { useTokenExpiry } from '../../context/TokenExpiryContext';
 
 const TokenExpiryModal = () => {
   const { showModal, closeModal } = useTokenExpiry();

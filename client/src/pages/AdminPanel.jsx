@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useNotify } from '../components/ToastProvider';
+import { useNotify } from '../components/common/ToastProvider';
 import { FaBolt, FaList, FaHistory, FaClock } from 'react-icons/fa';
 import AdminActions from '../components/admin/actions/AdminActions';
 import AdminProducts from '../components/admin/products/AdminProducts';

@@ -1,13 +1,12 @@
 
-
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import LoginForm from '../components/auth/LoginForm';
 import RegisterForm from '../components/auth/RegisterForm';
-import VerificationModal from '../components/auth/VerificationModal';
-import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
-import { useNotify } from '../components/ToastProvider';
+import VerificationModal from '../components/modals/VerificationModal';
+import ForgotPasswordModal from '../components/modals/ForgotPasswordModal';
+import { useNotify } from '../components/common/ToastProvider';
 
 export default function Auth() {
   const [tab, setTab] = useState('login');

@@ -1,6 +1,6 @@
 
 import { useTokenExpiry } from '../context/TokenExpiryContext';
-import { useNotify } from '../components/ToastProvider';
+import { useNotify } from '../components/common/ToastProvider';
 import { authFetch as baseAuthFetch } from '../components/utils/useFetch';
 
 export const useAuthFetch = () => {

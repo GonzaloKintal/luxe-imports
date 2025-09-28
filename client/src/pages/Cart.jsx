@@ -6,7 +6,7 @@ import CartHistory from '../components/cart/history-orders/CartHistory.jsx';
 import CartSkeleton from '../components/cart/CartSkeleton.jsx';
 import 'react-toastify/dist/ReactToastify.css';
 import { CartContext } from '../context/CartContext.jsx';
-import { useNotify } from "../components/ToastProvider";
+import { useNotify } from "../components/common/ToastProvider.jsx";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 
 export default function Cart() {

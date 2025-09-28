@@ -1,6 +1,6 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import PageTransition from './components/PageTransition';
+import PageTransition from './components/common/PageTransition';
 import Navbar from './components/navbar/Navbar';
 import Home from './pages/Home';
 import Cart from './pages/Cart';
@@ -10,9 +10,9 @@ import AdminPanel from './pages/AdminPanel';
 import Auth from './pages/Auth';
 import Footer from './components/footer/Footer';
 import About from './components/about/About';
-import ToastProvider from "./components/ToastProvider";
+import ToastProvider from "./components/common/ToastProvider";
 import { TokenExpiryProvider } from './context/TokenExpiryContext';
-import TokenExpiryModal from './components/TokenExpiryModal';
+import TokenExpiryModal from './components/modals/TokenExpiryModal';
 
 export default function App() {
   const location = useLocation();
