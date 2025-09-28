@@ -7,12 +7,16 @@ import ProductCard from '../../products/ProductCard';
 import ProductCardSkeleton from '../../products/ProductCardSkeleton';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
 
 export default function FeaturedProducts() {
     const navigate = useNavigate();
     const [destacados, setDestacados] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+    const [cotizacion, setCotizacion] = useState(null);
+    const [loadingDolar, setLoadingDolar] = useState(true);
+    const [errorDolar, setErrorDolar] = useState(null);
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 640);
@@ -35,6 +39,22 @@ export default function FeaturedProducts() {
         };
 
         fetchFeatured();
+    }, []);
+
+    useEffect(() => {
+        const fetchDolar = async () => {
+            try {
+                setLoadingDolar(true);
+                const res = await fetch(DOLAR_API_URL);
+                const data = await res.json();
+                setCotizacion(data.venta);
+            } catch (err) {
+                setErrorDolar('No se pudo obtener la cotización');
+            } finally {
+                setLoadingDolar(false);
+            }
+        };
+        fetchDolar();
     }, []);
 
     const skeletonArray = Array.from({ length: 7 });
@@ -63,7 +83,10 @@ export default function FeaturedProducts() {
                         <div key={prod._id} className="w-[250px] h-[440px] sm:h-[470px] flex-shrink-0 mx-2">
                             <ProductCard 
                                 {...prod} 
-                                id={prod._id} 
+                                id={prod._id}
+                                cotizacion={cotizacion}
+                                loadingCotizacion={loadingDolar}
+                                errorCotizacion={errorDolar}
                                 onClick={() => navigate(`/products/product-detail/${prod._id}`)} 
                             />
                         </div>

@@ -27,11 +27,6 @@ export default function LoadHistoryButton({ onLoadHistory, loading, error }) {
                     )}
                 </span>
             </button>
-            {error && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
-                    {error}
-                </div>
-            )}
         </div>
     );
 

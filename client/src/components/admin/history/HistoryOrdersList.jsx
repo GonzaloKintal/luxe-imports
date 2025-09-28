@@ -28,12 +28,6 @@ export default function HistoryOrdersList({
         );
     }
 
-    if (error) {
-        return (
-            <div className="text-center py-12 text-red-500">{error}</div>
-        );
-    }
-
     if (!orders.length) {
         return (
             <div className="text-center py-12">

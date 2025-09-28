@@ -133,17 +133,17 @@ const Contact = () => {
   };
 
   return (
-    <section className="relative w-full bg-black overflow-hidden min-h-screen flex flex-col justify-center">
+    <section className="relative w-full bg-black overflow-hidden flex flex-col justify-center">
       <div className="absolute inset-0 pointer-events-none select-none">
         <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl animate-pulse-slow" />
         <div className="absolute top-1/3 left-1/3 w-[60%] h-[60%] bg-white/5 rounded-full blur-2xl animate-float" />
       </div>
       
-      <div className="relative z-10 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+      <div className="relative z-10 mt-10 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 md:py-16">
         <Slider ref={sliderRef} {...sliderSettings}>
           
           {/* Slide 1: Redes Sociales */}
-          <div className="flex flex-col items-center justify-center min-h-[60vh] sm:min-h-[70vh] py-6 sm:py-10">
+          <div className="flex flex-col items-center justify-center min-h-[50vh] sm:min-h-[60vh] py-4 sm:py-6">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-6 sm:mb-10 text-center px-2">
               Seguinos en nuestras redes
             </h3>
@@ -179,31 +179,8 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* Slide 2: Reseñas */}
-          <div className="flex flex-col items-center justify-center min-h-[60vh] sm:min-h-[70vh] py-6 sm:py-10">
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-6 sm:mb-10 text-center px-2">
-              Lo que opinan nuestros clientes
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-5xl mx-auto px-4">
-              {reviews.map((r, i) => (
-                <div
-                  key={i}
-                  className="bg-white/10 rounded-4xl p-4 sm:p-6 shadow-lg flex flex-col items-center text-center border border-white/10 hover:scale-[1.02] sm:hover:scale-[1.03] transition-transform duration-300"
-                >
-                  <div className="flex gap-1 mb-2">
-                    {[...Array(r.stars)].map((_, idx) => (
-                      <FaStar key={idx} className="text-yellow-400 w-3 h-3 sm:w-4 sm:h-4" />
-                    ))}
-                  </div>
-                  <p className="text-gray-100 text-sm sm:text-base mb-2">"{r.review}"</p>
-                  <span className="text-gray-300 text-xs font-light">{r.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Slide 3: Cómo comprar */}
-          <div className="flex flex-col items-center justify-center min-h-[60vh] sm:min-h-[70vh] py-6 sm:py-10">
+          {/* Slide 2: Cómo comprar */}
+          <div className="flex flex-col items-center justify-center min-h-[50vh] sm:min-h-[60vh] py-4 sm:py-6">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-4 sm:mb-6 text-center px-2">
               ¿Cómo comprar en Luxe Imports?
             </h3>

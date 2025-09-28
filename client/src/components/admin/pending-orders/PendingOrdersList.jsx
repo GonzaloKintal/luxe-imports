@@ -20,12 +20,6 @@ export default function PendingOrdersList({ orders, total, loading, error, onCon
         );
     }
 
-    if (error) {
-        return (
-            <div className="text-center py-12 text-red-500">{error}</div>
-        );
-    }
-
     if (orders.length === 0) {
         return (
             <div className="text-center py-12">
