@@ -52,12 +52,14 @@ function Navbar() {
         sessionStorage.clear();
         setUser(null);
         setProfileOpen(false);
+        setIsOpen(false);
 
         // Navegamos rápidamente
         setTimeout(() => {
             navigate('/auth');
         }, 100);
     };
+
 
     const totalItems = cart.reduce((acc, p) => acc + (p.quantity || 0), 0);
 

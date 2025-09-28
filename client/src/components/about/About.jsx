@@ -16,7 +16,7 @@ const About = () => {
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-4xl font-extrabold text-black mb-10 text-center drop-shadow-lg"
+          className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-10 text-center relative after:block after:h-1 after:w-24 after:bg-blue-500 after:mx-auto after:mt-4"
         >
           Sobre Nosotros
         </motion.h1>
@@ -42,7 +42,7 @@ const About = () => {
                 alt="Logo Luxe Imports"
                 className="w-16 h-16 rounded-full shadow-md object-cover"
               />
-              <h2 className="text-2xl md:text-3xl font-bold text-black">
+              <h2 className="text-xl sm:text-2xl font-bold text-black">
                 Somos Diego y Sabrina
               </h2>
             </div>
