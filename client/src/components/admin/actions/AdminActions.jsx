@@ -7,30 +7,33 @@ import { AnimatePresence } from "framer-motion";
 import PageTransition from '../../PageTransition';
 import ActionButtonsList from './ActionButtonsList';
 import { FaWrench } from 'react-icons/fa';
+import { useAuthFetch } from '../../../hooks/useAuthFetch';
 
 export default function AdminActions({ products, setProducts, API_URL }) {
     const [openForm, setOpenForm] = useState('product');
-    const [showForm, setShowForm] = useState(false);
+    const { authFetch } = useAuthFetch();
 
     function handleOpenForm(form) {
-        if (openForm === form) return; 
+        if (openForm === form) return;
         setOpenForm(form);
-        requestAnimationFrame(() => setShowForm(true));
+        requestAnimationFrame(() => {}); // mantiene animación fluida
     }
 
     async function handleCreateAdmin(form) {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/admin/create-admin`, {
+            const res = await authFetch(`${API_URL}/api/admin/create-admin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({ ...form, role: 'admin' }),
             });
+
+            if (!res) return; // ya se manejó error en authFetch
+
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al crear admin');
+
             toast.success('Admin creado correctamente');
         } catch (err) {
             toast.error(err.message || 'Error al crear admin');
@@ -39,15 +42,13 @@ export default function AdminActions({ products, setProducts, API_URL }) {
 
     async function saveCreate(formData) {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/products/`, {
+            const res = await authFetch(`${API_URL}/api/products/`, {
                 method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
                 body: formData,
             });
-            
+
+            if (!res) return;
+
             if (!res.ok) {
                 let errorMessage = 'Error al crear producto';
                 try {
@@ -58,9 +59,12 @@ export default function AdminActions({ products, setProducts, API_URL }) {
                 }
                 throw new Error(errorMessage);
             }
-            
+
             const created = await res.json();
             toast.success('Producto creado correctamente');
+            if (setProducts) {
+                setProducts((prev) => [...prev, created]);
+            }
         } catch (error) {
             console.error('Error:', error);
             toast.error(error.message || 'No se pudo crear el producto');
@@ -70,7 +74,6 @@ export default function AdminActions({ products, setProducts, API_URL }) {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6">
-                
                 {/* Botones (cards) */}
                 <ActionButtonsList 
                     openForm={openForm}
@@ -82,9 +85,7 @@ export default function AdminActions({ products, setProducts, API_URL }) {
                     {openForm === 'product' && (
                         <PageTransition key="product-form">
                             <div className="border-t border-gray-200 pt-5 mt-3">
-                                <CreateProductForm
-                                    onSave={saveCreate}
-                                />
+                                <CreateProductForm onSave={saveCreate} />
                             </div>
                         </PageTransition>
                     )}
@@ -92,9 +93,7 @@ export default function AdminActions({ products, setProducts, API_URL }) {
                     {openForm === 'admin' && (
                         <PageTransition key="admin-form">
                             <div className="border-t border-gray-200 pt-5 mt-3">
-                                <CreateAdminForm
-                                    onSave={handleCreateAdmin}
-                                />
+                                <CreateAdminForm onSave={handleCreateAdmin} />
                             </div>
                         </PageTransition>
                     )}
@@ -107,7 +106,6 @@ export default function AdminActions({ products, setProducts, API_URL }) {
                         </PageTransition>
                     )}
                 </AnimatePresence>
-
             </div>
         </div>
     );

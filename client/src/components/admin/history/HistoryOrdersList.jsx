@@ -4,14 +4,14 @@ import HistoryOrderCard from './HistoryOrderCard';
 import HistoryOrderCardSkeleton from './HistoryOrderCardSkeleton';
 
 export default function HistoryOrdersList({ 
-    orders, 
-    total,
-    loading, 
-    error, 
-    expanded, 
-    details, 
-    onToggleExpand, 
-    onFetchDetails 
+    orders = [], 
+    total = 0,
+    loading = false, 
+    error = null, 
+    expanded = {}, 
+    details = {}, 
+    onToggleExpand = () => {}, 
+    onFetchDetails = () => {} 
 }) {
     
     if (loading) {
@@ -20,7 +20,6 @@ export default function HistoryOrdersList({
                 <div className="flex items-center justify-between mb-4">
                     <div className="h-5 bg-gray-200 rounded w-48 animate-pulse"></div>
                 </div>
-                
                 {/* Renderizar 3 skeletons mientras carga */}
                 {Array.from({ length: 3 }).map((_, index) => (
                     <HistoryOrderCardSkeleton key={index} />
@@ -35,7 +34,7 @@ export default function HistoryOrdersList({
         );
     }
 
-    if (orders.length === 0) {
+    if (!orders.length) {
         return (
             <div className="text-center py-12">
                 <div className="text-gray-400 mb-4">
@@ -55,7 +54,7 @@ export default function HistoryOrdersList({
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-gray-600">
-                    Hay <span className="font-semibold text-gray-900">{total || 0}</span> pedidos confirmados en total
+                    Hay <span className="font-semibold text-gray-900">{total}</span> pedidos confirmados en total
                 </p>
             </div>
 
@@ -71,5 +70,4 @@ export default function HistoryOrdersList({
             ))}
         </div>
     );
-
 }

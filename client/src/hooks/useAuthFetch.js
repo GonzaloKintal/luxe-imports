@@ -60,9 +60,17 @@ export const useAuthFetch = () => {
   const { handleTokenExpiry } = useTokenExpiry();
   const notify = useNotify();
 
-  // devolvemos authFetch ya conectado al contexto
-  const authFetch = (url, options = {}) =>
-    baseAuthFetch(url, options, { handleTokenExpiry, notify });
+  const authFetch = async (url, options = {}) => {
+    try {
+      const res = await baseAuthFetch(url, options);
+      if (!res) throw new Error('Token expirado o error en fetch'); // fuerza el catch
+      return res;
+    } catch (err) {
+      handleTokenExpiry();
+      notify(err.message || 'Error de autenticación');
+      return null;
+    }
+  };
 
   return { authFetch };
 };

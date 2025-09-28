@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaClock, FaSync } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import PendingOrdersList from './PendingOrdersList';
@@ -10,6 +10,7 @@ import { useAuthFetch } from '../../../hooks/useAuthFetch';
 
 export default function PendingOrders() {
     const { authFetch } = useAuthFetch();
+    const API_URL = import.meta.env.VITE_API_URL;
 
     const {
         orders,
@@ -28,58 +29,41 @@ export default function PendingOrders() {
 
     const { refreshOrders: refreshHistoryOrders } = useHistoryOrdersStore();
 
-    const [confirmDialog, setConfirmDialog] = React.useState({
+    const [confirmDialog, setConfirmDialog] = useState({
         open: false,
         type: null,
         orderId: null,
         orderInfo: null
     });
 
-    const API_URL = import.meta.env.VITE_API_URL;
-
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    // Función para recargar los pedidos
+    // Fetch inicial
+    useEffect(() => {
+        if (!isInitialized) {
+            const defaultFilters = { from: '', to: '' };
+            fetchOrders(defaultFilters, authFetch).catch(err => console.error(err));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isInitialized]);
+
     const handleRefresh = async () => {
         setIsRefreshing(true);
         try {
             const defaultFilters = { from: '', to: '' };
             await fetchOrders(defaultFilters, authFetch);
         } catch (err) {
-            throw err;
+            toast.error('Error al refrescar pedidos');
         } finally {
             setIsRefreshing(false);
         }
     };
 
-    // Fetch inicial de pedidos SOLO si no están cargados
-    React.useEffect(() => {
-        if (!isInitialized) {
-            const defaultFilters = { from: '', to: '' };
-            fetchOrders(defaultFilters, authFetch).catch(err => console.error(err));
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isInitialized]); // authFetch no en deps para evitar loop
-
-    function handleConfirmClick(cartId) {
-        const order = orders.find(o => o._id === cartId);
-        setConfirmDialog({
-            open: true,
-            type: 'confirm',
-            orderId: cartId,
-            orderInfo: formatOrderInfo(order)
-        });
-    }
-
-    function handleDeleteClick(cartId) {
-        const order = orders.find(o => o._id === cartId);
-        setConfirmDialog({
-            open: true,
-            type: 'delete',
-            orderId: cartId,
-            orderInfo: formatOrderInfo(order)
-        });
-    }
+    const formatDateTime = (date) => {
+        if (!date) return '';
+        const d = new Date(date);
+        return `${d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}hs`;
+    };
 
     const formatOrderInfo = (order) => ({
         id: order?._id,
@@ -89,32 +73,44 @@ export default function PendingOrders() {
         confirmedAt: formatDateTime(order?.confirmedAt)
     });
 
-    const formatDateTime = (date) => {
-        if (!date) return '';
-        const d = new Date(date);
-        return `${d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}hs`;
+    const handleConfirmClick = (orderId) => {
+        const order = orders.find(o => o._id === orderId);
+        setConfirmDialog({
+            open: true,
+            type: 'confirm',
+            orderId,
+            orderInfo: formatOrderInfo(order)
+        });
     };
 
-    async function handleConfirmAction() {
+    const handleDeleteClick = (orderId) => {
+        const order = orders.find(o => o._id === orderId);
+        setConfirmDialog({
+            open: true,
+            type: 'delete',
+            orderId,
+            orderInfo: formatOrderInfo(order)
+        });
+    };
+
+    const handleConfirmAction = async () => {
         const { type, orderId } = confirmDialog;
         try {
-            let res;
             if (type === 'confirm') {
-                res = await authFetch(`${API_URL}/api/carts/${orderId}/confirmar`, { method: 'POST' });
+                await authFetch(`${API_URL}/api/carts/${orderId}/confirmar`, { method: 'POST' });
                 toast.success('Pedido confirmado exitosamente');
                 await refreshHistoryOrders(authFetch);
             } else if (type === 'delete') {
-                res = await authFetch(`${API_URL}/api/carts/${orderId}`, { method: 'DELETE' });
+                await authFetch(`${API_URL}/api/carts/${orderId}`, { method: 'DELETE' });
                 toast.success('Pedido eliminado exitosamente');
             }
-
             removeOrder(orderId);
-            setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
         } catch (err) {
             toast.error(err.message || 'Error al procesar la solicitud');
+        } finally {
             setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
         }
-    }
+    };
 
     const handleCancelAction = () => {
         setConfirmDialog({ open: false, type: null, orderId: null, orderInfo: null });
@@ -138,6 +134,7 @@ export default function PendingOrders() {
         <>
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div className="p-6">
+                    {/* Header */}
                     <div className="flex flex-col sm:flex-row justify-between items-start mb-6">
                         <div className="mb-4 sm:mb-0">
                             <h3 className="text-lg sm:text-2xl font-bold text-gray-900 flex items-center gap-3">
@@ -151,26 +148,25 @@ export default function PendingOrders() {
                         <button
                             onClick={handleRefresh}
                             disabled={isRefreshing || loading}
-                            className={`
-                                flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg 
-                                hover:bg-blue-700 transition-colors duration-200
-                                ${(isRefreshing || loading) ? 'opacity-50 cursor-not-allowed' : ''}
-                            `}
+                            className={`flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 ${(isRefreshing || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <FaSync className={`${isRefreshing ? 'animate-spin' : ''}`} />
                             {isRefreshing ? 'Refrescando...' : 'Refrescar'}
                         </button>
                     </div>
 
+                    {/* Filtros */}
                     <div className="w-full mx-auto mb-6">
                         <DateRangeFilter
                             onFilter={handleDateFilter}
+                            onClear={handleClearFilters}
                             loading={loading}
                             title="Filtrar por fecha"
                             showTitle={false}
                         />
                     </div>
 
+                    {/* Lista */}
                     <PendingOrdersList
                         orders={orders}
                         total={total}
@@ -180,15 +176,13 @@ export default function PendingOrders() {
                         onDelete={handleDeleteClick}
                     />
 
+                    {/* Cargar más */}
                     {!loading && !error && hasMoreOrders && (
                         <div className="flex justify-center mt-8">
                             <button
                                 onClick={handleLoadMore}
                                 disabled={loadingMore}
-                                className={`
-                                    px-6 py-3 text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300
-                                    ${loadingMore ? 'bg-gray-400 cursor-not-allowed' : 'bg-transparent'}
-                                `}
+                                className={`px-6 py-3 text-gray-900 font-medium rounded-lg border-2 border-gray-300 hover:border-gray-900 transition-colors duration-300 ${loadingMore ? 'bg-gray-400 cursor-not-allowed' : 'bg-transparent'}`}
                             >
                                 {loadingMore ? 'Cargando...' : 'Cargar más pedidos'}
                             </button>
@@ -208,11 +202,9 @@ export default function PendingOrders() {
             <ConfirmOrderAction
                 open={confirmDialog.open}
                 title={confirmDialog.type === 'confirm' ? '¿Confirmar Pedido?' : '¿Eliminar Pedido?'}
-                message={
-                    confirmDialog.type === 'confirm'
-                        ? 'Esta acción marcará el pedido como completado y lo removerá de la lista de pendientes.'
-                        : 'Esta acción eliminará permanentemente el pedido. Esta acción no se puede deshacer.'
-                }
+                message={confirmDialog.type === 'confirm'
+                    ? 'Esta acción marcará el pedido como completado y lo removerá de la lista de pendientes.'
+                    : 'Esta acción eliminará permanentemente el pedido. Esta acción no se puede deshacer.'}
                 onConfirm={handleConfirmAction}
                 onCancel={handleCancelAction}
                 orderInfo={confirmDialog.orderInfo}

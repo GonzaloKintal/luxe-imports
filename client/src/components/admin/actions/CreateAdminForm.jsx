@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { FaUserShield, FaTimes, FaTrash, FaEye, FaSpinner } from 'react-icons/fa';
 import ConfirmDeleteAdmin from './ConfirmDeleteAdmin.jsx';
-import { toast } from 'react-toastify';
+import { useAuthFetch } from '../../../hooks/useAuthFetch';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CreateAdminForm({ onSave }) {
+    const { authFetch } = useAuthFetch(); // <- obtenemos la función
     const [isUploading, setIsUploading] = useState(false);
 
     const initialForm = {
@@ -35,20 +36,12 @@ export default function CreateAdminForm({ onSave }) {
 
     async function fetchAdmins() {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/admin/admins`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            if (!res.ok) {
-                toast.error(`Error al obtener admins (${res.status})`);
-                return;
-            }
+            const res = await authFetch(`${API_URL}/api/admin/admins`); // <- usamos authFetch
+            if (!res.ok) throw new Error(`Error al obtener admins (${res.status})`);
             const data = await res.json();
             setAdmins(data);
         } catch (err) {
-            toast.error('Error de red o inesperado: ' + err.message);
+            console.error('Error al obtener admins:', err);
         }
     }
 
@@ -80,18 +73,13 @@ export default function CreateAdminForm({ onSave }) {
     async function confirmDeleteAdmin() {
         if (!deleteModal.admin) return;
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/admin/admins/${deleteModal.admin._id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const res = await authFetch(`${API_URL}/api/admin/admins/${deleteModal.admin._id}`, {
+                method: 'DELETE'
+            }); // <- authFetch se encarga del token y notificación
             if (!res.ok) throw new Error('Error al eliminar admin');
-            toast.success('Admin eliminado');
-            fetchAdmins();
+            await fetchAdmins();
         } catch (err) {
-            toast.error(err.message);
+            console.error(err.message);
         }
         closeDeleteModal();
     }

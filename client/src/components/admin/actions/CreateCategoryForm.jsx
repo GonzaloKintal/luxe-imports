@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { FaPlus, FaTimes, FaSpinner } from 'react-icons/fa';
+import { FaPlus, FaSpinner } from 'react-icons/fa';
+import { useAuthFetch } from '../../hooks/useAuthFetch'; // importamos el hook
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CreateCategoryForm({ onSave }) {
-
     const [form, setForm] = useState({
         name: '',
         description: ''
     });
 
     const [isUploading, setIsUploading] = useState(false);
+
+    const { authFetch } = useAuthFetch(); // usamos authFetch
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -21,24 +23,26 @@ export default function CreateCategoryForm({ onSave }) {
         e.preventDefault();
         setIsUploading(true);
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/categories`, {
+            const res = await authFetch(`${API_URL}/api/categories`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(form)
+                body: JSON.stringify(form),
             });
+
+            if (!res) return; // si token expiró, authFetch ya manejó el modal/notificación
+
             if (!res.ok) {
                 const error = await res.json();
                 throw new Error(error.error || 'Error al crear categoría');
             }
+
             const data = await res.json();
             toast.success('Categoría creada correctamente');
             if (onSave) onSave(data);
         } catch (err) {
-            toast.error(err.message);
+            toast.error(err.message || 'Error al crear categoría');
         } finally {
             setIsUploading(false);
         }
@@ -59,7 +63,7 @@ export default function CreateCategoryForm({ onSave }) {
                         Nombre de la categoría <span className="text-red-500">*</span>
                     </label>
                     <input
-                        id='category-name'
+                        id="category-name"
                         name="name"
                         value={form.name}
                         onChange={handleChange}
@@ -70,9 +74,11 @@ export default function CreateCategoryForm({ onSave }) {
                 </div>
 
                 <div>
-                    <label htmlFor="description" className="block text-gray-700 mb-1 font-semibold text-sm">Descripción</label>
+                    <label htmlFor="description" className="block text-gray-700 mb-1 font-semibold text-sm">
+                        Descripción
+                    </label>
                     <textarea
-                        id='description'
+                        id="description"
                         name="description"
                         value={form.description}
                         onChange={handleChange}
@@ -86,21 +92,23 @@ export default function CreateCategoryForm({ onSave }) {
                     <button
                         type="submit"
                         disabled={isUploading}
-                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${isUploading
-                            ? 'bg-gray-400 cursor-not-allowed text-gray-700'
-                            : 'bg-blue-600 hover:bg-blue-700 text-white'
-                            } flex items-center justify-center gap-2`}
+                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${
+                            isUploading
+                                ? 'bg-gray-400 cursor-not-allowed text-gray-700'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        } flex items-center justify-center gap-2`}
                     >
                         {isUploading ? (
                             <>
                                 <FaSpinner className="animate-spin mr-2 text-gray-500" />
                                 Creando categoría...
                             </>
-                        ) : 'Crear categoría'}
+                        ) : (
+                            'Crear categoría'
+                        )}
                     </button>
                 </div>
             </form>
         </div>
     );
-
 }

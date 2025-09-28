@@ -1,13 +1,14 @@
-
-
 import { useState, useEffect } from 'react';
-import { FaPlus, FaSpinner } from 'react-icons/fa';
+import { useAuthFetch } from '../../../hooks/useAuthFetch';
 import ProductImageManager from '../products/ProductImageManager';
 import RichTextEditor from '../../utils/RichTextEditor';
+import { FaPlus, FaSpinner } from 'react-icons/fa';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CreateProductForm({ onSave }) {
+    const { authFetch } = useAuthFetch(); // <- obtenemos authFetch
+
     const initialForm = {
         title: '',
         description: '',
@@ -18,6 +19,7 @@ export default function CreateProductForm({ onSave }) {
         category: '',
         displayOrder: 1,
     };
+
     const [form, setForm] = useState(initialForm);
     const [categories, setCategories] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
@@ -34,16 +36,19 @@ export default function CreateProductForm({ onSave }) {
 
     async function fetchCategories() {
         try {
-            const res = await fetch(`${API_URL}/api/categories`);
-            if (!res.ok) return;
+            const res = await authFetch(`${API_URL}/api/categories`); // <- usamos authFetch
+            if (!res.ok) throw new Error(`Error al obtener categorías (${res.status})`);
             const data = await res.json();
             setCategories(data);
-        } catch { }
+        } catch (err) {
+            console.error('Error al obtener categorías:', err);
+        }
     }
 
     function handleChange(e) {
         const { name, value } = e.target;
         let newValue = value;
+
         if (name === 'status') {
             newValue = value === 'true';
         } else if (name === 'stock' || name === 'price' || name === 'stockCritico') {
@@ -61,10 +66,9 @@ export default function CreateProductForm({ onSave }) {
                 newValue = num < 1 ? 1 : num;
             }
         }
+
         setForm({ ...form, [name]: newValue });
     }
-
-
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -74,26 +78,19 @@ export default function CreateProductForm({ onSave }) {
             const formData = new FormData();
 
             // Agregar datos del formulario
-            Object.keys(form).forEach(key => {
-                formData.append(key, form[key]);
-            });
+            Object.keys(form).forEach(key => formData.append(key, form[key]));
 
             // Agregar imágenes en orden
-            selectedImages.forEach(imageObj => {
-                formData.append('images', imageObj.file);
-            });
+            selectedImages.forEach(img => formData.append('images', img.file));
 
             // Crear imageOrder para el backend
-            const imageOrder = selectedImages.map(() => ({
-                isExisting: false
-            }));
+            const imageOrder = selectedImages.map(() => ({ isExisting: false }));
             formData.append('imageOrder', JSON.stringify(imageOrder));
 
-            await onSave(formData);
+            await onSave(formData); // <- onSave puede usar authFetch internamente
 
             // Reset form
             setForm(initialForm);
-            // Limpiar previews
             selectedImages.forEach(img => URL.revokeObjectURL(img.preview));
             setSelectedImages([]);
             setDeletedImages([]);

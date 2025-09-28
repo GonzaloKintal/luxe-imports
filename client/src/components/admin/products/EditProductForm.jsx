@@ -1,13 +1,15 @@
-
 import { useState, useEffect } from 'react';
-import { FaPlus, FaTimes, FaCheck, FaSpinner } from 'react-icons/fa';
+import { FaPlus, FaTimes, FaSpinner } from 'react-icons/fa';
 import ProductImageManager from './ProductImageManager';
 import RichTextEditor from '../../utils/RichTextEditor';
 import getEmptyLexicalState from '../../utils/getEmptyLexicalState';
+import { useAuthFetch } from '../../../hooks/useAuthFetch';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function EditProductForm({ product, onSave, onCancel }) {
+    const { authFetch } = useAuthFetch();
+
     const initialForm = {
         title: '',
         description: '',
@@ -27,7 +29,6 @@ export default function EditProductForm({ product, onSave, onCancel }) {
     const [isFormReady, setIsFormReady] = useState(false);
 
     useEffect(() => {
-
         if (product) {
             const newForm = {
                 title: product.title || '',
@@ -39,17 +40,15 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                 category: product.category?._id || product.category || '',
                 displayOrder: product.displayOrder || 1,
             };
-            //
             setForm(newForm);
             setIsFormReady(true);
 
-            // Si hay imágenes existentes, convertirlas al formato de selectedImages
             if (product.thumbnails && Array.isArray(product.thumbnails)) {
                 const existingImages = product.thumbnails.map(url => ({
-                    file: null, // No tenemos el archivo original
+                    file: null,
                     preview: url,
                     id: Math.random().toString(36).substring(2, 9),
-                    isExisting: true // Marcar como imagen existente
+                    isExisting: true
                 }));
                 setSelectedImages(existingImages);
             }
@@ -58,18 +57,15 @@ export default function EditProductForm({ product, onSave, onCancel }) {
         fetchCategories();
     }, [product]);
 
-    // Debug del estado del form
-    useEffect(() => {
-    //
-    }, [form]);
-
     async function fetchCategories() {
         try {
-            const res = await fetch(`${API_URL}/api/categories`);
+            const res = await authFetch(`${API_URL}/api/categories`);
             if (!res.ok) return;
             const data = await res.json();
             setCategories(data);
-        } catch { }
+        } catch (err) {
+            console.error('Error al cargar categorías:', err);
+        }
     }
 
     function handleChange(e) {
@@ -77,20 +73,10 @@ export default function EditProductForm({ product, onSave, onCancel }) {
         let newValue = value;
         if (name === 'status') {
             newValue = value === 'true';
-        } else if (name === 'stock' || name === 'price' || name === 'stockCritico') {
-            if (value === '') {
-                newValue = '';
-            } else {
-                const num = Number(value);
-                newValue = num < 0 ? 0 : num;
-            }
+        } else if (['stock', 'price', 'stockCritico'].includes(name)) {
+            newValue = value === '' ? '' : Math.max(0, Number(value));
         } else if (name === 'displayOrder') {
-            if (value === '') {
-                newValue = '';
-            } else {
-                const num = parseInt(value);
-                newValue = num < 1 ? 1 : num;
-            }
+            newValue = value === '' ? '' : Math.max(1, parseInt(value));
         }
         setForm({ ...form, [name]: newValue });
     }
@@ -102,59 +88,25 @@ export default function EditProductForm({ product, onSave, onCancel }) {
         try {
             const formData = new FormData();
 
-            // Agregar datos del formulario
             Object.keys(form).forEach(key => {
                 formData.append(key, form[key]);
             });
 
-            // Separar imágenes existentes de las nuevas, manteniendo el orden
-            const currentImages = selectedImages
-                .filter(img => img.isExisting)
-                .map(img => img.preview);
+            const currentImages = selectedImages.filter(img => img.isExisting).map(img => img.preview);
+            const newImages = selectedImages.filter(img => !img.isExisting).map(img => img.file);
 
-            const newImages = selectedImages
-                .filter(img => !img.isExisting)
-                .map(img => img.file);
-
-            // Crear un array ordenado que preserve el orden final
-            // Este array contendrá las URLs de las imágenes existentes en el orden correcto
-            const orderedCurrentImages = [];
-            const newImageFiles = [];
-
-            selectedImages.forEach(img => {
-                if (img.isExisting) {
-                    orderedCurrentImages.push(img.preview);
-                } else {
-                    // Para las nuevas imágenes, necesitamos mantener su posición relativa
-                    // Las agregaremos al final del array de archivos
-                    newImageFiles.push(img.file);
-                }
-            });
-
-            // Agregar imágenes existentes en orden (con el nombre esperado por el backend)
-            formData.append('currentImages', JSON.stringify(orderedCurrentImages));
-
-            // Agregar nuevas imágenes en orden
-            newImageFiles.forEach(imageFile => {
-                formData.append('images', imageFile);
-            });
-
-            // Crear un mapa de orden para que el backend sepa cómo intercalar las imágenes
-            const imageOrder = selectedImages.map(img => ({
+            formData.append('currentImages', JSON.stringify(currentImages));
+            newImages.forEach(file => formData.append('images', file));
+            formData.append('imageOrder', JSON.stringify(selectedImages.map(img => ({
                 isExisting: img.isExisting || false,
                 preview: img.isExisting ? img.preview : null
-            }));
-            
-            formData.append('imageOrder', JSON.stringify(imageOrder));
-
-            // Si hay imágenes eliminadas, informar al backend
+            }))));
             formData.append('deletedImages', JSON.stringify(deletedImages));
 
-            await onSave({ id: product._id, formData });
+            // Usar authFetch para guardar
+            await onSave({ id: product._id, formData, authFetch });
 
-            // Limpiar deletedImages después de guardar
             setDeletedImages([]);
-
         } catch (error) {
             console.error('Error al actualizar producto:', error);
         } finally {

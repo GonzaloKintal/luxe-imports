@@ -7,8 +7,10 @@ import FilteredProductsList from './FilteredProductsList';
 import ProductFilters from './ProductFilters';
 import useAdminProductsStore from '../../../store/adminProductsStore';
 import useProductsStore from '../../../store/productsStore';
+import { useAuthFetch } from '../../../hooks/useAuthFetch';
 
 export default function AdminProducts() {
+    const { authFetch } = useAuthFetch();
     const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
 
     const {
@@ -19,27 +21,43 @@ export default function AdminProducts() {
         hasMoreProducts,
         fetchProductos,
         cargarMasProductos,
-        toggleFeatured,
-        deleteProduct,
-        reactivateProduct,
-        editProduct,
+        toggleFeatured: storeToggleFeatured,
+        deleteProduct: storeDeleteProduct,
+        reactivateProduct: storeReactivateProduct,
+        editProduct: storeEditProduct,
         refreshProducts,
         isInitialized
     } = useAdminProductsStore();
 
     const { categorias, fetchCategorias } = useProductsStore();
 
-    // Cargar categorías al montar
+    // Cargar categorías
     useEffect(() => {
         fetchCategorias();
     }, [fetchCategorias]);
 
-    // Cotización del dólar
+    // Cotización del dólar (fetch normal)
     const [cotizacion, setCotizacion] = useState(null);
     const [loadingCotizacion, setLoadingCotizacion] = useState(true);
     const [errorCotizacion, setErrorCotizacion] = useState(null);
 
-    // Filtros locales persistentes
+    useEffect(() => {
+        const fetchDolar = async () => {
+            try {
+                setLoadingCotizacion(true);
+                const res = await fetch(DOLAR_API_URL);
+                const data = await res.json();
+                setCotizacion(data.venta);
+            } catch {
+                setErrorCotizacion('No se pudo obtener la cotización');
+            } finally {
+                setLoadingCotizacion(false);
+            }
+        };
+        fetchDolar();
+    }, [DOLAR_API_URL]);
+
+    // Filtros persistentes
     const filtrosGuardados = JSON.parse(sessionStorage.getItem('adminProductosFiltros') || '{}');
     const [categoryFilter, setCategoryFilter] = useState(filtrosGuardados.categoryFilter || '');
     const [showActivos, setShowActivos] = useState(filtrosGuardados.showActivos ?? true);
@@ -52,7 +70,6 @@ export default function AdminProducts() {
     const [deleteProductName, setDeleteProductName] = useState('');
     const [editingProductId, setEditingProductId] = useState(null);
 
-    // Persistencia de filtros
     useEffect(() => {
         sessionStorage.setItem('adminProductosFiltros', JSON.stringify({
             categoryFilter,
@@ -63,7 +80,7 @@ export default function AdminProducts() {
         }));
     }, [categoryFilter, showActivos, search, stockFilter, sortFilter]);
 
-    // Fetch inicial de productos SOLO si no están cargados
+    // Fetch inicial productos
     useEffect(() => {
         if (!isInitialized) {
             const filters = {
@@ -75,24 +92,7 @@ export default function AdminProducts() {
             };
             fetchProductos(filters);
         }
-    }, [isInitialized, fetchProductos]); // SOLO dependemos de isInitialized y la función del store
-
-    // Fetch cotización dólar
-    useEffect(() => {
-        async function fetchDolar() {
-            try {
-                setLoadingCotizacion(true);
-                const res = await fetch(DOLAR_API_URL);
-                const data = await res.json();
-                setCotizacion(data.venta);
-            } catch {
-                setErrorCotizacion('No se pudo obtener la cotización');
-            } finally {
-                setLoadingCotizacion(false);
-            }
-        }
-        fetchDolar();
-    }, [DOLAR_API_URL]);
+    }, [isInitialized, fetchProductos]);
 
     // Handlers filtros
     const handleSearchChange = (value) => {
@@ -116,8 +116,19 @@ export default function AdminProducts() {
         applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: value });
     };
 
-    const applyFilters = (filters) => {
-        fetchProductos(filters);
+    const applyFilters = async (filters) => {
+        // Productos con authFetch
+        try {
+            const res = await authFetch('/admin/productos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(filters)
+            });
+            const data = await res.json();
+            fetchProductos(data); // actualizar store
+        } catch (err) {
+            toast.error(err.message || 'Error al obtener productos');
+        }
     };
 
     const limpiarFiltros = () => {
@@ -126,12 +137,12 @@ export default function AdminProducts() {
         setStockFilter('todos');
         setShowActivos(true);
         setSortFilter('display_order');
-        fetchProductos({ search: '', category: '', stock: 'todos', status: 'active', sort: 'display_order' });
+        applyFilters({ search: '', category: '', stock: 'todos', status: 'active', sort: 'display_order' });
     };
 
-    // Funciones de productos
+    // Funciones de productos con authFetch
     const handleToggleFeatured = async (product) => {
-        const result = await toggleFeatured(product);
+        const result = await storeToggleFeatured(product, authFetch);
         toast[result.success ? 'success' : 'error'](result.message);
     };
     const handleDelete = (id, name) => {
@@ -140,53 +151,27 @@ export default function AdminProducts() {
         setShowConfirm(true);
     };
     const confirmDelete = async () => {
-        const result = await deleteProduct(deleteId);
+        const result = await storeDeleteProduct(deleteId, authFetch);
         toast[result.success ? 'success' : 'error'](result.message);
-        // Refrescar el listado con los filtros actuales tras baja lógica
-        const currentFilters = {
-            search,
-            category: categoryFilter,
-            stock: stockFilter,
-            status: showActivos ? 'active' : 'inactive',
-            sort: sortFilter
-        };
-        await fetchProductos(currentFilters);
+        await applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
         setShowConfirm(false);
         setDeleteId(null);
         setDeleteProductName('');
     };
     const handleReactivate = async (id) => {
-        const result = await reactivateProduct(id);
+        const result = await storeReactivateProduct(id, authFetch);
         toast[result.success ? 'success' : 'error'](result.message);
-        // Refrescar el listado con los filtros actuales
-        const currentFilters = {
-            search,
-            category: categoryFilter,
-            stock: stockFilter,
-            status: showActivos ? 'active' : 'inactive',
-            sort: sortFilter
-        };
-        await fetchProductos(currentFilters);
+        await applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
     };
-
     const handleEdit = async ({ id, formData }) => {
-        const result = await editProduct(id, formData);
+        const result = await storeEditProduct(id, formData, authFetch);
         toast[result.success ? 'success' : 'error'](result.message);
         if (result.success) {
-            
-            // Forzar refresh completo para aplicar nuevo ordenamiento
-            const currentFilters = {
-                search,
-                category: categoryFilter,
-                stock: stockFilter,
-                status: showActivos ? 'active' : 'inactive',
-                sort: sortFilter
-            };
-            await fetchProductos(currentFilters);
+            await applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
         }
     };
 
-    // Renderizado de errores o sin productos
+    // Renderizado de errores y lista de productos (igual que antes)
     if (error) {
         return (
             <div className="w-full text-center py-20 text-red-600">

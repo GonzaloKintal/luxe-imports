@@ -38,31 +38,6 @@ export default function AdminPanel() {
         localStorage.setItem("activeTab", tabId);
     }
 
-    // 🔐 Validar token al entrar al panel
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            handleTokenExpiry();
-            return;
-        }
-
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-
-            // Verificar expiración del token
-            if (payload.exp && Date.now() >= payload.exp * 1000) {
-                handleTokenExpiry();
-                return;
-            }
-
-            setUser(payload);
-            if (payload.role !== 'admin') {
-                navigate('/');
-            }
-        } catch {
-            handleTokenExpiry();
-        }
-    }, [navigate, handleTokenExpiry]);
 
     useEffect(() => {
         async function fetchProducts() {
@@ -83,7 +58,7 @@ export default function AdminPanel() {
 
     return (
         <main className="bg-gray-100 px-6 md:px-12 pt-12 relative overflow-hidden min-h-screen w-full">
-            {/* 🔔 Modal de token expirado */}
+           
             {showModal && (
                 <TokenExpiryModal
                     onClose={closeModal}

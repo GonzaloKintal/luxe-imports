@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
-import { FaEdit, FaTrash, FaEye, FaTimes, FaSpinner } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye, FaSpinner } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import ConfirmDeleteCategory from './ConfirmDeleteCategory';
+import { useAuthFetch } from "../../../hooks/useAuthFetch";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CategoryManager() {
+    const { authFetch } = useAuthFetch();
+
     const [categories, setCategories] = useState([]);
     const [form, setForm] = useState({ name: '', description: '' });
     const [editingId, setEditingId] = useState(null);
@@ -20,8 +24,8 @@ export default function CategoryManager() {
 
     async function fetchCategories() {
         try {
-            const res = await fetch(`${API_URL}/api/categories`);
-            const contentType = res.headers.get('content-type');
+            const res = await authFetch(`${API_URL}/api/categories`);
+            if (!res) return; // si hubo 401 ya lo maneja el hook
             if (!res.ok) {
                 toast.error(`Error del servidor (${res.status}): ${res.statusText}`);
                 return;
@@ -29,11 +33,7 @@ export default function CategoryManager() {
             const data = await res.json();
             setCategories(data);
         } catch (err) {
-            if (err instanceof SyntaxError) {
-                toast.error('Error de formato: la respuesta no es JSON válido.');
-            } else {
-                toast.error('Error de red o inesperado: ' + err.message);
-            }
+            toast.error('Error de red o inesperado: ' + err.message);
         }
     }
 
@@ -46,29 +46,22 @@ export default function CategoryManager() {
         e.preventDefault();
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
             let res, data;
             if (editingId) {
-                res = await fetch(`${API_URL}/api/categories/${editingId}`, {
+                res = await authFetch(`${API_URL}/api/categories/${editingId}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
                     body: JSON.stringify(form)
                 });
+                if (!res) return;
                 if (!res.ok) throw new Error('Error al editar categoría');
                 data = await res.json();
                 toast.success('Categoría editada');
             } else {
-                res = await fetch(`${API_URL}/api/categories`, {
+                res = await authFetch(`${API_URL}/api/categories`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
                     body: JSON.stringify(form)
                 });
+                if (!res) return;
                 if (!res.ok) throw new Error('Error al crear categoría');
                 data = await res.json();
                 toast.success('Categoría creada');
@@ -90,13 +83,10 @@ export default function CategoryManager() {
 
     async function confirmDelete() {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${API_URL}/api/categories/${categoryToDelete._id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const res = await authFetch(`${API_URL}/api/categories/${categoryToDelete._id}`, {
+                method: 'DELETE'
             });
+            if (!res) return;
             if (!res.ok) {
                 let errorMsg = 'Error al eliminar categoría';
                 try {
@@ -174,9 +164,7 @@ export default function CategoryManager() {
                         className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 text-sm shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                         disabled={loading}
                     >
-                        {loading && (
-                            <FaSpinner className="animate-spin-slow" />
-                        )}
+                        {loading && <FaSpinner className="animate-spin-slow" />}
                         {loading ? (editingId ? 'Guardando...' : 'Creando...') : (editingId ? 'Guardar cambios' : 'Crear categoría')}
                     </button>
                 </div>
@@ -224,7 +212,6 @@ export default function CategoryManager() {
                 onConfirm={confirmDelete}
                 onCancel={() => setConfirmOpen(false)}
             />
-
         </div>
     );
 }

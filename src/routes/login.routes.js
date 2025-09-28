@@ -107,7 +107,7 @@ router.post("/login", async (req, res, next) => {
     if (!passwordMatch) return res.status(401).json({ error: "Credenciales inválidas" });
 
     const tokenPayload = { id: user.id, email: user.email, role: user.role, firstName: user.firstName, lastName: user.lastName };
-    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "2h" });
+    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "10s" });
 
     res.json({
       message: "Login exitoso",
