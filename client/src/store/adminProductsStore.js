@@ -1,8 +1,14 @@
 import { create } from 'zustand';
-import { authFetch } from '../components/utils/useFetch';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 12;
+
+const deepEqual = (obj1, obj2) => {
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  if (keys1.length !== keys2.length) return false;
+  return keys1.every(key => obj1[key] === obj2[key]);
+};
 
 const useAdminProductsStore = create((set, get) => ({
   products: [],
@@ -39,38 +45,44 @@ const useAdminProductsStore = create((set, get) => ({
     return params.toString();
   },
 
-  fetchProductos: async (filters = {}) => {
-    const { currentFilters } = get();
-    const filtersChanged = JSON.stringify(currentFilters) !== JSON.stringify(filters);
+  fetchProductos: async (filters = {}, authFetchFn) => {
+      const { currentFilters, loading } = get();
+      
+      if (loading || deepEqual(currentFilters, filters)) return;
+      
+      const filtersChanged = !deepEqual(currentFilters, filters);
 
-    try {
-      set({
-        loading: true,
-        error: null,
-        ...(filtersChanged && { products: [], currentPage: 0, hasMoreProducts: true }),
-        currentFilters: filters
-      });
+      try {
+          set({
+              loading: true,
+              error: null,
+              ...(filtersChanged && { products: [], currentPage: 0, hasMoreProducts: true }),
+              currentFilters: { ...filters }
+          });
 
-      const queryString = get().buildQueryString(filters, 1);
-      const res = await authFetch(`${API_URL}/api/products?${queryString}`);
-      if (!res.ok) throw new Error('Error al cargar productos');
-      const data = await res.json();
+          const queryString = get().buildQueryString(filters, 1);
+          const res = await authFetchFn(`${API_URL}/api/products?${queryString}`);
+          
+          if (!res) return;
+          
+          if (!res.ok) throw new Error('Error al cargar productos');
+          const data = await res.json();
 
-      set({
-        products: data.products || [],
-        currentPage: 1,
-        totalPages: data.totalPages || Math.ceil((data.total || data.products.length) / LIMIT),
-        hasMoreProducts: 1 < (data.totalPages || Math.ceil((data.total || data.products.length) / LIMIT)),
-        isInitialized: true,
-        loading: false
-      });
+          set({
+              products: data.products || [],
+              currentPage: 1,
+              totalPages: data.totalPages || Math.ceil((data.total || data.products.length) / LIMIT),
+              hasMoreProducts: 1 < (data.totalPages || Math.ceil((data.total || data.products.length) / LIMIT)),
+              isInitialized: true,
+              loading: false
+          });
 
-    } catch (err) {
-      set({ error: err.message || 'Error desconocido', loading: false });
-    }
+      } catch (err) {
+          set({ error: err.message || 'Error desconocido', loading: false });
+      }
   },
 
-  cargarMasProductos: async () => {
+  cargarMasProductos: async (authFetchFn) => {
     const { hasMoreProducts, loadingMore, currentPage, products, currentFilters } = get();
     if (!hasMoreProducts || loadingMore) return;
 
@@ -79,7 +91,7 @@ const useAdminProductsStore = create((set, get) => ({
 
       const nextPage = currentPage + 1;
       const queryString = get().buildQueryString(currentFilters, nextPage);
-      const res = await authFetch(`${API_URL}/api/products?${queryString}`);
+      const res = await authFetchFn(`${API_URL}/api/products?${queryString}`);
       if (!res.ok) throw new Error('Error al cargar más productos');
 
       const data = await res.json();
@@ -97,17 +109,17 @@ const useAdminProductsStore = create((set, get) => ({
     }
   },
 
-  fetchProductosIniciales: async () => {
+  fetchProductosIniciales: async (authFetchFn) => {
     const { isInitialized, products } = get();
     if (isInitialized && products.length > 0) return;
 
     const defaultFilters = { search: '', category: '', stock: 'todos', status: 'all', sort: 'newest' };
-    await get().fetchProductos(defaultFilters);
+    await get().fetchProductos(defaultFilters, authFetchFn);
   },
 
-  refreshProducts: async () => {
+  refreshProducts: async (authFetchFn) => {
     const { currentFilters } = get();
-    await get().fetchProductos(currentFilters);
+    await get().fetchProductos(currentFilters, authFetchFn);
   },
 
   resetProducts: () => set({
@@ -127,13 +139,17 @@ const useAdminProductsStore = create((set, get) => ({
     set({ products: products.map(p => (p._id === productId ? { ...p, ...updatedData } : p)) });
   },
 
-  toggleFeatured: async (product) => {
+  toggleFeatured: async (product, authFetchFn) => {
     try {
-      const res = await authFetch(`${API_URL}/api/products/${product._id}`, {
+      const res = await authFetchFn(`${API_URL}/api/products/${product._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ featured: !product.featured })
       });
+      
+      // Si res es null (token expirado), no continúes
+      if (!res) return { success: false, message: 'Token expirado' };
+      
       if (!res.ok) throw new Error('Error al actualizar destacado');
       const updated = await res.json();
       get().updateProduct(updated._id, updated);
@@ -143,13 +159,16 @@ const useAdminProductsStore = create((set, get) => ({
     }
   },
 
-  deleteProduct: async (productId) => {
+  deleteProduct: async (productId, authFetchFn) => {
     try {
-      const res = await authFetch(`${API_URL}/api/products/${productId}`, {
+      const res = await authFetchFn(`${API_URL}/api/products/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: false })
       });
+      
+      if (!res) return { success: false, message: 'Token expirado' };
+      
       if (!res.ok) throw new Error('Error al eliminar');
       get().updateProduct(productId, { status: false });
       return { success: true, message: 'Producto eliminado correctamente' };
@@ -158,13 +177,16 @@ const useAdminProductsStore = create((set, get) => ({
     }
   },
 
-  reactivateProduct: async (productId) => {
+  reactivateProduct: async (productId, authFetchFn) => {
     try {
-      const res = await authFetch(`${API_URL}/api/products/${productId}`, {
+      const res = await authFetchFn(`${API_URL}/api/products/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: true })
       });
+      
+      if (!res) return { success: false, message: 'Token expirado' };
+      
       if (!res.ok) throw new Error('Error al reactivar');
       get().updateProduct(productId, { status: true });
       return { success: true, message: 'Producto reactivado' };
@@ -173,10 +195,15 @@ const useAdminProductsStore = create((set, get) => ({
     }
   },
 
-  editProduct: async (productId, formData) => {
+  editProduct: async (productId, formData, authFetchFn) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/products/${productId}`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: formData });
+      const res = await authFetchFn(`${API_URL}/api/products/${productId}`, { 
+        method: 'PUT', 
+        body: formData 
+      });
+      
+      if (!res) return { success: false, message: 'Token expirado' };
+      
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || 'Error al editar producto');
@@ -189,9 +216,12 @@ const useAdminProductsStore = create((set, get) => ({
     }
   },
 
-  fetchCategorias: async () => {
+  fetchCategorias: async (authFetchFn) => {
     try {
-      const res = await authFetch(`${API_URL}/api/products/categories`);
+      const res = await authFetchFn(`${API_URL}/api/products/categories`);
+      
+      if (!res) return;
+      
       if (!res.ok) throw new Error('Error al cargar categorías');
       const data = await res.json();
       set({ categorias: data });

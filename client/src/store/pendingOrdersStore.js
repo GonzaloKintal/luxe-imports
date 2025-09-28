@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { authFetch } from '../components/utils/useFetch';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 10;
@@ -40,8 +39,7 @@ const usePendingOrdersStore = create((set, get) => ({
     return params.toString();
   },
 
-  fetchOrders: async (filters = {}) => {
-
+  fetchOrders: async (filters = {}, authFetchFn) => {
     const { currentFilters } = get();
     
     const filtersChanged = JSON.stringify(currentFilters) !== JSON.stringify(filters);
@@ -58,9 +56,11 @@ const usePendingOrdersStore = create((set, get) => ({
         currentFilters: filters
       });
 
-      const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(filters, 1);
-      const res = await authFetch(`${API_URL}/api/carts/pendientes?limit=10?${queryString}`);
+      const res = await authFetchFn(`${API_URL}/api/carts/pendientes?${queryString}`);
+      
+      // Si res es null (token expirado), no continúes
+      if (!res) return;
       
       if (!res.ok) throw new Error('Error al cargar pedidos pendientes');
       
@@ -84,23 +84,8 @@ const usePendingOrdersStore = create((set, get) => ({
     }
   },
 
-  applyDateFilters: async (fromDate, toDate) => {
-    const filters = {
-      from: fromDate || '',
-      to: toDate || ''
-    };
-    await get().fetchOrders(filters);
-  },
-
-  clearFilters: async () => {
-    const defaultFilters = {
-      from: '',
-      to: ''
-    };
-    await get().fetchOrders(defaultFilters);
-  },
-
-  cargarMasPedidos: async () => {
+  // También modifica cargarMasPedidos
+  cargarMasPedidos: async (authFetchFn) => {
     const { hasMoreOrders, loadingMore, currentPage, orders, currentFilters } = get();
     
     if (!hasMoreOrders || loadingMore) return;
@@ -112,10 +97,12 @@ const usePendingOrdersStore = create((set, get) => ({
       });
       
       const nextPage = currentPage + 1;
-      const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(currentFilters, nextPage);
       
-      const res = await authFetch(`${API_URL}/api/carts/pendientes?${queryString}`);
+      const res = await authFetchFn(`${API_URL}/api/carts/pendientes?${queryString}`);
+      
+      // Si res es null (token expirado), no continúes
+      if (!res) return;
       
       if (!res.ok) throw new Error('Error al cargar más pedidos');
       
@@ -139,6 +126,29 @@ const usePendingOrdersStore = create((set, get) => ({
       });
     }
   },
+
+  // Y modifica las funciones que llaman a estas
+  applyDateFilters: async (fromDate, toDate, authFetchFn) => {
+    const filters = {
+      from: fromDate || '',
+      to: toDate || ''
+    };
+    await get().fetchOrders(filters, authFetchFn);
+  },
+
+  clearFilters: async (authFetchFn) => {
+    const defaultFilters = {
+      from: '',
+      to: ''
+    };
+    await get().fetchOrders(defaultFilters, authFetchFn);
+  },
+
+  refreshOrders: async (authFetchFn) => {
+    const { currentFilters } = get();
+    await get().fetchOrders(currentFilters, authFetchFn);
+  },
+
 
   removeOrder: (orderId) => {
     const { orders, total } = get();

@@ -6,7 +6,7 @@ import { useAuthFetch } from '../../../hooks/useAuthFetch';
 import useHistoryOrdersStore from '../../../store/historyOrdersStore';
 import { toast } from 'react-toastify';
 
-export default function HistoryOrders({ history }) {
+export default function HistoryOrders() {
     const { authFetch } = useAuthFetch();
     const API_URL = import.meta.env.VITE_API_URL;
 
@@ -41,7 +41,7 @@ export default function HistoryOrders({ history }) {
     // Limpiar detalles expandidos al cambiar de historia
     useEffect(() => {
         clearExpandedData();
-    }, [history, clearExpandedData]);
+    }, [clearExpandedData]);
 
     const handleRefresh = async () => {
         setIsRefreshing(true);

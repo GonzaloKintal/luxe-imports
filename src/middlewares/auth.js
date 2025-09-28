@@ -18,23 +18,17 @@ export function authenticateToken(req, res, next) {
   
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      // Verificar si el error es específicamente por token expirado
-      if (err.name === 'TokenExpiredError') {
-        return res.status(401).json({ 
-          error: 'Su sesión ha expirado. Por favor, cierre sesión e inicie sesión nuevamente.',
-          expired: true
-        });
-      }
-      
-      // Otros errores de token (malformado, firma inválida, etc.)
+      // Para cualquier error de token, emitir una sola vez
       io.emit('tokenExpired', { 
-        message: 'Token inválido. Por favor, inicie sesión nuevamente.',
+        message: err.name === 'TokenExpiredError' ? 'Sesión expirada' : 'Token inválido',
         timestamp: Date.now()
       });
 
-      return res.status(403).json({ 
-        error: 'El token proporcionado no es válido',
-	      expired: true
+      return res.status(401).json({ 
+        error: err.name === 'TokenExpiredError' 
+          ? 'Su sesión ha expirado. Por favor, inicie sesión nuevamente.'
+          : 'El token proporcionado no es válido',
+        expired: true
       });
     }
     

@@ -1,6 +1,5 @@
 
 import { create } from 'zustand';
-import { authFetch } from '../components/utils/useFetch';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 10;
@@ -45,8 +44,7 @@ const useHistoryOrdersStore = create((set, get) => ({
   },
 
   // Función para cargar pedidos con filtros
-  fetchOrders: async (filters = {}) => {
-
+  fetchOrders: async (filters = {}, authFetchFn) => {
     const { currentFilters } = get();
     
     const filtersChanged = JSON.stringify(currentFilters) !== JSON.stringify(filters);
@@ -63,9 +61,11 @@ const useHistoryOrdersStore = create((set, get) => ({
         currentFilters: filters
       });
 
-      const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(filters, 1);
-      const res = await authFetch(`${API_URL}/api/carts/confirmados?limit=10&${queryString}`);
+      const res = await authFetchFn(`${API_URL}/api/carts/confirmados?${queryString}`);
+      
+      // Si res es null (token expirado), no continúes
+      if (!res) return;
       
       if (!res.ok) throw new Error('Error al cargar pedidos');
       
@@ -89,26 +89,7 @@ const useHistoryOrdersStore = create((set, get) => ({
     }
   },
 
-  // Función para aplicar filtros de fecha
-  applyDateFilters: async (fromDate, toDate) => {
-    const filters = {
-      from: fromDate || '',
-      to: toDate || ''
-    };
-    await get().fetchOrders(filters);
-  },
-
-  // Función para limpiar filtros
-  clearFilters: async () => {
-    const defaultFilters = {
-      from: '',
-      to: ''
-    };
-    await get().fetchOrders(defaultFilters);
-  },
-
-  // Función para cargar más pedidos (mantiene filtros actuales)
-  cargarMasPedidos: async () => {
+  cargarMasPedidos: async (authFetchFn) => {
     const { hasMoreOrders, loadingMore, currentPage, orders, currentFilters } = get();
     
     if (!hasMoreOrders || loadingMore) return;
@@ -120,16 +101,17 @@ const useHistoryOrdersStore = create((set, get) => ({
       });
       
       const nextPage = currentPage + 1;
-      const token = localStorage.getItem('token');
       const queryString = get().buildQueryString(currentFilters, nextPage);
       
-      const res = await authFetch(`${API_URL}/api/carts/confirmados?${queryString}`);
+      const res = await authFetchFn(`${API_URL}/api/carts/confirmados?${queryString}`);
+      
+      // Si res es null (token expirado), no continúes
+      if (!res) return;
       
       if (!res.ok) throw new Error('Error al cargar más pedidos');
       
       const data = await res.json();
       
-      // Agregar nuevos pedidos a los existentes
       const nuevosPedidos = data.results.filter(
         order => !orders.some(existing => existing._id === order._id)
       );
@@ -149,12 +131,25 @@ const useHistoryOrdersStore = create((set, get) => ({
     }
   },
 
-  // Función inicial de carga
-  fetchOrdersIniciales: async () => {
-  //
+  applyDateFilters: async (fromDate, toDate, authFetchFn) => {
+    const filters = {
+      from: fromDate || '',
+      to: toDate || ''
+    };
+    await get().fetchOrders(filters, authFetchFn);
+  },
+
+  clearFilters: async (authFetchFn) => {
+    const defaultFilters = {
+      from: '',
+      to: ''
+    };
+    await get().fetchOrders(defaultFilters, authFetchFn);
+  },
+
+  fetchOrdersIniciales: async (authFetchFn) => {
     const { isInitialized, orders } = get();
     
-    // Si ya tenemos pedidos cargados, no hacer fetch innecesario
     if (isInitialized && orders.length > 0) {
       return;
     }
@@ -164,7 +159,12 @@ const useHistoryOrdersStore = create((set, get) => ({
       to: ''
     };
 
-    await get().fetchOrders(defaultFilters);
+    await get().fetchOrders(defaultFilters, authFetchFn);
+  },
+
+  refreshOrders: async (authFetchFn) => {
+    const { currentFilters } = get();
+    await get().fetchOrders(currentFilters, authFetchFn);
   },
 
   // Manejo de expansión de pedidos
@@ -195,11 +195,6 @@ const useHistoryOrdersStore = create((set, get) => ({
     expanded: {},
     details: {}
   }),
-
-  refreshOrders: async () => {
-    const { currentFilters } = get();
-    await get().fetchOrders(currentFilters);
-  },
 
   // Limpiar detalles y expansiones (útil al cambiar de vista)
   clearExpandedData: () => set({

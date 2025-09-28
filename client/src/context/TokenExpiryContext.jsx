@@ -1,83 +1,54 @@
-// import React, { createContext, useContext, useState } from 'react';
 
-// const TokenExpiryContext = createContext();
-
-// export const TokenExpiryProvider = ({ children }) => {
-//   const [showModal, setShowModal] = useState(false);
-
-//   const handleTokenExpiry = () => {
-    
-//     // Limpiar token primero
-//     localStorage.removeItem('token');
-    
-//     // Mostrar modal
-//     setShowModal(true);
-
-//   };
-
-//   const closeModal = () => {
-//     setShowModal(false);
-//     window.location.href = '/'; 
-//   };
-
-//   return (
-//     <TokenExpiryContext.Provider value={{ showModal, handleTokenExpiry, closeModal }}>
-//       {children}
-//     </TokenExpiryContext.Provider>
-//   );
-// };
-
-// export const useTokenExpiry = () => useContext(TokenExpiryContext);
-
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { io as socketIOClient } from 'socket.io-client';
 
 const TokenExpiryContext = createContext();
 
+// Flag global para prevenir múltiples ejecuciones
+let isTokenExpiryHandled = false;
+
 export const TokenExpiryProvider = ({ children }) => {
   const [showModal, setShowModal] = useState(false);
   const [socket, setSocket] = useState(null);
+  const socketRef = useRef(null);
   
   useEffect(() => {
-    // Obtener la URL de la API del entorno (usa la misma que tienes en tu app)
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-    
-    // Crear conexión WebSocket
     const newSocket = socketIOClient(API_URL);
     setSocket(newSocket);
-        
-    // Escuchar evento de token expirado
-    newSocket.on('tokenExpired', (data) => {
+    socketRef.current = newSocket;
+
+    const handleTokenExpiredEvent = (data) => {
       handleTokenExpiry();
-    });
+    };
+
+    newSocket.on('tokenExpired', handleTokenExpiredEvent);
     
-    newSocket.on('connect', () => {
-    });
-    
-    newSocket.on('disconnect', () => {
-    });
-    
-    // Cleanup al desmontar
     return () => {
-      console.log('🔌 Desconectando WebSocket token expiry...');
-      newSocket.disconnect();
+      if (socketRef.current) {
+        socketRef.current.off('tokenExpired', handleTokenExpiredEvent);
+        socketRef.current.disconnect();
+      }
     };
   }, []);
 
   const handleTokenExpiry = () => {
-    console.log('🚪 Manejando expiración de token...');
+    // Verificar flag global primero
+    if (isTokenExpiryHandled) {
+      return;
+    }
+
+    // Marcar como manejado inmediatamente
+    isTokenExpiryHandled = true;
     
-    // Limpiar token del localStorage
     localStorage.removeItem('token');
-    
-    // Mostrar modal
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
-    // Redirigir a la página de inicio
+    // Reset del flag al cerrar
+    isTokenExpiryHandled = false;
     window.location.href = '/'; 
   };
 

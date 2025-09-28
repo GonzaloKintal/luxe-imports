@@ -44,7 +44,7 @@ export default function PendingOrders() {
             const defaultFilters = { from: '', to: '' };
             fetchOrders(defaultFilters, authFetch).catch(err => console.error(err));
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        
     }, [isInitialized]);
 
     const handleRefresh = async () => {

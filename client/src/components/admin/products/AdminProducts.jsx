@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { FaList } from 'react-icons/fa';
 import ConfirmDeleteProduct from './ConfirmDeleteProduct';
@@ -11,6 +11,7 @@ import { useAuthFetch } from '../../../hooks/useAuthFetch';
 
 export default function AdminProducts() {
     const { authFetch } = useAuthFetch();
+    const memoizedAuthFetch = useMemo(() => authFetch, [authFetch]);
     const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
 
     const {
@@ -90,9 +91,9 @@ export default function AdminProducts() {
                 status: showActivos ? 'active' : 'inactive',
                 sort: sortFilter
             };
-            fetchProductos(filters);
+            fetchProductos(filters, memoizedAuthFetch);
         }
-    }, [isInitialized, fetchProductos]);
+    }, [isInitialized, fetchProductos, memoizedAuthFetch, search, categoryFilter, stockFilter, showActivos, sortFilter]);
 
     // Handlers filtros
     const handleSearchChange = (value) => {
@@ -116,20 +117,9 @@ export default function AdminProducts() {
         applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: value });
     };
 
-    const applyFilters = async (filters) => {
-        // Productos con authFetch
-        try {
-            const res = await authFetch('/admin/productos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(filters)
-            });
-            const data = await res.json();
-            fetchProductos(data); // actualizar store
-        } catch (err) {
-            toast.error(err.message || 'Error al obtener productos');
-        }
-    };
+    const applyFilters = useCallback(async (filters) => {
+        await fetchProductos(filters, memoizedAuthFetch);
+    }, [fetchProductos, memoizedAuthFetch]);
 
     const limpiarFiltros = () => {
         setSearch('');
@@ -142,7 +132,7 @@ export default function AdminProducts() {
 
     // Funciones de productos con authFetch
     const handleToggleFeatured = async (product) => {
-        const result = await storeToggleFeatured(product, authFetch);
+        const result = await storeToggleFeatured(product, memoizedAuthFetch);
         toast[result.success ? 'success' : 'error'](result.message);
     };
     const handleDelete = (id, name) => {
@@ -151,7 +141,7 @@ export default function AdminProducts() {
         setShowConfirm(true);
     };
     const confirmDelete = async () => {
-        const result = await storeDeleteProduct(deleteId, authFetch);
+        const result = await storeDeleteProduct(deleteId, memoizedAuthFetch);
         toast[result.success ? 'success' : 'error'](result.message);
         await applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
         setShowConfirm(false);
@@ -159,12 +149,12 @@ export default function AdminProducts() {
         setDeleteProductName('');
     };
     const handleReactivate = async (id) => {
-        const result = await storeReactivateProduct(id, authFetch);
+        const result = await storeReactivateProduct(id, memoizedAuthFetch);
         toast[result.success ? 'success' : 'error'](result.message);
         await applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
     };
     const handleEdit = async ({ id, formData }) => {
-        const result = await storeEditProduct(id, formData, authFetch);
+        const result = await storeEditProduct(id, formData, memoizedAuthFetch);
         toast[result.success ? 'success' : 'error'](result.message);
         if (result.success) {
             await applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
@@ -177,7 +167,7 @@ export default function AdminProducts() {
             <div className="w-full text-center py-20 text-red-600">
                 <h3 className="text-xl font-semibold mb-2">Error al cargar productos</h3>
                 <p className="text-gray-600">{error}</p>
-                <button onClick={refreshProducts} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                <button onClick={() => refreshProducts(memoizedAuthFetch)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
                     Intentar de nuevo
                 </button>
             </div>
@@ -229,7 +219,7 @@ export default function AdminProducts() {
             {!loading && !error && hasMoreProducts && (
                 <div className="flex justify-center mt-12 mb-4">
                     <button
-                        onClick={cargarMasProductos}
+                        onClick={() => cargarMasProductos(memoizedAuthFetch)}
                         disabled={loadingMore}
                         className={`px-6 py-3 border-2 rounded-lg font-medium ${loadingMore ? 'bg-gray-400 cursor-not-allowed' : 'bg-transparent hover:border-gray-900'}`}
                     >
