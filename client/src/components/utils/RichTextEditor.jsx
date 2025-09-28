@@ -244,7 +244,6 @@ export default function RichTextEditor({
         </div>
         <HistoryPlugin />
         <ListPlugin />
-        <AutoFocusPlugin />
       </LexicalComposer>
     </div>
   );
