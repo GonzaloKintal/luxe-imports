@@ -16,7 +16,7 @@ export default function Hero() {
                 mouseInfluence={0.1}
                 noiseAmount={0.1}
                 distortion={0.05}
-                mobileScale={3.8} // Escala aumentada para mobile
+                mobileScale={2.5}
                 className="w-full h-full"
               />
             </div>
@@ -38,7 +38,7 @@ export default function Hero() {
               </h1>
 
               <p className="text-xl md:text-2xl mb-8 font-light text-gray-300 animate-fade-in-up">
-                iPhones & Perfumes Importados
+                Celulares & Perfumes Importados
               </p>
               <p className="text-lg mb-10 max-w-2xl mx-auto text-gray-400 animate-fade-in-up delay-300">
                 Calidad. Estilo. Confianza.

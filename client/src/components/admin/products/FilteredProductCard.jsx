@@ -94,7 +94,7 @@ function ProductImage({ src, alt }) {
 function ProductInfo({ product, cotizacion, loadingCotizacion, errorCotizacion }) {
     return (
         <div className="flex-1 min-w-0">
-            <h2 className="font-semibold text-lg text-gray-900 truncate">{product.title}</h2>
+            <h2 className="font-semibold text-md sm:text-lg text-gray-900 text-wrap">{product.title}</h2>
             {/* Precio en pesos y en dólares */}
             <div className="flex flex-col gap-1">
                 <span className="text-gray-700 font-bold text-sm">
@@ -186,7 +186,7 @@ function EditButton({ product, onEdit }) {
     return (
         <button
             onClick={() => onEdit()}
-            className="p-3 rounded-lg bg-blue-500/60 hover:bg-blue-600 text-white transition-all duration-300 shadow-md flex items-center justify-center"
+            className="p-2 sm:p-3 rounded-lg bg-blue-500/60 hover:bg-blue-600 text-white transition-all duration-300 shadow-md flex items-center justify-center"
             title="Editar producto"
         >
             <FaEdit size={20} />
@@ -198,7 +198,7 @@ function DeleteButton({ product, onDelete }) {
     return (
         <button
             onClick={() => onDelete(product._id || product.id, product.title)}
-            className="p-3 rounded-lg bg-red-500/60 hover:bg-red-600 text-white transition-all duration-300 shadow-md flex items-center justify-center"
+            className="p-2 sm:p-3 rounded-lg bg-red-500/60 hover:bg-red-600 text-white transition-all duration-300 shadow-md flex items-center justify-center"
             title="Eliminar producto"
         >
             <FaTrash size={20} />
@@ -210,7 +210,7 @@ function ReactivateButton({ product, onReactivate }) {
     return (
         <button
             onClick={() => onReactivate(product._id || product.id)}
-            className="bg-green-600 hover:bg-green-700 text-white border border-green-600 px-4 py-2 rounded-lg transition-all duration-300"
+            className="bg-green-600 hover:bg-green-700 text-white border border-green-600 px-2 sm:px-3 py-1 sm:py-2 rounded-lg transition-all duration-300"
         >
             Reactivar
         </button>

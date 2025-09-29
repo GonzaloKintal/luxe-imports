@@ -152,9 +152,9 @@ export default function HistoryOrders() {
                     <button
                         onClick={handleRefresh}
                         disabled={isRefreshing || loading}
-                        className={`flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 ${(isRefreshing || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 ${(isRefreshing || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                        <FaSync className={`${isRefreshing ? 'animate-spin' : ''}`} />
+                        <FaSync className={`${isRefreshing ? 'animate-spin' : ''} text-xs sm:text-sm`} />
                         {isRefreshing ? 'Refrescando...' : 'Refrescar'}
                     </button>
                 </div>

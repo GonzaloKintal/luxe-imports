@@ -75,10 +75,10 @@ export default function PendingOrderCard({ order, onConfirm, onDelete }) {
 
                         {/* Botón "Ver productos" */}
                         <button
-                            className="px-3 py-2 md:px-4 md:py-2 text-lg md:text-base rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 shadow-md flex items-center justify-center"
+                            className="px-3 py-2 md:px-4 md:py-2 text-lg md:text-base rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 shadow-md flex items-center justify-center gap-2"
                             onClick={handleToggleExpand}
                         >
-                            {expanded ? <FaEyeSlash className="inline md:hidden" /> : <FaEye className="inline md:hidden" />}
+                            {expanded ? <FaEyeSlash className="inline" /> : <FaEye className="inline" />}
                             
                             <span className="hidden md:inline">
                                 {expanded ? 'Ocultar productos' : 'Ver productos'}

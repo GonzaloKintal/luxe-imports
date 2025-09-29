@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaEdit, FaTrash, FaEye, FaSpinner } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye, FaSpinner, FaTag } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import ConfirmDeleteCategory from './ConfirmDeleteCategory';
 import { useAuthFetch } from "../../../hooks/useAuthFetch";
@@ -119,8 +119,10 @@ export default function CategoryManager() {
         <div className="bg-white rounded-xl shadow-lg border border-gray-300 p-6 mt-4">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <FaEye className="text-gray-600" />
-                    Administrar categorías
+                    <FaTag className="text-gray-600" />
+
+                    <span className="sm:hidden">Crear categoría</span>
+                    <span className="hidden sm:inline">Crear nueva categoría</span>
                 </h3>
             </div>
 
@@ -171,7 +173,10 @@ export default function CategoryManager() {
             </form>
 
             <div>
-                <h4 className="text-lg font-semibold mb-2">Categorías existentes</h4>
+                <h4 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                    <FaEye className="text-gray-600" />
+                    Administrar categorías
+                </h4>
                 {categories.length === 0 ? (
                     <div className="text-gray-500 text-sm py-6 text-center">No hay categorías creadas.</div>
                 ) : (

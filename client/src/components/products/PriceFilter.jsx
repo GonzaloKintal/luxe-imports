@@ -122,7 +122,7 @@ export default function PriceFilter({
                                             placeholder="Desde $0"
                                             value={precioMin}
                                             onChange={(e) => setPrecioMin(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm placeholder:text-xs sm:placeholder:text-sm"
                                             min="0"
                                             step="0.01"
                                         />
@@ -138,7 +138,7 @@ export default function PriceFilter({
                                             placeholder="Hasta $999999"
                                             value={precioMax}
                                             onChange={(e) => setPrecioMax(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm placeholder:text-xs sm:placeholder:text-sm"
                                             min="0"
                                             step="0.01"
                                         />

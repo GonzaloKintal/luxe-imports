@@ -10,14 +10,15 @@ const About = () => {
 
   return (
     <main className="bg-gray-100 px-0 pt-12 relative overflow-hidden min-h-screen">
-      <div className="relative z-10 px-6 py-20 max-w-6xl mx-auto">
+      <div className="relative z-10 px-2 sm:px-6 py-10 sm:py-20">
         
         {/* Título con animación */}
         <motion.h1
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-10 text-center relative after:block after:h-1 after:w-24 after:bg-blue-500 after:mx-auto after:mt-4"
+          className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 sm:mb-10 text-center relative
+                        after:block after:h-1 after:w-16 sm:after:w-24 after:bg-gray-800 after:mx-auto after:mt-2 sm:after:mt-4"
         >
           Sobre Nosotros
         </motion.h1>
@@ -48,22 +49,22 @@ const About = () => {
               </h2>
             </div>
 
-            <p className="text-gray-700 text-lg leading-relaxed">
+            <p className="text-gray-700 text-md sm:text-lg leading-relaxed">
               Fundadores de <span className="font-semibold text-black">Luxe Imports</span>, 
               un proyecto nacido de nuestra pasión por acercar a la gente productos exclusivos 
               de calidad internacional. Nos especializamos en traer los mejores 
-              <span className="font-medium"> iPhones, accesorios premium y perfumes importados </span> 
+              <span className="font-medium italic"> iPhones, accesorios premium y perfumes importados </span> 
               directamente hacia vos, con la confianza y cercanía que merecés.
             </p>
 
-            <p className="text-gray-700 text-lg leading-relaxed">
+            <p className="text-gray-700 text-md sm:text-lg leading-relaxed">
               Creemos que el lujo debe ser accesible y que cada compra tiene que sentirse 
               como una experiencia única. Por eso trabajamos día a día para ofrecerte 
-              <span className="font-medium"> precios competitivos, atención personalizada </span> 
+              <span className="font-medium italic"> precios competitivos, atención personalizada </span> 
               y la seguridad de comprar productos 100% originales.
             </p>
 
-            <blockquote className="text-xl font-semibold text-black italic border-l-4 border-black pl-4">
+            <blockquote className="text-lg sm:text-xl font-semibold fonti text-black italic border-l-4 border-black pl-4">
               En Luxe Imports no solo vendemos productos, te acercamos el estilo, 
               la calidad y la confianza de comprar lo mejor.
             </blockquote>
