@@ -1,6 +1,7 @@
 import express from 'express';
 import cartManager from '../managers/CartManager.js';
 import { authenticateToken, isAdmin } from '../middlewares/auth.js';
+import User from '../models/User.js';
 
 const router = express.Router();
 const manager = cartManager;
@@ -28,7 +29,7 @@ router.post('/:cid/confirm-request', authenticateToken, async (req, res, next) =
 // GET /api/carts/pendientes => Obtener todos los carritos pendientes de confirmación (solo admin)
 router.get('/pendientes', authenticateToken, isAdmin, async (req, res, next) => {
   try {
-    const { from, to, limit = 10, page = 1 } = req.query;
+    const { from, to, limit = 10, page = 1, username } = req.query;
     const filters = { status: 'pendiente de confirmacion' };
     if (from || to) {
       filters.pendingAt = {};
@@ -44,8 +45,34 @@ router.get('/pendientes', authenticateToken, isAdmin, async (req, res, next) => 
       }
     }
     const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Si hay filtro por username => primero obtenemos los IDs de usuarios que coinciden
+    if (username) {
+      const users = await User.find({
+        $expr: {
+          $regexMatch: {
+            input: { $concat: ["$firstName", " ", "$lastName"] },
+            regex: username,
+            options: "i"
+          }
+        }
+      }).select('_id');
+
+      if (users.length === 0) {
+        return res.json({
+          total: 0,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          results: []
+        });
+      }
+
+      filters.userId = { $in: users.map(u => u._id) };
+    }
+
     const total = await manager.countPurchaseHistoryByUserId(filters);
     const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
+
     // El ordenamiento ahora se hace en la base de datos (CartManager)
     res.json({
       total,

@@ -31,7 +31,7 @@ export default function AdminPanel() {
             <div className="flex flex-col relative z-10 md:px-6 py-10 sm:py-20">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4 text-center relative after:block after:h-1 after:w-24 after:bg-blue-500 after:mx-auto after:mt-4">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-10 text-center relative after:block after:h-1 after:w-24 after:bg-gray-800 after:mx-auto after:mt-4">
                         Panel de Administración
                     </h1>
                     <p className="text-gray-600 text-center">
