@@ -35,7 +35,7 @@ export default function AdminPanel() {
                         Panel de Administración
                     </h1>
                     <p className="text-gray-600 text-center">
-                        Gestiona productos, usuarios y configuraciones del sistema
+                        Gestioná productos, pedidos pendientes e historial de pedidos
                     </p>
                 </div>
 

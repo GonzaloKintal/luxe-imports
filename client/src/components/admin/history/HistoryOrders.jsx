@@ -160,7 +160,7 @@ export default function HistoryOrders() {
                 </div>
 
                 {/* Filtros */}
-                <div className="w-full flex flex-col gap-3 mx-auto mb-6">
+                <div className="w-full flex flex-col gap-3 mx-auto">
                     <UsernameFilter
                         username={username}
                         setUsername={handleUsernameChange}

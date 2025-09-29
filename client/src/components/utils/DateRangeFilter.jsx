@@ -49,7 +49,7 @@ export default function DateRangeFilter({
 
             {open && (
                 <div
-                    className="absolute left-0 right-0 z-20 bg-white border border-gray-200 rounded-b-lg shadow-xl p-4 mt-1 animate-fadeInUp w-full min-w-0"
+                    className="relative top-1 left-0 right-0 z-20 bg-white border border-gray-200 rounded-b-lg shadow-xl p-4 mt-1 animate-fadeInUp w-full min-w-0"
                 >
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                         {/* Desde */}

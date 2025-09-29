@@ -100,7 +100,7 @@ export default function HistoryOrderCard({ order, details, onFetchDetails }) {
                 <div className="flex mt-4 justify-start md:justify-end md:mt-0">
                     <div className="flex gap-2">
                         <button
-                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200 shadow-md"
+                            className="px-2 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-semibold transition-colors duration-200 shadow-md"
                             onClick={handleToggleExpand}
                         >
                             {expanded ? 'Ocultar productos' : 'Ver productos'}
@@ -109,30 +109,46 @@ export default function HistoryOrderCard({ order, details, onFetchDetails }) {
                 </div>
 
                 {expanded && Array.isArray(order.products) && (
-                    <div className="mt-4 border-t border-gray-200 pt-4">
-                        <div className="space-y-3">
-                            {order.products.map((p, idx) => {
-                                const title = p.title || (p.productId && (p.productId.title || p.productId.name)) || 'Producto';
-                                const priceUSD = typeof p.priceUSD === 'number' ? p.priceUSD : (typeof p.price === 'number' ? p.price : 0);
-                                const priceARS = typeof p.priceARS === 'number' ? p.priceARS : 0;
-                                const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
-                                const subtotalUSD = priceUSD * quantity;
-                                const subtotalARS = priceARS * quantity;
-                                return (
-                                    <div key={p._id || p.id || idx} className="flex flex-col md:flex-row justify-between py-3 px-4 bg-white rounded-lg border border-gray-100">
-                                        <div className="flex-1 font-medium text-gray-900">{title}</div>
-                                        <div className="flex flex-col gap-0 md:flex-row md:items-center md:gap-2 text-sm">
-                                            <span className="text-gray-600">Unitario USD: <span className="font-semibold text-gray-900">${priceUSD.toFixed(2)}</span></span>
-                                            <span className="text-gray-600">Unitario AR$: <span className="font-semibold text-green-700">{priceARS.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span></span>
-                                            <span className="text-gray-600">Cantidad: <span className="font-semibold">x{quantity}</span></span>
-                                            <span className="text-gray-600">Subtotal USD: <span className="font-semibold text-blue-700">${subtotalUSD.toFixed(2)}</span></span>
-                                            <span className="text-gray-600">Subtotal AR$: <span className="font-semibold text-green-700">{subtotalARS.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span></span>
+                    <div className="mt-4 space-y-4">
+                        {order.products.map((p, idx) => {
+                            const title = p.title || (p.productId && (p.productId.title || p.productId.name)) || 'Producto';
+                            const priceUSD = typeof p.priceUSD === 'number' ? p.priceUSD : (typeof p.price === 'number' ? p.price : 0);
+                            const priceARS = typeof p.priceARS === 'number' ? p.priceARS : 0;
+                            const quantity = typeof p.quantity === 'number' ? p.quantity : 0;
+                            const subtotalUSD = priceUSD * quantity;
+                            const subtotalARS = priceARS * quantity;
+
+                            return (
+                                <div key={p._id || p.id || idx} className="flex flex-col lg:flex-row justify-between items-start lg:items-center p-4 bg-white rounded-lg shadow-sm border border-gray-100">
+                                    {/* Nombre + Cantidad */}
+                                    <div className="flex-1">
+                                        <div className="font-medium text-gray-900">{title}</div>
+                                        <div className="text-sm text-gray-500 mt-1">Cantidad: <span className="font-semibold">X{quantity}</span></div>
+                                    </div>
+
+                                    {/* Precios y subtotales */}
+                                    <div className="mt-2 lg:mt-0 flex flex-col lg:flex-row gap-1 lg:gap-4 text-sm">
+                                        <div className="text-gray-600">
+                                            <span>USD: </span>
+                                            <span className="font-semibold text-blue-700">${priceUSD.toFixed(2)}</span>
+                                        </div>
+                                        <div className="text-gray-600">
+                                            <span>AR$: </span>
+                                            <span className="font-semibold text-green-700">{priceARS.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <div className="text-gray-600 font-semibold">
+                                            Subtotal USD: <span className="text-blue-700">${subtotalUSD.toFixed(2)}</span>
+                                        </div>
+                                        <div className="text-gray-600 font-semibold">
+                                            Subtotal AR$: <span className="text-green-700">{subtotalARS.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
                                         </div>
                                     </div>
-                                );
-                            })}
-                        </div>
-                        <div className="mt-4 pt-4 border-t border-gray-200 text-right flex flex-col gap-1">
+                                </div>
+                            );
+                        })}
+
+                        {/* Totales generales */}
+                        <div className="flex flex-col pt-4 border-t border-gray-200 text-right space-y-1">
                             <span className="text-lg font-bold text-gray-900">
                                 Total USD: ${order.products.reduce((acc, p) => {
                                     const priceUSD = typeof p.priceUSD === 'number' ? p.priceUSD : (typeof p.price === 'number' ? p.price : 0);
