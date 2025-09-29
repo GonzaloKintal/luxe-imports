@@ -85,6 +85,65 @@ router.get('/pendientes', authenticateToken, isAdmin, async (req, res, next) => 
   }
 });
 
+// GET /api/carts/confirmados => Obtener todos los carritos confirmados (solo admin)
+router.get('/confirmados', authenticateToken, isAdmin, async (req, res, next) => {
+  try {
+    const { from, to, limit = 10, page = 1, username } = req.query;
+    const filters = { status: 'confirmado' };
+    if (from || to) {
+      filters.confirmedAt = {};
+      if (from) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const fromDate = new Date(from + 'T00:00:00-03:00');
+        filters.confirmedAt.$gte = fromDate;
+      }
+      if (to) {
+        // Crear fecha en zona horaria Argentina (UTC-3)
+        const toDate = new Date(to + 'T23:59:59-03:00');
+        filters.confirmedAt.$lte = toDate;
+      }
+    }
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Si hay filtro por username => primero obtenemos los IDs de usuarios que coinciden
+    if (username) {
+      const users = await User.find({
+        $expr: {
+          $regexMatch: {
+            input: { $concat: ["$firstName", " ", "$lastName"] },
+            regex: username,
+            options: "i"
+          }
+        }
+      }).select('_id');
+
+      if (users.length === 0) {
+        return res.json({
+          total: 0,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          results: []
+        });
+      }
+
+      filters.userId = { $in: users.map(u => u._id) };
+    }
+
+    const total = await manager.countPurchaseHistoryByUserId(filters);
+    const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
+    
+    // El ordenamiento ahora se hace en la base de datos (CartManager)
+    res.json({
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      results: carts
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // POST /api/carts/ => Crear nuevo carrito
 router.post('/', authenticateToken, async (req, res, next) => {
   try {
@@ -226,40 +285,6 @@ router.get('/current', authenticateToken, async (req, res, next) => {
   }
 });
 
-
-
-// GET /api/carts/confirmados => Obtener todos los carritos confirmados (solo admin)
-router.get('/confirmados', authenticateToken, isAdmin, async (req, res, next) => {
-  try {
-    const { from, to, limit = 10, page = 1 } = req.query;
-    const filters = { status: 'confirmado' };
-    if (from || to) {
-      filters.confirmedAt = {};
-      if (from) {
-        // Crear fecha en zona horaria Argentina (UTC-3)
-        const fromDate = new Date(from + 'T00:00:00-03:00');
-        filters.confirmedAt.$gte = fromDate;
-      }
-      if (to) {
-        // Crear fecha en zona horaria Argentina (UTC-3)
-        const toDate = new Date(to + 'T23:59:59-03:00');
-        filters.confirmedAt.$lte = toDate;
-      }
-    }
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const total = await manager.countPurchaseHistoryByUserId(filters);
-    const carts = await manager.getPurchaseHistoryByUserId(filters, parseInt(limit), skip);
-    // El ordenamiento ahora se hace en la base de datos (CartManager)
-    res.json({
-      total,
-      page: parseInt(page),
-      limit: parseInt(limit),
-      results: carts
-    });
-  } catch (error) {
-    next(error);
-  }
-});
 
 // GET /api/carts/:cid => Obtener productos del carrito
 router.get('/:cid', authenticateToken, async (req, res, next) => {

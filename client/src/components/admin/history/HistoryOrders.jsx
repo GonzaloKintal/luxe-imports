@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { FaHistory, FaSync } from 'react-icons/fa';
 import HistoryOrdersList from './HistoryOrdersList';
 import DateRangeFilter from '../../utils/DateRangeFilter';
+import UsernameFilter from '../../utils/UsernameFilter';
 import { useAuthFetch } from '../../../hooks/useAuthFetch';
 import useHistoryOrdersStore from '../../../store/historyOrdersStore';
 import { toast } from 'react-toastify';
@@ -28,26 +30,69 @@ export default function HistoryOrders() {
         clearFilters
     } = useHistoryOrdersStore();
 
+    // Filtros locales persistentes
+    const filtrosGuardados = JSON.parse(sessionStorage.getItem('historyOrdersFiltros') || '{}');
+    const [username, setUsername] = useState(filtrosGuardados.username || '');
+
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [filtersApplied, setFiltersApplied] = useState(false);
+
+    // Persistir filtros
+    useEffect(() => {
+        sessionStorage.setItem('historyOrdersFiltros', JSON.stringify({
+            username
+        }));
+    }, [username]);
 
     // Fetch inicial si no está inicializado
     useEffect(() => {
-        if (!isInitialized) {
-            const defaultFilters = { from: '', to: '' };
+        if (!isInitialized && !filtersApplied) {
+            const defaultFilters = { 
+                from: '', 
+                to: '', 
+                username: '' 
+            };
             fetchOrders(defaultFilters, authFetch).catch(err => console.error(err));
+            setFiltersApplied(true);
         }
-    }, [isInitialized]);
+    }, [isInitialized, filtersApplied, fetchOrders, authFetch]);
 
     // Limpiar detalles expandidos al cambiar de historia
     useEffect(() => {
         clearExpandedData();
     }, [clearExpandedData]);
 
+    // Función para aplicar filtros
+    const applyFilters = useCallback((filters) => {
+        setFiltersApplied(true);
+        fetchOrders(filters, authFetch);
+    }, [authFetch, fetchOrders]);
+
+    // Handler para cambios de username con debounce
+    const handleUsernameChange = useCallback((value) => {
+        setUsername(value);
+        
+        // Aplicar filtros después de un pequeño delay
+        const timer = setTimeout(() => {
+            applyFilters({
+                from: '',
+                to: '',
+                username: value
+            });
+        }, 300); // debounce
+        
+        return () => clearTimeout(timer);
+    }, [applyFilters]);
+
     const handleRefresh = async () => {
         setIsRefreshing(true);
         try {
-            const defaultFilters = { from: '', to: '' };
-            await fetchOrders(defaultFilters, authFetch);
+            const filters = { 
+                from: '', 
+                to: '', 
+                username: username 
+            };
+            await fetchOrders(filters, authFetch);
         } catch (err) {
             toast.error('Error al refrescar historial de pedidos');
         } finally {
@@ -73,6 +118,8 @@ export default function HistoryOrders() {
 
     const handleClearFilters = async () => {
         try {
+            setUsername('');
+            setFiltersApplied(true);
             await clearFilters(authFetch);
         } catch (err) {
             console.error(err);
@@ -113,7 +160,13 @@ export default function HistoryOrders() {
                 </div>
 
                 {/* Filtros */}
-                <div className="w-full mx-auto mb-6">
+                <div className="w-full flex flex-col gap-3 mx-auto mb-6">
+                    <UsernameFilter
+                        username={username}
+                        setUsername={handleUsernameChange}
+                        loading={loading}
+                    />
+
                     <DateRangeFilter
                         onFilter={handleDateFilter}
                         onClear={handleClearFilters}
