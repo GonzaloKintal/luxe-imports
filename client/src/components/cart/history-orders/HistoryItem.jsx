@@ -118,7 +118,7 @@ export default function HistoryItem({ carrito: order, expanded, onToggleExpanded
                             >
                                 {/* Columna izquierda (imagen) */}
                                 <img
-                                    src={p.thumbnails?.[0] || "https://placehold.co/80x80"}
+                                    src={p.thumbnails?.[0] || (p.productId && p.productId.thumbnails?.[0]) || "https://placehold.co/80x80"}
                                     alt={title}
                                     className="w-20 h-20 object-cover rounded-md shadow bg-gray-200"
                                 />

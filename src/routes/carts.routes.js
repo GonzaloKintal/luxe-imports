@@ -271,9 +271,9 @@ router.get('/current', authenticateToken, async (req, res, next) => {
     };
     
     const carts = await manager.getPurchaseHistoryByUserId(filters, 1, 0);
-    
+      
     if (carts.length === 0) {
-      return res.status(404).json({ error: 'No hay carrito activo' });
+      return res.status(204).send();
     }
     
     // Retornar el más reciente

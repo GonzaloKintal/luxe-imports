@@ -1,5 +1,7 @@
 
-import { useState, useContext } from 'react';
+import { useContext, useState } from 'react';
+import logo1 from '../../assets/logos/logo1.png';
+
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import LoginForm from '../components/auth/LoginForm';
@@ -222,7 +224,7 @@ export default function Auth() {
         {/* Header */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-32 h-32 flex items-center justify-center mb-3">
-            <img src="/assets/logos/logo1.png" alt="Luxe Imports Logo" className="w-full h-full object-contain rounded-full shadow-md" />
+            <img src={logo1} alt="Luxe Imports Logo" className="w-full h-full object-contain rounded-full shadow-md" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-1 text-center">
             Bienvenido a Luxe Imports

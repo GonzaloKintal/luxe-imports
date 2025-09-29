@@ -29,39 +29,64 @@ router.post("/register", async (req, res, next) => {
   try {
     let { email, password, firstName, lastName, telefono } = req.body || {};
 
+    // Validaciones básicas
     if (telefono && !telefono.startsWith("+")) telefono = `+${telefono}`;
-    if (!email || !password || !firstName || !lastName || !telefono)
+    if (!email || !password || !firstName || !lastName || !telefono) {
+      console.error("Faltan campos:", req.body);
       return res.status(400).json({ error: "Faltan campos requeridos" });
+    }
 
-    if (!/^\+\d{12,15}$/.test(telefono))
+    if (!/^\+\d{12,15}$/.test(telefono)) {
+      console.error("Teléfono inválido:", telefono);
       return res.status(400).json({ error: "Teléfono inválido, ej: +5491123456789" });
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      console.error("Email inválido:", email);
       return res.status(400).json({ error: "Email inválido" });
-    if (password.length < 6)
+    }
+
+    if (password.length < 6) {
+      console.error("Contraseña muy corta");
       return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
+    }
 
+    // Revisión de usuario existente
     const existingUser = await manager.getUserByEmail(email);
-    if (existingUser) return res.status(409).json({ error: "El email ya está registrado. Si olvidaste tu contraseña, podés usar la opción 'Olvidé mi contraseña'" });
+    if (existingUser) {
+      console.error("Usuario ya registrado:", email);
+      return res.status(409).json({ error: "El email ya está registrado" });
+    }
 
-   const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
-   const expirationTime = Date.now() + 10 * 60 * 1000; // 10 minutos
+    // Generar código de verificación
+    const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
+    const expirationTime = Date.now() + 10 * 60 * 1000; // 10 min
 
-   pendingRegistrations[email] = {
-     code: verificationCode,
-     expiresAt: expirationTime,
-     data: { email, password, firstName, lastName, telefono, role: "user" }
-   };
+    pendingRegistrations[email] = {
+      code: verificationCode,
+      expiresAt: expirationTime,
+      data: { email, password, firstName, lastName, telefono, role: "user" }
+    };
 
-await transporter.sendMail({
-  from: process.env.ADMIN_EMAIL_USER,
-  to: email,
-  subject: "Confirma tu dirección de correo electrónico",
-  text: `¡Bienvenido a nuestra plataforma! 🎉\n\nPara completar tu registro, utiliza el siguiente código de verificación:\n\n${verificationCode}\n\nEste código expirará en 10 minutos.\n\nSi no solicitaste este registro, puedes ignorar este mensaje de manera segura.\n\nGracias,\nEl equipo de soporte`,
-});
+    // Intentar enviar email y capturar error
+    try {
+      await transporter.sendMail({
+        from: process.env.ADMIN_EMAIL_USER,
+        to: email,
+        subject: "Confirma tu dirección de correo electrónico",
+        text: `¡Bienvenido a nuestra plataforma! 🎉\n\nPara completar tu registro, utiliza el siguiente código de verificación:\n\n${verificationCode}\n\nEste código expirará en 10 minutos.\n\nSi no solicitaste este registro, puedes ignorar este mensaje de manera segura.\n\nGracias,\nEl equipo de soporte`,
+      });
+      console.log("Email enviado a:", email);
+    } catch (mailError) {
+      console.error("Error enviando email:", mailError);
+      // No bloquea el registro, solo loguea
+      return res.status(500).json({ error: "No se pudo enviar el email de verificación. Verifique la configuración SMTP" });
+    }
 
     res.status(200).json({ message: "Código de verificación enviado a tu email" });
   } catch (error) {
-    next(error);
+    console.error("Error en /register:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 });
 

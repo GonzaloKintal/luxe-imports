@@ -73,7 +73,7 @@ export default function Cart() {
                     return;
                 }
 
-                if (activeCartRes.status === 404) {
+                if (activeCartRes.status === 204) {
                     setError('No tenés un carrito activo');
                     setProducts([]);
                     setLoading(false);

@@ -144,22 +144,30 @@ export default function Products() {
         navigate(`/products/product-detail/${id}`);
     };
 
+    const [shouldResetFilters, setShouldResetFilters] = useState(false);
+
+    // Efecto para manejar el reset de filtros
+    useEffect(() => {
+        if (shouldResetFilters) {
+            const defaultFilters = {
+                search: '',
+                category: '',
+                priceMin: '',
+                priceMax: '',
+                sort: ''
+            };
+            fetchProductos(defaultFilters);
+            setShouldResetFilters(false);
+        }
+    }, [shouldResetFilters, fetchProductos]);
+
     const limpiarFiltros = () => {
         setBusqueda('');
         setFiltroCategoria('');
         setPrecioMin('');
         setPrecioMax('');
         setOrdenPrecio('');
-        
-        const defaultFilters = {
-            search: '',
-            category: '',
-            priceMin: '',
-            priceMax: '',
-            sort: ''
-        };
-        
-        fetchProductos(defaultFilters);
+        setShouldResetFilters(true);
     };
 
     return (

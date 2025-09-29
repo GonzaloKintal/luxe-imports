@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
+import logo1 from '../../../assets/logos/logo1.png';
 
 const About = () => {
 
@@ -38,7 +39,7 @@ const About = () => {
 
             <div className="flex items-center gap-4">
               <img 
-                src="/assets/logos/logo1.png" 
+                src={logo1} 
                 alt="Logo Luxe Imports"
                 className="w-16 h-16 rounded-full shadow-md object-cover"
               />
