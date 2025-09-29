@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import novaraLogo from '../../../assets/novara/logo1.png';
 import { FaInstagram, FaTiktok, FaHeart } from 'react-icons/fa';
 
 const Footer = () => {
@@ -92,7 +93,7 @@ const Footer = () => {
               className="flex items-center hover:text-white transition-colors duration-300"
             >
               <img 
-                src="/assets/novara/logo1.png" 
+                src={novaraLogo} 
                 alt="Logo Novara Soft" 
                 className="w-8 h-8 object-contain"
               />
