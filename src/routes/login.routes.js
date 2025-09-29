@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userManager from "../managers/UserManager.js";
 import { authenticateToken, isAdmin } from "../middlewares/auth.js";
-import nodemailer from "nodemailer";
+import * as brevo from '@getbrevo/brevo';
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -11,14 +11,9 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const router = express.Router();
 const manager = userManager;
 
-// Configuración de nodemailer
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.ADMIN_EMAIL_USER,
-    pass: process.env.ADMIN_EMAIL_PASS,
-  },
-});
+// Configuración de Brevo
+const apiInstance = new brevo.TransactionalEmailsApi();
+apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 // Memoria temporal
 const pendingRegistrations = {}; // { email: { code, data } }
@@ -68,19 +63,16 @@ router.post("/register", async (req, res, next) => {
       data: { email, password, firstName, lastName, telefono, role: "user" }
     };
 
-    // Intentar enviar email y capturar error
     try {
-      await transporter.sendMail({
-        from: process.env.ADMIN_EMAIL_USER,
-        to: email,
+      await apiInstance.sendTransacEmail({
+        to: [{ email }],
+        sender: { email: process.env.BREVO_FROM_EMAIL, name: "Luxe Imports" },
         subject: "Confirma tu dirección de correo electrónico",
-        text: `¡Bienvenido a nuestra plataforma! 🎉\n\nPara completar tu registro, utiliza el siguiente código de verificación:\n\n${verificationCode}\n\nEste código expirará en 10 minutos.\n\nSi no solicitaste este registro, puedes ignorar este mensaje de manera segura.\n\nGracias,\nEl equipo de soporte`,
+        textContent: `¡Bienvenido a nuestra plataforma! 🎉\n\nPara completar tu registro, utiliza el siguiente código de verificación:\n\n${verificationCode}\n\nEste código expirará en 10 minutos.\n\nSi no solicitaste este registro, puedes ignorar este mensaje de manera segura.\n\nGracias,\nEl equipo de soporte`,
       });
-      console.log("Email enviado a:", email);
     } catch (mailError) {
       console.error("Error enviando email:", mailError);
-      // No bloquea el registro, solo loguea
-      return res.status(500).json({ error: "No se pudo enviar el email de verificación. Verifique la configuración SMTP" });
+      return res.status(500).json({ error: "No se pudo enviar el email de verificación" });
     }
 
     res.status(200).json({ message: "Código de verificación enviado a tu email" });
@@ -185,12 +177,12 @@ router.post("/forgot-password/send-code", async (req, res, next) => {
     const code = Math.floor(10000 + Math.random() * 90000).toString();
     pendingPasswords[email] = { code, verified: false };
 
-await transporter.sendMail({
-  from: process.env.ADMIN_EMAIL_USER,
-  to: email,
-  subject: "Recuperación de contraseña - Código de verificación",
-  text: `Has solicitado restablecer tu contraseña.\n\nTu código de verificación es:\n\n${code}\n\nEste código expirará en 10 minutos.\n\nSi no solicitaste el restablecimiento de tu contraseña, puedes ignorar este correo de manera segura.\n\nGracias,\nEl equipo de soporte`,
-});
+    await apiInstance.sendTransacEmail({
+      to: [{ email }],
+      sender: { email: process.env.BREVO_FROM_EMAIL, name: "Luxe Imports" },
+      subject: "Recuperación de contraseña - Código de verificación",
+      textContent: `Has solicitado restablecer tu contraseña.\n\nTu código de verificación es:\n\n${code}\n\nEste código expirará en 10 minutos.\n\nSi no solicitaste el restablecimiento de tu contraseña, puedes ignorar este correo de manera segura.\n\nGracias,\nEl equipo de soporte`,
+    });
 
 
     res.status(200).json({ message: "Código enviado a tu email" });
