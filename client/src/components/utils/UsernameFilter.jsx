@@ -7,7 +7,8 @@ export default function UsernameFilter({ username, setUsername, loading, classNa
       <div className="flex flex-col w-full">
         <label htmlFor="username" className="mb-2 text-sm font-semibold text-gray-700 flex items-center gap-2">
           <FaUser className="text-gray-500" />
-          Buscar por nombre de usuario
+          <span className="sm:hidden">Buscar por nombre</span>
+          <span className="hidden sm:inline">Buscar por nombre de usuario</span>
         </label>
         <div className="relative">  {/* Agrego un wrapper para overlay opcional */}
           <input

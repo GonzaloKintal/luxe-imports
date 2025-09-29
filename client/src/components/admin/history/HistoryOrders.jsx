@@ -145,8 +145,8 @@ export default function HistoryOrders() {
                             <FaHistory className="text-blue-600" />
                             Historial de Compras
                         </h3>
-                        <p className="text-gray-600 mt-1">
-                            Consulta todas las compras realizadas en el sistema
+                        <p className="text-gray-600 text-sm sm:text-base mt-1">
+                            Consultá todas las compras realizadas en el sistema
                         </p>
                     </div>
                     <button

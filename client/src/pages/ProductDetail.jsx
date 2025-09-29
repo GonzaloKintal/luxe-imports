@@ -232,12 +232,12 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col py-8 pt-20">
+    <div className="min-h-screen bg-gray-50 flex flex-col py-20">
       
       <div className="w-full px-4 sm:px-6 lg:px-8 mt-6 mb-4">
         <button
           onClick={() => navigate('/products')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          className="flex cursor-pointer items-center gap-2 text-gray-600 hover:text-gray-900"
         >
           <FaArrowLeft /> Volver
         </button>

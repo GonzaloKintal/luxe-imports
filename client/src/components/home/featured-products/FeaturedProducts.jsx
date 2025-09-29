@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import Marquee from "react-fast-marquee";
 import ProductCard from '../../products/ProductCard';
 import ProductCardSkeleton from '../../products/ProductCardSkeleton';
+import { FaStar } from 'react-icons/fa';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const DOLAR_API_URL = import.meta.env.VITE_DOLAR_API_URL;
@@ -62,9 +63,16 @@ export default function FeaturedProducts() {
     return (
         <section id="featured-products" className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
             <div className="text-center mb-10">
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-10 text-center relative after:block after:h-1 after:w-24 after:bg-blue-500 after:mx-auto after:mt-4">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 sm:mb-4 text-center">
                     Productos Destacados
                 </h2>
+
+                {/* Estrellas debajo del título */}
+                <div className="flex justify-center gap-1 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                        <FaStar key={i} className="text-yellow-400 w-5 h-5 sm:w-6 sm:h-6" />
+                    ))}
+                </div>
             </div>
 
             <Marquee

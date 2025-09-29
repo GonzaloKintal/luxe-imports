@@ -43,8 +43,8 @@ export default function DateRangeFilter({
                 className="w-full flex justify-between items-center bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-left text-gray-900 font-medium shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 onClick={() => setOpen(o => !o)}
             >
-                <span>{showTitle ? title : 'Filtrar por fecha'}</span>
-                <svg className={`w-5 h-5 ml-2 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                <span className='text-sm sm:text-base'>{showTitle ? title : 'Filtrar por fecha'}</span>
+                <svg className={`w-4 h-4 sm:w-5 sm:h-5 ml-2 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
 
             {open && (

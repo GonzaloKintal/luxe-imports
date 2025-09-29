@@ -7,7 +7,7 @@ import { FaPlus, FaSpinner } from 'react-icons/fa';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CreateProductForm({ onSave }) {
-    const { authFetch } = useAuthFetch(); // <- obtenemos authFetch
+    const { authFetch } = useAuthFetch();
 
     const initialForm = {
         title: '',
@@ -142,7 +142,7 @@ export default function CreateProductForm({ onSave }) {
                 </div>
 
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
                         <label htmlFor="price" className="block text-gray-700 mb-1 font-semibold text-sm">
                             Precio (USD)<span className="text-red-500">*</span>
@@ -210,7 +210,7 @@ export default function CreateProductForm({ onSave }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                     <div>
                         <label htmlFor="category" className="block text-gray-700 mb-1 font-semibold text-sm">Categoría</label>
                         <select

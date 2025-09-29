@@ -44,7 +44,7 @@ const TokenExpiryModal = () => {
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white border border-gray-200 rounded-2xl p-10 max-w-lg mx-4 shadow-2xl transform transition-all duration-300 hover:shadow-3xl">
+      <div className="bg-white border border-gray-200 rounded-2xl p-10 max-w-lg mx-6 shadow-2xl transform transition-all duration-300 hover:shadow-3xl">
         <div className="text-center">
           {/* Icono elegante con gradiente sutil */}
           <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 mb-8 shadow-lg">
@@ -86,7 +86,7 @@ const TokenExpiryModal = () => {
           {/* Botón elegante */}
           <button
             onClick={handleCloseModal}
-            className="w-full bg-black hover:bg-gray-800 text-white font-medium py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 active:scale-[0.98]"
+            className="w-full cursor-pointer bg-black hover:bg-gray-800 text-white font-medium py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 active:scale-[0.98]"
           >
             <span className="flex items-center justify-center">
               <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,7 +97,7 @@ const TokenExpiryModal = () => {
           </button>
           
           {/* Texto pequeño elegante */}
-          <p className="text-xs text-gray-400 mt-6 font-light tracking-wide">
+          <p className="text-xs text-gray-500 mt-6 font-light tracking-wide">
             Tus datos permanecen seguros y protegidos
           </p>
         </div>

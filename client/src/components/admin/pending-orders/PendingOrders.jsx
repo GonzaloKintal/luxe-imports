@@ -187,8 +187,8 @@ export default function PendingOrders() {
                                 <FaClock className="text-blue-500" />
                                 Pedidos Pendientes
                             </h3>
-                            <p className="text-gray-600 mt-1">
-                                Revisa los pedidos que aún no han sido completados
+                            <p className="text-gray-600 text-sm sm:text-base mt-1">
+                                Revisá los pedidos que aún no han sido completados
                             </p>
                         </div>
                         <button
