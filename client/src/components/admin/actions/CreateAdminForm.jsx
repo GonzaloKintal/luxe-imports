@@ -87,9 +87,12 @@ export default function CreateAdminForm({ onSave }) {
     return (
         <div className="mt-4 bg-white rounded-xl shadow-lg border border-gray-300 p-6">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                     <FaUserShield className="text-gray-600" />
-                    Crear nuevo admin
+
+                    <span className="sm:hidden">Crear admin</span>
+                    <span className="hidden sm:inline">Crear nuevo admin</span>
+                    
                 </h3>
             </div>
 
@@ -191,12 +194,14 @@ export default function CreateAdminForm({ onSave }) {
                             const isSelf = currentUserId === admin._id;
                             return (
                                 <li key={admin._id} className="py-3 flex items-center justify-between">
-                                    <div>
+                                    <div className='flex flex-col sm:flex-row'>
                                         <span className="font-bold text-gray-800">{admin.firstName} {admin.lastName}</span>
-                                        <span className="ml-2 text-gray-500 text-sm">{admin.email}</span>
-                                        {isSelf && (
-                                            <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">(Tú)</span>
-                                        )}
+                                        <div className="flex flex-row items-center">
+                                            <span className="sm:ml-2 text-gray-500 text-sm">{admin.email}</span>
+                                            {isSelf && (
+                                                <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">(Tú)</span>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex gap-2">
                                         <button
@@ -205,7 +210,7 @@ export default function CreateAdminForm({ onSave }) {
                                             title={isSelf ? 'No puedes eliminarte a ti mismo' : 'Eliminar'}
                                             disabled={isSelf}
                                         >
-                                            <FaTrash size={16} />
+                                            <FaTrash size={18} />
                                         </button>
                                     </div>
                                 </li>

@@ -10,7 +10,6 @@ export default function ActionButtonCard({
     colorScheme 
 }) {
     
-    // Mapear esquemas de color a clases de Tailwind
     const colorClasses = {
         blue: {
             bg: 'bg-blue-50',
@@ -42,17 +41,19 @@ export default function ActionButtonCard({
     return (
         <button
             onClick={() => onClick(id)} 
-            className={`flex flex-col items-center justify-center p-5 rounded-xl transition-all duration-200 border ${
-                isActive 
-                    ? `${activeClasses.bg} ${activeClasses.border} shadow-inner` 
-                    : 'bg-white border-gray-200 hover:bg-gray-50 hover:shadow-sm'
-            }`}
+            className={`flex flex-col items-center justify-center 
+                p-3 sm:p-4 md:p-5
+                rounded-xl transition-all duration-200 border ${
+                    isActive 
+                        ? `${activeClasses.bg} ${activeClasses.border} shadow-inner` 
+                        : 'bg-white border-gray-200 hover:bg-gray-50 hover:shadow-sm'
+                }`}
         >
-            <div className={`p-3 rounded-full mb-3 ${activeClasses.iconBg} ${activeClasses.iconText}`}>
-                <Icon className="text-lg" />
+            <div className={`p-2 sm:p-2.5 md:p-3 rounded-full mb-2 sm:mb-3 md:mb-3 ${activeClasses.iconBg} ${activeClasses.iconText}`}>
+                <Icon className="text-base sm:text-lg md:text-lg" /> {/* ícono más pequeño en mobile */}
             </div>
-            <span className="font-medium text-gray-700">{title}</span>
-            <p className="text-xs text-gray-500 mt-1 text-center">{description}</p>
+            <span className="font-medium text-gray-700 text-sm sm:text-base">{title}</span>
+            <p className="text-xs sm:text-xs md:text-xs text-gray-500 mt-1 text-center">{description}</p>
         </button>
     );
     

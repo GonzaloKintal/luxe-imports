@@ -218,7 +218,7 @@ export default function Products() {
 
                 {!loading && !error && !hasMoreProducts && productos.length > 0 && (
                     <div className="text-center mt-8 mb-4">
-                        <p className="text-gray-600 font-medium">
+                        <p className="text-gray-600 text-sm sm:text-base font-medium">
                             Has visto todos los productos disponibles
                         </p>
                     </div>
@@ -226,7 +226,7 @@ export default function Products() {
 
                 {!loading && !error && productos.length === 0 && (
                     <div className="text-center mt-8 mb-4">
-                        <p className="text-gray-600 font-medium">
+                        <p className="text-gray-600 text-sm sm:text-base font-medium">
                             No se encontraron productos con los filtros aplicados
                         </p>
                         <button

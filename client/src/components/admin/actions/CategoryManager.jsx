@@ -118,7 +118,7 @@ export default function CategoryManager() {
     return (
         <div className="bg-white rounded-xl shadow-lg border border-gray-300 p-6 mt-4">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                     <FaEye className="text-gray-600" />
                     Administrar categorías
                 </h3>
@@ -177,11 +177,11 @@ export default function CategoryManager() {
                 ) : (
                     <ul className="divide-y divide-gray-200">
                         {categories.map(cat => (
-                            <li key={cat._id} className="py-3 flex items-center justify-between">
-                                <div>
+                            <li key={cat._id} className="py-3 flex items-center justify-between gap-3">
+                                <div className='flex flex-col sm:flex-row'>
                                     <span className="font-bold text-gray-800">{cat.name}</span>
                                     {cat.description && (
-                                        <span className="ml-2 text-gray-500 text-sm">{cat.description}</span>
+                                        <span className="sm:ml-2 text-gray-500 text-sm flex items-center">{cat.description}</span>
                                     )}
                                 </div>
                                 <div className="flex gap-2">

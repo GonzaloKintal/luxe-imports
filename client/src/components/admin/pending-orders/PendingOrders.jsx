@@ -243,7 +243,7 @@ export default function PendingOrders() {
 
                     {!loading && !error && !hasMoreOrders && orders.length > 0 && (
                         <div className="text-center mt-8">
-                            <p className="text-gray-600 font-medium">
+                            <p className="text-gray-600 text-sm sm:text-base font-medium">
                                 Has visto todos los pedidos pendientes
                             </p>
                         </div>

@@ -106,9 +106,10 @@ export default function CreateProductForm({ onSave }) {
     return (
         <div className="mt-4 bg-white rounded-xl shadow-lg border border-gray-300 p-6">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                     <FaPlus className="text-gray-600" />
-                    Crear nuevo producto
+                    <span className="sm:hidden">Crear producto</span>
+                    <span className="hidden sm:inline">Crear nuevo producto</span>
                 </h3>
             </div>
 
