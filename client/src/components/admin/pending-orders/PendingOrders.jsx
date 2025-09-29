@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaClock, FaSync } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import PendingOrdersList from './PendingOrdersList';
 import ConfirmOrderAction from './ConfirmOrderAction';
 import DateRangeFilter from '../../utils/DateRangeFilter';
+import UsernameFilter from '../../utils/UsernameFilter';
 import usePendingOrdersStore from '../../../store/pendingOrdersStore';
 import useHistoryOrdersStore from '../../../store/historyOrdersStore';
 import { useAuthFetch } from '../../../hooks/useAuthFetch';
@@ -29,6 +31,10 @@ export default function PendingOrders() {
 
     const { refreshOrders: refreshHistoryOrders } = useHistoryOrdersStore();
 
+    // Filtros locales persistentes
+    const filtrosGuardados = JSON.parse(sessionStorage.getItem('pendingOrdersFiltros') || '{}');
+    const [username, setUsername] = useState(filtrosGuardados.username || '');
+
     const [confirmDialog, setConfirmDialog] = useState({
         open: false,
         type: null,
@@ -37,21 +43,59 @@ export default function PendingOrders() {
     });
 
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [filtersApplied, setFiltersApplied] = useState(false);
 
-    // Fetch inicial
+    // Persistir filtros
     useEffect(() => {
-        if (!isInitialized) {
-            const defaultFilters = { from: '', to: '' };
-            fetchOrders(defaultFilters, authFetch).catch(err => console.error(err));
+        sessionStorage.setItem('pendingOrdersFiltros', JSON.stringify({
+            username
+        }));
+    }, [username]);
+
+    // Fetch inicial SOLO al montar el componente
+    useEffect(() => {
+        if (!isInitialized && !filtersApplied) {
+            const filters = {
+                from: '',
+                to: '',
+                username: ''
+            };
+            fetchOrders(filters, authFetch).catch(err => console.error(err));
+            setFiltersApplied(true);
         }
+    }, [isInitialized, filtersApplied, fetchOrders, authFetch]);
+
+    // Función para aplicar filtros con debounce
+    const applyFilters = useCallback((filters) => {
+        setFiltersApplied(true);
+        fetchOrders(filters, authFetch);
+    }, [authFetch, fetchOrders]);
+
+    // Handler para cambios de username con debounce manual
+    const handleUsernameChange = useCallback((value) => {
+        setUsername(value);
         
-    }, [isInitialized]);
+        // Aplicar filtros después de un pequeño delay (como en Products)
+        const timer = setTimeout(() => {
+            applyFilters({
+                from: '',
+                to: '',
+                username: value
+            });
+        }, 300); // debounce
+        
+        return () => clearTimeout(timer);
+    }, [applyFilters]);
 
     const handleRefresh = async () => {
         setIsRefreshing(true);
         try {
-            const defaultFilters = { from: '', to: '' };
-            await fetchOrders(defaultFilters, authFetch);
+            const filters = {
+                from: '',
+                to: '',
+                username: username
+            };
+            await fetchOrders(filters, authFetch);
         } catch (err) {
             toast.error('Error al refrescar pedidos');
         } finally {
@@ -121,6 +165,8 @@ export default function PendingOrders() {
     };
 
     const handleClearFilters = async () => {
+        setUsername('');
+        setFiltersApplied(true);
         await clearFilters(authFetch);
     };
 
@@ -141,8 +187,8 @@ export default function PendingOrders() {
                                 <FaClock className="text-blue-500" />
                                 Pedidos Pendientes
                             </h3>
-                            <p className="text-gray-600 mt-1">
-                                Revisa los pedidos que aún no han sido completados
+                            <p className="text-gray-600 text-sm sm:text-base mt-1">
+                                Revisá los pedidos que aún no han sido completados
                             </p>
                         </div>
                         <button
@@ -156,7 +202,13 @@ export default function PendingOrders() {
                     </div>
 
                     {/* Filtros */}
-                    <div className="w-full mx-auto mb-6">
+                    <div className="w-full flex flex-col gap-3 mx-auto">
+                        <UsernameFilter
+                            username={username}
+                            setUsername={handleUsernameChange}
+                            loading={loading}
+                        />
+
                         <DateRangeFilter
                             onFilter={handleDateFilter}
                             onClear={handleClearFilters}
@@ -191,7 +243,7 @@ export default function PendingOrders() {
 
                     {!loading && !error && !hasMoreOrders && orders.length > 0 && (
                         <div className="text-center mt-8">
-                            <p className="text-gray-600 font-medium">
+                            <p className="text-gray-600 text-sm sm:text-base font-medium">
                                 Has visto todos los pedidos pendientes
                             </p>
                         </div>

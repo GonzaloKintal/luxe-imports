@@ -139,11 +139,11 @@ const Contact = () => {
         <div className="absolute top-1/3 left-1/3 w-[60%] h-[60%] bg-white/5 rounded-full blur-2xl animate-float" />
       </div>
       
-      <div className="relative z-10 mt-10 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+      <div className="relative z-10 mt-6 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 md:py-16">
         <Slider ref={sliderRef} {...sliderSettings}>
           
           {/* Slide 1: Redes Sociales */}
-          <div className="flex flex-col items-center justify-center min-h-[50vh] sm:min-h-[60vh] py-4 sm:py-6">
+          <div className="flex flex-col items-center justify-center min-h-[45vh] sm:min-h-[55vh] py-4 sm:py-6">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-6 sm:mb-10 text-center px-2">
               Seguinos en nuestras redes
             </h3>
@@ -152,7 +152,7 @@ const Contact = () => {
             </p>
 
             {/* Botones redes sociales */}
-            <div className="flex justify-center gap-6 sm:gap-10 md:gap-16 flex-wrap px-4">
+            <div className="flex justify-center gap-4 sm:gap-10 md:gap-16 flex-wrap px-4">
               {socialLinks.map((social, index) => {
                 const IconComponent = social.icon;
                 return (
@@ -161,26 +161,20 @@ const Contact = () => {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`group relative flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full shadow-2xl ${social.color} ${social.hoverEffect} transition-all duration-500`}
+                    className={`group relative flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 rounded-full shadow-2xl ${social.color} ${social.hoverEffect} transition-all duration-500`}
                   >
-                    {/* Icono */}
                     <IconComponent
-                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white relative z-10 transition-transform duration-500 group-hover:scale-110"
+                      className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white relative z-10 transition-transform duration-500 group-hover:scale-110"
                     />
-
-                    {/* Efecto Glow */}
-                    <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500"></div>
-
-                    {/* Borde sutil */}
-                    <span className="absolute inset-0 rounded-full border border-white/20 group-hover:border-white/40 transition-all duration-500"></span>
                   </a>
                 );
               })}
             </div>
+
           </div>
 
           {/* Slide 2: Cómo comprar */}
-          <div className="flex flex-col items-center justify-center min-h-[50vh] sm:min-h-[60vh] py-4 sm:py-6">
+          <div className="flex flex-col items-center justify-center min-h-[45vh] sm:min-h-[55vh] py-4 sm:py-6">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-4 sm:mb-6 text-center px-2">
               ¿Cómo comprar en Luxe Imports?
             </h3>

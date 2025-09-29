@@ -29,13 +29,15 @@ export default function AdminPanel() {
     return (
         <main className="bg-gray-100 px-6 md:px-12 pt-12 relative overflow-hidden min-h-screen w-full">
             <div className="flex flex-col relative z-10 md:px-6 py-10 sm:py-20">
+                
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4 text-center relative after:block after:h-1 after:w-24 after:bg-blue-500 after:mx-auto after:mt-4">
+                <div className="mb-6 sm:mb-8">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 sm:mb-10 text-center relative
+                        after:block after:h-1 after:w-16 sm:after:w-24 after:bg-gray-800 after:mx-auto after:mt-2 sm:after:mt-4">
                         Panel de Administración
                     </h1>
-                    <p className="text-gray-600 text-center">
-                        Gestiona productos, usuarios y configuraciones del sistema
+                    <p className="text-gray-600 text-center text-sm sm:text-base">
+                        Gestioná productos, pedidos pendientes e historial de pedidos
                     </p>
                 </div>
 

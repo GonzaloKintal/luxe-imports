@@ -140,7 +140,7 @@ function ToolbarPlugin({ onChange }) {
         </button>
         
         {showEmojis && (
-          <div className="absolute left-0 bottom-full mb-1 z-[1000] bg-white border border-gray-300 rounded-lg shadow-lg p-2 w-48">
+          <div className="absolute bottom-full mb-1 z-[1000] bg-white border border-gray-300 rounded-lg shadow-lg p-2 w-[90vw] max-w-48 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:w-48 md:left-0">
             <div className="grid grid-cols-5 gap-1">
               {emojis.map((emoji, index) => (
                 <button

@@ -7,7 +7,7 @@ import { FaPlus, FaSpinner } from 'react-icons/fa';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function CreateProductForm({ onSave }) {
-    const { authFetch } = useAuthFetch(); // <- obtenemos authFetch
+    const { authFetch } = useAuthFetch();
 
     const initialForm = {
         title: '',
@@ -106,9 +106,10 @@ export default function CreateProductForm({ onSave }) {
     return (
         <div className="mt-4 bg-white rounded-xl shadow-lg border border-gray-300 p-6">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                     <FaPlus className="text-gray-600" />
-                    Crear nuevo producto
+                    <span className="sm:hidden">Crear producto</span>
+                    <span className="hidden sm:inline">Crear nuevo producto</span>
                 </h3>
             </div>
 
@@ -141,7 +142,7 @@ export default function CreateProductForm({ onSave }) {
                 </div>
 
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
                         <label htmlFor="price" className="block text-gray-700 mb-1 font-semibold text-sm">
                             Precio (USD)<span className="text-red-500">*</span>
@@ -209,7 +210,7 @@ export default function CreateProductForm({ onSave }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                     <div>
                         <label htmlFor="category" className="block text-gray-700 mb-1 font-semibold text-sm">Categoría</label>
                         <select

@@ -173,7 +173,8 @@ export default function Products() {
     return (
         <main className="bg-gray-100 px-0 pt-12 relative overflow-hidden">
             <div className="relative z-10 px-2 sm:px-6 py-10 sm:py-20">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-10 text-center relative after:block after:h-1 after:w-24 after:bg-blue-500 after:mx-auto after:mt-4">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 sm:mb-10 text-center relative
+                        after:block after:h-1 after:w-16 sm:after:w-24 after:bg-gray-800 after:mx-auto after:mt-2 sm:after:mt-4">
                     Nuestros Productos
                 </h1>
 
@@ -218,7 +219,7 @@ export default function Products() {
 
                 {!loading && !error && !hasMoreProducts && productos.length > 0 && (
                     <div className="text-center mt-8 mb-4">
-                        <p className="text-gray-600 font-medium">
+                        <p className="text-gray-600 text-sm sm:text-base font-medium">
                             Has visto todos los productos disponibles
                         </p>
                     </div>
@@ -226,7 +227,7 @@ export default function Products() {
 
                 {!loading && !error && productos.length === 0 && (
                     <div className="text-center mt-8 mb-4">
-                        <p className="text-gray-600 font-medium">
+                        <p className="text-gray-600 text-sm sm:text-base font-medium">
                             No se encontraron productos con los filtros aplicados
                         </p>
                         <button

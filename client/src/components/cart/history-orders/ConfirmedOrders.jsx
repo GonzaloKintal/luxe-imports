@@ -69,7 +69,7 @@ export default function ConfirmedOrders({ orders, totalConfirmed, expandedHistor
             {/* Mensaje cuando se han visto todos */}
             {orders && orders.length > 0 && !hasMore && (
                 <div className="text-center mt-6">
-                    <p className="text-gray-600 font-medium">
+                    <p className="text-gray-600 text-sm sm:text-base font-medium">
                         Has visto todo el historial de compras confirmadas
                     </p>
                 </div>

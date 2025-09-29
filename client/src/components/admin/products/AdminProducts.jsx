@@ -231,7 +231,7 @@ export default function AdminProducts() {
             {/* No hay más */}
             {!loading && !error && !hasMoreProducts && products.length > 0 && (
                 <div className="text-center mt-8 mb-4">
-                    <p className="text-gray-600 font-medium">
+                    <p className="text-gray-600 text-sm sm:text-base font-medium">
                         Has visto todos los productos disponibles
                     </p>
                 </div>

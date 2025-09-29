@@ -269,11 +269,11 @@ export default function CartHistory({ token, API_URL }) {
             {!loading && !error && totalCarritos === 0 && (
                 <div className="text-center mt-8 mb-4">
                     {currentFilters.from || currentFilters.to ? (
-                        <p className="text-gray-600 font-medium">
+                        <p className="text-gray-600 text-sm sm:text-base font-medium">
                             No se encontraron pedidos en el rango de fechas seleccionado
                         </p>
                     ) : (
-                        <p className="text-gray-600 font-medium">
+                        <p className="text-gray-600 text-sm sm:text-base font-medium">
                             No tienes historial de pedidos
                         </p>
                     )}

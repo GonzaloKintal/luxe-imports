@@ -17,7 +17,8 @@ const useHistoryOrdersStore = create((set, get) => ({
   
   currentFilters: {
     from: '',
-    to: ''
+    to: '',
+    username: ''
   },
 
   expanded: {},
@@ -38,6 +39,9 @@ const useHistoryOrdersStore = create((set, get) => ({
     }
     if (filters.to) {
       params.set('to', filters.to);
+    }
+    if (filters.username?.trim()) {
+      params.set('username', filters.username.trim());
     }
     
     return params.toString();
@@ -142,7 +146,8 @@ const useHistoryOrdersStore = create((set, get) => ({
   clearFilters: async (authFetchFn) => {
     const defaultFilters = {
       from: '',
-      to: ''
+      to: '',
+      username: ''
     };
     await get().fetchOrders(defaultFilters, authFetchFn);
   },
@@ -190,7 +195,8 @@ const useHistoryOrdersStore = create((set, get) => ({
     isInitialized: false,
     currentFilters: {
       from: '',
-      to: ''
+      to: '',
+      username: ''
     },
     expanded: {},
     details: {}
