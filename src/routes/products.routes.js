@@ -11,16 +11,33 @@ const manager = productManager;
 router.get("/featured", async (req, res, next) => {
   try {
     const featuredProducts = await manager.getFeaturedProducts();
+
     if (featuredProducts.length >= 7) {
-      res.json(featuredProducts);
-    } else {
-      // Si hay menos de 7 destacados, tomar los primeros 7 con stock > 0 y status = true
-      const allProducts = await manager.getProducts();
-      const validProducts = allProducts.filter(
-        (p) => p.stock > 0 && p.status === true
-      );
-      res.json(validProducts.slice(0, 7));
+      // Más de 7 destacados -> devolver todos
+      return res.json(featuredProducts);
     }
+
+    // Menos de 7 destacados -> completar hasta 7 con otros productos válidos
+    const allProducts = await manager.getProducts();
+    
+    // Filtramos productos activos y con stock > 0
+    const validProducts = allProducts.filter(
+      (p) => p.stock > 0 && p.status === true
+    );
+
+    // Excluir los que ya están en destacados
+    const remainingProducts = validProducts.filter(
+      (p) => !featuredProducts.some(f => f.id === p.id)
+    );
+
+    // Combinar destacados existentes + otros para completar hasta 7
+    const combined = [
+      ...featuredProducts,
+      ...remainingProducts.slice(0, 7 - featuredProducts.length)
+    ];
+
+    res.json(combined);
+
   } catch (error) {
     next(error);
   }
