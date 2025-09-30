@@ -31,6 +31,8 @@ router.post("/register", async (req, res, next) => {
       return res.status(400).json({ error: "Faltan campos requeridos" });
     }
 
+    email = email.toLowerCase().trim();
+
     if (!/^\+\d{12,15}$/.test(telefono)) {
       console.error("Teléfono inválido:", telefono);
       return res.status(400).json({ error: "Teléfono inválido, ej: +5491123456789" });
