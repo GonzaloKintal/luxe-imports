@@ -62,6 +62,12 @@ export default function AdminActions({ API_URL }) {
             
             // Actualizamos store
             updateProduct(created._id, created);
+            
+            // Forzar recarga de página después de mostrar el toast
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+            
             return true;
 
         } catch (error) {
