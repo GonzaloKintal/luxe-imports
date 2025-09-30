@@ -143,7 +143,7 @@ const Contact = () => {
         <Slider ref={sliderRef} {...sliderSettings}>
 
           {/* Slide 1: Redes Sociales */}
-          <div className="flex flex-col items-center justify-center min-h-[60vh] md:min-h-[70vh] py-6">
+          <div className="flex flex-col items-center justify-center min-h-[40vh] md:min-h-[70vh] py-6">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-6 sm:mb-10 text-center px-2">
               Seguinos en nuestras redes
             </h3>
@@ -173,7 +173,7 @@ const Contact = () => {
           </div>
 
           {/* Slide 2: Cómo comprar */}
-          <div className="flex flex-col items-center justify-center min-h-[60vh] md:min-h-[70vh] py-6">
+          <div className="flex flex-col items-center justify-center min-h-[40vh] md:min-h-[70vh] py-6">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-4 sm:mb-6 text-center px-2">
               ¿Cómo comprar en Luxe Imports?
             </h3>
