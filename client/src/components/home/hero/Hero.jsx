@@ -38,7 +38,7 @@ export default function Hero() {
               </h1>
 
               <p className="text-xl md:text-2xl mb-8 font-light text-gray-300 animate-fade-in-up">
-                Celulares & Perfumes Importados
+                Productos Importados
               </p>
               <p className="text-lg mb-10 max-w-2xl mx-auto text-gray-400 animate-fade-in-up delay-300">
                 Calidad. Estilo. Confianza.
