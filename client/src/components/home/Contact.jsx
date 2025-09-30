@@ -21,29 +21,7 @@ const TikTokIcon = ({ className, strokeWidth = 1.5 }) => (
 );
 
 const Contact = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [maxHeight, setMaxHeight] = useState(0);
-  const slideRefs = useRef([]);
   const sliderRef = useRef(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const calculateMaxHeight = () => {
-      if (slideRefs.current.length > 0) {
-        const heights = slideRefs.current.map(ref => ref?.offsetHeight || 0);
-        const max = Math.max(...heights);
-        setMaxHeight(max);
-      }
-    };
-
-    calculateMaxHeight();
-    window.addEventListener('resize', calculateMaxHeight);
-    return () => window.removeEventListener('resize', calculateMaxHeight);
-  }, []);
 
   const socialLinks = [
     {
@@ -155,11 +133,10 @@ const Contact = () => {
       </div>
 
       <div className="relative z-10 mt-6 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 md:py-16">
-        <div style={{ minHeight: maxHeight || 'auto' }}>
-          <Slider ref={sliderRef} {...sliderSettings}>
+        <Slider ref={sliderRef} {...sliderSettings}>
 
           {/* Slide 1: Redes Sociales */}
-          <div ref={el => slideRefs.current[0] = el} className="flex flex-col items-center justify-center min-h-[40vh] md:min-h-[70vh] py-6">
+          <div className="flex flex-col items-center justify-center py-8 sm:py-12">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-6 sm:mb-10 text-center px-2">
               Seguinos en nuestras redes
             </h3>
@@ -189,7 +166,7 @@ const Contact = () => {
           </div>
 
           {/* Slide 2: Cómo comprar */}
-          <div ref={el => slideRefs.current[1] = el} className="flex flex-col items-center justify-center min-h-[40vh] md:min-h-[70vh] py-6">
+          <div className="flex flex-col items-center justify-center py-8 sm:py-12">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-4 sm:mb-6 text-center px-2">
               ¿Cómo comprar en Luxe Imports?
             </h3>
@@ -201,7 +178,7 @@ const Contact = () => {
             </ol>
 
             {/* Botón de WhatsApp */}
-            <div className="mt-auto flex justify-center px-4">
+            <div className="mt-6 flex justify-center px-4">
               <a
                 href="https://wa.me/5491122334455"
                 target="_blank"
@@ -213,8 +190,7 @@ const Contact = () => {
               </a>
             </div>
           </div>
-          </Slider>
-        </div>
+        </Slider>
       </div>
     </section>
   );

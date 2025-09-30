@@ -11,6 +11,7 @@ export default function Products() {
 
     const {
         productos,
+        totalProducts,
         loading,
         loadingMore,
         error,
@@ -190,7 +191,7 @@ export default function Products() {
                     setPrecioMax={handlePriceMaxChange}
                     ordenPrecio={ordenPrecio}
                     setOrdenPrecio={handleSortChange}
-                    productosFiltrados={productos}
+                    totalProductos={totalProducts}
                     onGoToDetail={handleGoToDetail}
                     onLimpiarFiltros={limpiarFiltros}
                 />
