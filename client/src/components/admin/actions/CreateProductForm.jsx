@@ -87,14 +87,26 @@ export default function CreateProductForm({ onSave }) {
             const imageOrder = selectedImages.map(() => ({ isExisting: false }));
             formData.append('imageOrder', JSON.stringify(imageOrder));
 
-            await onSave(formData); // <- onSave puede usar authFetch internamente
-
-            // Reset form
-            setForm(initialForm);
-            selectedImages.forEach(img => URL.revokeObjectURL(img.preview));
-            setSelectedImages([]);
-            setDeletedImages([]);
-            setResetKey(prev => prev + 1);
+            const result = await onSave(formData);
+            
+            // Solo resetear si fue exitoso
+            if (result !== false) {
+                // Reset form forzando cada campo
+                setForm({
+                    title: '',
+                    description: '',
+                    price: '',
+                    status: true,
+                    stock: '',
+                    stockCritico: '',
+                    category: '',
+                    displayOrder: 1,
+                });
+                selectedImages.forEach(img => URL.revokeObjectURL(img.preview));
+                setSelectedImages([]);
+                setDeletedImages([]);
+                setResetKey(prev => prev + 1);
+            }
 
         } catch (error) {
             console.error('Error al crear producto:', error);

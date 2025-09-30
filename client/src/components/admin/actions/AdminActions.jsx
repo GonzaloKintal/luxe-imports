@@ -46,7 +46,7 @@ export default function AdminActions({ API_URL }) {
                 method: 'POST',
                 body: formData,
             });
-            if (!res) return;
+            if (!res) return false;
             if (!res.ok) {
                 let errorMessage = 'Error al crear producto';
                 try {
@@ -62,10 +62,12 @@ export default function AdminActions({ API_URL }) {
             
             // Actualizamos store
             updateProduct(created._id, created);
+            return true;
 
         } catch (error) {
             console.error('Error:', error);
             toast.error(error.message || 'No se pudo crear el producto');
+            return false;
         }
     }
 
