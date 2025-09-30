@@ -20,11 +20,11 @@ const Footer = () => {
               <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 animate-shimmer"></div>
             </div>
             <p className="text-gray-400 max-w-md text-sm sm:text-lg leading-relaxed">
-              Descubrí nuestra selección exclusiva de productos de tecnología y estilo. 
+              Descubrí nuestra selección exclusiva de productos de tecnología y estilo.
               Calidad premium en cada artículo.
             </p>
           </div>
-          
+
           {/* Enlaces rápidos */}
           <div>
             <h4 className="text-lg font-semibold mb-5 uppercase tracking-wider text-gray-300">Enlaces</h4>
@@ -47,20 +47,20 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           {/* Redes sociales */}
           <div>
             <h4 className="text-lg font-semibold mb-5 uppercase tracking-wider text-gray-300">Redes</h4>
             <div className="flex space-x-4">
-              <a 
-                href="https://www.instagram.com/luxeimports.ar/" 
+              <a
+                href="https://www.instagram.com/luxeimports.ar/"
                 target='_blank'
                 className="bg-gray-800 hover:bg-black p-3 rounded-full transition-all duration-300 transform hover:scale-110"
                 aria-label="Síguenos en Instagram"
               >
                 <FaInstagram className="text-xl" />
               </a>
-              <a 
+              <a
                 href="https://www.tiktok.com/@luxeimports.ar"
                 target='_blank'
                 className="bg-gray-800 hover:bg-black p-3 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -74,10 +74,10 @@ const Footer = () => {
             </p>
           </div>
         </div>
-        
+
         {/* Separador */}
         <div className="border-t border-gray-700 my-8"></div>
-        
+
         {/* Copyright y créditos */}
         <div className="flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm mb-4 md:mb-0 text-center inline-block">
@@ -86,15 +86,15 @@ const Footer = () => {
 
           <p className="text-gray-500 text-sm mb-4 md:mb-0 flex items-center gap-x-2">
             <span>Desarrollado por</span>
-            <a 
-              href="https://novarasoft.com"
-              target="_blank" 
+            <a
+              href="https://wa.me/5491127079848?text=Hola%20Franco%2C%20vi%20su%20trabajo%20en%20Luxe%20Imports%20y%20me%20interesa%20contactarlos%20para%20un%20proyecto%20web."
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center hover:text-white transition-colors duration-300"
             >
-              <img 
-                src={novaraLogo} 
-                alt="Logo Novara Soft" 
+              <img
+                src={novaraLogo}
+                alt="Logo Novara Soft"
                 className="w-8 h-8 object-contain"
               />
               <span className="font-semibold">Novara Soft</span>
