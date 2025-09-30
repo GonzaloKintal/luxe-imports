@@ -131,6 +131,7 @@ export default function CreateProductForm({ onSave }) {
                         Título <span className="text-red-500">*</span>
                     </label>
                     <input
+                        key={`title-${resetKey}`}
                         id='title'
                         name="title"
                         value={form.title}
@@ -160,6 +161,7 @@ export default function CreateProductForm({ onSave }) {
                             Precio (USD)<span className="text-red-500">*</span>
                         </label>
                         <input
+                            key={`price-${resetKey}`}
                             id='price'
                             name="price"
                             type="number"
@@ -178,6 +180,7 @@ export default function CreateProductForm({ onSave }) {
                             Stock <span className="text-red-500">*</span>
                         </label>
                         <input
+                            key={`stock-${resetKey}`}
                             id='stock'
                             name="stock"
                             type="number"
@@ -196,6 +199,7 @@ export default function CreateProductForm({ onSave }) {
                             <span className="text-xs text-gray-500 font-normal ml-1">(alerta de bajo stock)</span>
                         </label>
                         <input
+                            key={`stockCritico-${resetKey}`}
                             id='stockCritico'
                             name="stockCritico"
                             type="number"
@@ -210,6 +214,7 @@ export default function CreateProductForm({ onSave }) {
                     <div>
                         <label htmlFor='status' className="block text-gray-700 mb-1 font-semibold text-sm">Estado</label>
                         <select
+                            key={`status-${resetKey}`}
                             id='status'
                             name="status"
                             value={form.status ? 'true' : 'false'}
@@ -226,6 +231,7 @@ export default function CreateProductForm({ onSave }) {
                     <div>
                         <label htmlFor="category" className="block text-gray-700 mb-1 font-semibold text-sm">Categoría</label>
                         <select
+                            key={`category-${resetKey}`}
                             id='category'
                             name="category"
                             value={form.category}
@@ -246,6 +252,7 @@ export default function CreateProductForm({ onSave }) {
                             <span className="text-xs text-gray-500 font-normal ml-1">(número mayor = aparece después)</span>
                         </label>
                         <input
+                            key={`displayOrder-${resetKey}`}
                             id='displayOrder'
                             name="displayOrder"
                             type="number"
