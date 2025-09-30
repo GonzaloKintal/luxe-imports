@@ -14,7 +14,8 @@ export default function FilteredProductsList({
     editingProductId,
     onStartEditing,
     onCancelEditing,
-    loading
+    loading,
+    editingLoading
 }) {
 
     if (loading) {
@@ -43,6 +44,7 @@ export default function FilteredProductsList({
                     isEditing={editingProductId === (product._id || product.id)}
                     onStartEditing={() => onStartEditing(product._id || product.id)}
                     onCancelEditing={onCancelEditing}
+                    editingLoading={editingLoading}
                 />
             ))}
         </ul>

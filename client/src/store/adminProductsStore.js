@@ -122,6 +122,31 @@ const useAdminProductsStore = create((set, get) => ({
     await get().fetchProductos(currentFilters, authFetchFn);
   },
 
+  forceRefresh: async (filters, authFetchFn) => {
+    try {
+      set({ loading: true, error: null });
+      
+      const queryString = get().buildQueryString(filters, 1);
+      const res = await authFetchFn(`${API_URL}/api/products?${queryString}`);
+      
+      if (!res) return;
+      
+      if (!res.ok) throw new Error('Error al cargar productos');
+      const data = await res.json();
+
+      set({
+        products: data.products || [],
+        currentPage: 1,
+        totalPages: data.totalPages || Math.ceil((data.total || data.products.length) / LIMIT),
+        hasMoreProducts: 1 < (data.totalPages || Math.ceil((data.total || data.products.length) / LIMIT)),
+        currentFilters: { ...filters },
+        loading: false
+      });
+    } catch (err) {
+      set({ error: err.message || 'Error desconocido', loading: false });
+    }
+  },
+
   resetProducts: () => set({
     products: [],
     currentPage: 0,

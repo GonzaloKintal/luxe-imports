@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
-import { FaList } from 'react-icons/fa';
+import { FaList, FaSync } from 'react-icons/fa';
 import ConfirmDeleteProduct from './ConfirmDeleteProduct';
 import FilteredProductsList from './FilteredProductsList';
 import ProductFilters from './ProductFilters';
@@ -27,6 +27,7 @@ export default function AdminProducts() {
         reactivateProduct: storeReactivateProduct,
         editProduct: storeEditProduct,
         refreshProducts,
+        forceRefresh,
         isInitialized
     } = useAdminProductsStore();
 
@@ -70,6 +71,8 @@ export default function AdminProducts() {
     const [deleteId, setDeleteId] = useState(null);
     const [deleteProductName, setDeleteProductName] = useState('');
     const [editingProductId, setEditingProductId] = useState(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [editingLoading, setEditingLoading] = useState(false);
 
     useEffect(() => {
         sessionStorage.setItem('adminProductosFiltros', JSON.stringify({
@@ -154,10 +157,34 @@ export default function AdminProducts() {
         await applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
     };
     const handleEdit = async ({ id, formData }) => {
-        const result = await storeEditProduct(id, formData, memoizedAuthFetch);
-        toast[result.success ? 'success' : 'error'](result.message);
-        if (result.success) {
-            await applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
+        setEditingLoading(true);
+        try {
+            const result = await storeEditProduct(id, formData, memoizedAuthFetch);
+            toast[result.success ? 'success' : 'error'](result.message);
+            if (result.success) {
+                setEditingProductId(null);
+                await applyFilters({ search, category: categoryFilter, stock: stockFilter, status: showActivos ? 'active' : 'inactive', sort: sortFilter });
+            }
+        } finally {
+            setEditingLoading(false);
+        }
+    };
+
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        try {
+            const filters = {
+                search,
+                category: categoryFilter,
+                stock: stockFilter,
+                status: showActivos ? 'active' : 'inactive',
+                sort: sortFilter
+            };
+            await forceRefresh(filters, memoizedAuthFetch);
+        } catch (err) {
+            toast.error('Error al refrescar productos');
+        } finally {
+            setIsRefreshing(false);
         }
     };
 
@@ -191,12 +218,20 @@ export default function AdminProducts() {
                 categorias={categorias}
             />
 
-            {/* Contador */}
+            {/* Header con contador y botón refrescar */}
             <div className="flex justify-between items-center mt-4 mb-4">
                 <h2 className="text-base sm:text-lg text-gray-500 flex items-center gap-2">
                     <FaList className="text-gray-400" />
                     Mostrando {products.length} productos
                 </h2>
+                <button
+                    onClick={handleRefresh}
+                    disabled={isRefreshing || loading}
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 ${(isRefreshing || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    <FaSync className={`${isRefreshing ? 'animate-spin' : ''} text-xs sm:text-sm`} />
+                    {isRefreshing ? 'Refrescando...' : 'Refrescar'}
+                </button>
             </div>
 
             {/* Lista de productos */}
@@ -213,6 +248,7 @@ export default function AdminProducts() {
                 onStartEditing={setEditingProductId}
                 onCancelEditing={() => setEditingProductId(null)}
                 loading={loading}
+                editingLoading={editingLoading}
             />
 
             {/* Cargar más */}

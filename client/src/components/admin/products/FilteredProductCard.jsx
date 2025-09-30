@@ -13,7 +13,8 @@ export default function FilteredProductCard({
     errorCotizacion,
     isEditing,
     onStartEditing,
-    onCancelEditing
+    onCancelEditing,
+    editingLoading
 }) {
 
     const formRef = useRef(null);
@@ -72,6 +73,7 @@ export default function FilteredProductCard({
                                 onEdit(updatedProduct);
                             }}
                             onCancel={onCancelEditing}
+                            isLoading={editingLoading}
                         />
                     )}
                 </div>

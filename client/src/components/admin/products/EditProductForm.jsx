@@ -7,7 +7,7 @@ import { useAuthFetch } from '../../../hooks/useAuthFetch';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function EditProductForm({ product, onSave, onCancel }) {
+export default function EditProductForm({ product, onSave, onCancel, isLoading = false }) {
     const { authFetch } = useAuthFetch();
 
     const initialForm = {
@@ -26,6 +26,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
     const [selectedImages, setSelectedImages] = useState([]);
     const [deletedImages, setDeletedImages] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
+    const actualLoading = isLoading || isUploading;
     const [isFormReady, setIsFormReady] = useState(false);
 
     useEffect(() => {
@@ -83,6 +84,8 @@ export default function EditProductForm({ product, onSave, onCancel }) {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        if (isUploading) return;
+        
         setIsUploading(true);
 
         try {
@@ -103,9 +106,7 @@ export default function EditProductForm({ product, onSave, onCancel }) {
             }))));
             formData.append('deletedImages', JSON.stringify(deletedImages));
 
-            // Usar authFetch para guardar
             await onSave({ id: product._id, formData, authFetch });
-
             setDeletedImages([]);
         } catch (error) {
             console.error('Error al actualizar producto:', error);
@@ -266,19 +267,24 @@ export default function EditProductForm({ product, onSave, onCancel }) {
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md bg-gray-200 hover:bg-gray-300 text-gray-700"
+                        disabled={actualLoading}
+                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${
+                            actualLoading 
+                                ? 'bg-gray-300 cursor-not-allowed text-gray-500' 
+                                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                        }`}
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
-                        disabled={isUploading}
-                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${isUploading
+                        disabled={actualLoading}
+                        className={`px-5 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm shadow-md ${actualLoading
                             ? 'bg-gray-400 cursor-not-allowed text-gray-700'
                             : 'bg-blue-600 hover:bg-blue-700 text-white'
                             } flex items-center justify-center gap-2`}
                     >
-                        {isUploading ? (
+                        {actualLoading ? (
                             <>
                                 <FaSpinner className="animate-spin mr-2 text-gray-500" />
                                 Actualizando producto...
