@@ -138,8 +138,9 @@ export default function CreateProductForm({ onSave }) {
                         Descripción <span className="text-red-500">*</span>
                     </div>
                     <RichTextEditor
-                        key={resetKey} // solo aquí
+                        key={resetKey} 
                         value={form.description}
+                        required
                         onChange={(content) => setForm(prev => ({ ...prev, description: content }))}
                         placeholder="Escribe la descripción del producto..."
                     />
@@ -193,6 +194,7 @@ export default function CreateProductForm({ onSave }) {
                             min="0"
                             value={form.stockCritico === 0 ? 0 : form.stockCritico || ''}
                             onChange={handleChange}
+                            required
                             className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 text-sm"
                             placeholder="Ej: 5"
                         />
@@ -215,7 +217,7 @@ export default function CreateProductForm({ onSave }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                     <div>
-                        <label htmlFor="category" className="block text-gray-700 mb-1 font-semibold text-sm">Categoría</label>
+                        <label htmlFor="category" className="block text-gray-700 mb-1 font-semibold text-sm">Categoría <span className="text-red-500">*</span></label>
                         <select
                             id='category'
                             name="category"
