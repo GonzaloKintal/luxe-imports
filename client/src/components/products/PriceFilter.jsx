@@ -63,11 +63,6 @@ export default function PriceFilter({
         }
     };
 
-    const handleClearFilters = () => {
-        setPrecioMin('');
-        setPrecioMax('');
-    };
-
     const hasFilters = (precioMin && precioMin !== '') || (precioMax && precioMax !== '');
 
     return (
@@ -144,20 +139,11 @@ export default function PriceFilter({
                                         />
                                     </div>
 
-                                    <div className="flex justify-between items-center pt-2">
-                                        {hasFilters && (
-                                            <button
-                                                type="button"
-                                                onClick={handleClearFilters}
-                                                className="text-xs text-gray-600 hover:text-gray-800 underline"
-                                            >
-                                                Limpiar filtro
-                                            </button>
-                                        )}
+                                    <div className="flex justify-end items-center pt-2">
                                         <button
                                             type="button"
                                             onClick={() => setIsOpen(false)}
-                                            className="ml-auto px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition"
+                                            className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition"
                                         >
                                             Cerrar
                                         </button>
