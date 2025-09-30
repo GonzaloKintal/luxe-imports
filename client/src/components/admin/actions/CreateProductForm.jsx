@@ -144,7 +144,7 @@ export default function CreateProductForm({ onSave }) {
 
                 <div>
                     <div className="block text-gray-700 mb-1 font-semibold text-sm">
-                        Descripción
+                        Descripción <span className="text-red-500">*</span>
                     </div>
                     <RichTextEditor
                         key={resetKey}
@@ -195,7 +195,7 @@ export default function CreateProductForm({ onSave }) {
 
                     <div>
                         <label htmlFor="stockCritico" className="block text-gray-700 mb-1 font-semibold text-sm">
-                            Stock crítico
+                            Stock crítico <span className="text-red-500">*</span>
                             <span className="text-xs text-gray-500 font-normal ml-1">(alerta de bajo stock)</span>
                         </label>
                         <input
