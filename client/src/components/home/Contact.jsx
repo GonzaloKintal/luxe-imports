@@ -138,12 +138,12 @@ const Contact = () => {
         <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl animate-pulse-slow" />
         <div className="absolute top-1/3 left-1/3 w-[60%] h-[60%] bg-white/5 rounded-full blur-2xl animate-float" />
       </div>
-      
+
       <div className="relative z-10 mt-6 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 md:py-16">
         <Slider ref={sliderRef} {...sliderSettings}>
-          
+
           {/* Slide 1: Redes Sociales */}
-          <div className="flex flex-col items-center justify-center min-h-[45vh] sm:min-h-[55vh] py-4 sm:py-6">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] md:min-h-[70vh] py-6">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-6 sm:mb-10 text-center px-2">
               Seguinos en nuestras redes
             </h3>
@@ -170,11 +170,10 @@ const Contact = () => {
                 );
               })}
             </div>
-
           </div>
 
           {/* Slide 2: Cómo comprar */}
-          <div className="flex flex-col items-center justify-center min-h-[45vh] sm:min-h-[55vh] py-4 sm:py-6">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] md:min-h-[70vh] py-6">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-4 sm:mb-6 text-center px-2">
               ¿Cómo comprar en Luxe Imports?
             </h3>
