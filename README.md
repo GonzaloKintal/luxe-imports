@@ -66,8 +66,6 @@ El proyecto incluye tanto la **interfaz de usuario** para los compradores como u
 
 ## 🚀 Cómo Ejecutar Localmente
 
-Si quieres explorar el código o contribuir al proyecto:
-
 ```bash
 # Clonar el repositorio
 git clone https://github.com/novarasoft/luxe-imports.git
