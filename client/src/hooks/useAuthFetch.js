@@ -10,7 +10,7 @@ export const useAuthFetch = () => {
   const authFetch = async (url, options = {}) => {
     try {
       const res = await baseAuthFetch(url, options);
-      if (!res) throw new Error('Token expirado o error en fetch'); // fuerza el catch
+      if (!res) throw new Error('Token expirado o error en fetch');
       return res;
     } catch (err) {
       handleTokenExpiry();

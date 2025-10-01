@@ -129,7 +129,8 @@ export default function Cart() {
     return (
         <main className="bg-white px-0 pt-12 relative overflow-hidden min-h-screen text-black">
             <div className="relative z-10 px-6 py-10 sm:py-20 max-w-7xl mx-auto">
-                <h1 className="text-4xl font-extrabold text-black mb-10 text-center animate-fadeInDown drop-shadow-lg">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 sm:mb-10 text-center relative
+                        after:block after:h-1 after:w-16 sm:after:w-24 after:bg-gray-800 after:mx-auto after:mt-2 sm:after:mt-4">
                     Tu Carrito
                 </h1>
 
