@@ -132,7 +132,7 @@ const Contact = () => {
         <div className="absolute top-1/3 left-1/3 w-[60%] h-[60%] bg-white/5 rounded-full blur-2xl animate-float" />
       </div>
 
-      <div className="relative z-10 mt-6 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+      <div className="relative z-10 my-6 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 md:py-16">
         <Slider ref={sliderRef} {...sliderSettings}>
 
           {/* Slide 1: Redes Sociales */}

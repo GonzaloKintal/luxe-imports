@@ -182,7 +182,7 @@ export default function CreateAdminForm({ onSave }) {
             </form>
 
             <div className="mt-8">
-                <h4 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                <h4 className="text-md sm:text-lg font-semibold mb-2 flex items-center gap-2">
                     <FaEye className="text-gray-600" />
                     Administrar admins
                 </h4>
@@ -195,11 +195,11 @@ export default function CreateAdminForm({ onSave }) {
                             return (
                                 <li key={admin._id} className="py-3 flex items-center justify-between">
                                     <div className='flex flex-col sm:flex-row'>
-                                        <span className="font-bold text-gray-800">{admin.firstName} {admin.lastName}</span>
-                                        <div className="flex flex-row items-center">
-                                            <span className="sm:ml-2 text-gray-500 text-sm">{admin.email}</span>
+                                        <span className="text-sm sm:text-md font-bold text-gray-800">{admin.firstName} {admin.lastName}</span>
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center">
+                                            <span className="sm:ml-2 text-gray-500 text-xs sm:text-sm">{admin.email}</span>
                                             {isSelf && (
-                                                <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">(Tú)</span>
+                                                <span className="mt-1 sm:mt-0 sm:ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">(Tú)</span>
                                             )}
                                         </div>
                                     </div>

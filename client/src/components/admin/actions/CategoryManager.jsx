@@ -173,7 +173,7 @@ export default function CategoryManager() {
             </form>
 
             <div>
-                <h4 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                <h4 className="text:md sm:text-lg font-semibold mb-2 flex items-center gap-2">
                     <FaEye className="text-gray-600" />
                     Administrar categorías
                 </h4>
@@ -184,9 +184,9 @@ export default function CategoryManager() {
                         {categories.map(cat => (
                             <li key={cat._id} className="py-3 flex items-center justify-between gap-3">
                                 <div className='flex flex-col sm:flex-row'>
-                                    <span className="font-bold text-gray-800">{cat.name}</span>
+                                    <span className="text-sm sm:text-md font-bold text-gray-800">{cat.name}</span>
                                     {cat.description && (
-                                        <span className="sm:ml-2 text-gray-500 text-sm flex items-center">{cat.description}</span>
+                                        <span className="sm:ml-2 text-gray-500 text-xs sm:text-sm flex items-center">{cat.description}</span>
                                     )}
                                 </div>
                                 <div className="flex gap-2">
