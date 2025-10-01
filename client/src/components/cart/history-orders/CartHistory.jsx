@@ -24,6 +24,8 @@ export default function CartHistory({ token, API_URL }) {
     const [currentFilters, setCurrentFilters] = useState({ from: null, to: null });
     const [totalPending, setTotalPending] = useState(0);
     const [totalConfirmed, setTotalConfirmed] = useState(0);
+    const [isRefreshingPending, setIsRefreshingPending] = useState(false);
+    const [isRefreshingConfirmed, setIsRefreshingConfirmed] = useState(false);
 
     const ITEMS_PER_PAGE = 5;
 
@@ -213,6 +215,32 @@ export default function CartHistory({ token, API_URL }) {
         setExpandedHistorial(prev => ({ ...prev, [id]: !prev[id] }));
     }
 
+    async function handleRefreshPending() {
+        setIsRefreshingPending(true);
+        try {
+            setCurrentPagePending(1);
+            setHistorialCarritos(prev => ({ ...prev, pendientes: [] }));
+            await cargarPendientes(1, currentFilters);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsRefreshingPending(false);
+        }
+    }
+
+    async function handleRefreshConfirmed() {
+        setIsRefreshingConfirmed(true);
+        try {
+            setCurrentPageConfirmed(1);
+            setHistorialCarritos(prev => ({ ...prev, confirmados: [] }));
+            await cargarConfirmados(1, currentFilters);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsRefreshingConfirmed(false);
+        }
+    }
+
     function handleCloseHistory() {
         setHistorialVisible(false);
         setHistorialCarritos({ confirmados: [], pendientes: [] });
@@ -251,6 +279,8 @@ export default function CartHistory({ token, API_URL }) {
                 hasMore={hasMorePending}
                 loading={loading}
                 loadingMore={loadingMore}
+                onRefresh={handleRefreshPending}
+                isRefreshing={isRefreshingPending}
             />
 
             <ConfirmedOrders
@@ -263,6 +293,8 @@ export default function CartHistory({ token, API_URL }) {
                 hasMore={hasMoreConfirmed}
                 loading={loading}
                 loadingMore={loadingMore}
+                onRefresh={handleRefreshConfirmed}
+                isRefreshing={isRefreshingConfirmed}
             />
 
             {/* Mensaje cuando no hay historial */}

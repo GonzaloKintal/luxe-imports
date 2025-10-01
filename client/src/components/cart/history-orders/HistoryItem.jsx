@@ -69,7 +69,7 @@ export default function HistoryItem({ carrito: order, expanded, onToggleExpanded
                         <span className="font-medium">Estado:</span>{' '}
                         {order.status === "pendiente de confirmacion" ? (
                             <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-600">
-                            Pendiente
+                            Pendiente de Confirmación
                             </span>
                         ) : order.status === "confirmado" ? (
                             <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-green-200 text-green-800">

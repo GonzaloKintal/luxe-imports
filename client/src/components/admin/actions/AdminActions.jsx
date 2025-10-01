@@ -48,7 +48,7 @@ export default function AdminActions({ API_URL }) {
             });
             if (!res) return false;
             if (!res.ok) {
-                let errorMessage = 'Error al crear producto';
+                let errorMessage = 'Error al crear producto: Faltan campos obligatorios';
                 try {
                     const errorData = await res.json();
                     errorMessage = errorData.error || errorMessage;
@@ -62,11 +62,6 @@ export default function AdminActions({ API_URL }) {
             
             // Actualizamos store
             updateProduct(created._id, created);
-            
-            // Forzar recarga de página después de mostrar el toast
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
             
             return true;
 

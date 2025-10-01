@@ -16,7 +16,7 @@ export default function SearchAndFilters({
     setPrecioMax: externalSetPrecioMax,
     ordenPrecio: externalOrdenPrecio,
     setOrdenPrecio: externalSetOrdenPrecio,
-    productosFiltrados = [],
+    totalProductos = 0,
     onLimpiarFiltros
 }) {
     
@@ -106,7 +106,7 @@ export default function SearchAndFilters({
 
             </div>
             <div className="text-right text-sm text-gray-600 mb-2">
-                {productosFiltrados.length} producto{productosFiltrados.length === 1 ? '' : 's'} encontrados
+                {totalProductos} producto{totalProductos === 1 ? '' : 's'} encontrados
             </div>
         </section>
     );

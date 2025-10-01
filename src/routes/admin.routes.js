@@ -28,6 +28,8 @@ router.post("/create-admin", authenticateToken, isAdmin, async (req, res) => {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }
 
+  email = email.toLowerCase().trim();
+
   const VALID_ROLES = ["user", "admin"];
   if (!VALID_ROLES.includes(role)) {
     return res

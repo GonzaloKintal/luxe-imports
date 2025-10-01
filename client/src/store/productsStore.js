@@ -8,6 +8,7 @@ const LIMIT = 10;
 const useProductsStore = create((set, get) => ({
   // Estado
   productos: [],
+  totalProducts: 0,
   currentPage: 0,
   totalPages: 0,
   hasMoreProducts: true,
@@ -91,6 +92,7 @@ const useProductsStore = create((set, get) => ({
 
       set({
         productos: data.products,
+        totalProducts: data.total,
         currentPage: 1,
         totalPages: data.totalPages,
         hasMoreProducts: 1 < data.totalPages,
@@ -182,6 +184,7 @@ const useProductsStore = create((set, get) => ({
   // Función para resetear el store
   resetProducts: () => set({
     productos: [],
+    totalProducts: 0,
     currentPage: 0,
     totalPages: 0,
     hasMoreProducts: true,

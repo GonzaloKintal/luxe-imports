@@ -1,18 +1,31 @@
 import HistoryItem from './HistoryItem';
 import DateRangeFilter from '../../utils/DateRangeFilter';
+import { FaSync } from 'react-icons/fa';
 
-export default function PendingOrders({ orders, totalPending, expandedHistorial, onToggleExpanded, onFilterPending, onLoadMore, hasMore, loading, loadingMore }) {
+export default function PendingOrders({ orders, totalPending, expandedHistorial, onToggleExpanded, onFilterPending, onLoadMore, hasMore, loading, loadingMore, onRefresh, isRefreshing }) {
     
     return (
         <div className="mb-8">
-            <div className="flex items-center mb-4">
-                <div className="h-6 w-1 bg-amber-500 rounded-r mr-3"></div>
-                <h2 className="text-lg font-medium text-gray-700">
-                    Compras Pendientes de Confirmación
-                </h2>
-                <span className="ml-2 bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">
-                    {totalPending || 0}
-                </span>
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                    <div className="h-6 w-1 bg-amber-500 rounded-r mr-3"></div>
+                    <h2 className="text-lg font-medium text-gray-700">
+                        Compras Pendientes
+                    </h2>
+                    <span className="ml-2 bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">
+                        {totalPending || 0}
+                    </span>
+                </div>
+                {onRefresh && (
+                    <button
+                        onClick={onRefresh}
+                        disabled={isRefreshing || loading}
+                        className={`flex items-center gap-2 px-3 py-1 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors duration-200 ${(isRefreshing || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        <FaSync className={`${isRefreshing ? 'animate-spin' : ''} text-xs`} />
+                        <span className="hidden sm:inline">{isRefreshing ? 'Refrescando...' : 'Refrescar'}</span>
+                    </button>
+                )}
             </div>
             
             {onFilterPending && (
@@ -30,7 +43,7 @@ export default function PendingOrders({ orders, totalPending, expandedHistorial,
                         />
                     ))}
                 </div>
-            ) : loading ? (
+            ) : loading || isRefreshing ? (
                 <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
                     <div className="w-8 h-8 mx-auto border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
                     <p className="mt-3 text-gray-500">Cargando pedidos pendientes...</p>

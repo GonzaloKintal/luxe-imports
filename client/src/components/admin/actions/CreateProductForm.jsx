@@ -25,18 +25,16 @@ export default function CreateProductForm({ onSave }) {
     const [selectedImages, setSelectedImages] = useState([]);
     const [deletedImages, setDeletedImages] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
-    const [resetKey, setResetKey] = useState(0);
+    const [resetKey, setResetKey] = useState(0); // solo para RichTextEditor
 
     useEffect(() => {
-        setForm(initialForm);
-        setSelectedImages([]);
-        setDeletedImages([]);
         fetchCategories();
+        resetForm();
     }, []);
 
     async function fetchCategories() {
         try {
-            const res = await authFetch(`${API_URL}/api/categories`); // <- usamos authFetch
+            const res = await authFetch(`${API_URL}/api/categories`);
             if (!res.ok) throw new Error(`Error al obtener categorías (${res.status})`);
             const data = await res.json();
             setCategories(data);
@@ -67,7 +65,14 @@ export default function CreateProductForm({ onSave }) {
             }
         }
 
-        setForm({ ...form, [name]: newValue });
+        setForm(prev => ({ ...prev, [name]: newValue }));
+    }
+
+    function resetForm() {
+        setForm(initialForm);
+        setSelectedImages([]);
+        setDeletedImages([]);
+        setResetKey(prev => prev + 1); // solo para RichTextEditor
     }
 
     async function handleSubmit(e) {
@@ -88,24 +93,11 @@ export default function CreateProductForm({ onSave }) {
             formData.append('imageOrder', JSON.stringify(imageOrder));
 
             const result = await onSave(formData);
-            
+
             // Solo resetear si fue exitoso
             if (result !== false) {
-                // Reset form forzando cada campo
-                setForm({
-                    title: '',
-                    description: '',
-                    price: '',
-                    status: true,
-                    stock: '',
-                    stockCritico: '',
-                    category: '',
-                    displayOrder: 1,
-                });
+                resetForm();
                 selectedImages.forEach(img => URL.revokeObjectURL(img.preview));
-                setSelectedImages([]);
-                setDeletedImages([]);
-                setResetKey(prev => prev + 1);
             }
 
         } catch (error) {
@@ -131,10 +123,9 @@ export default function CreateProductForm({ onSave }) {
                         Título <span className="text-red-500">*</span>
                     </label>
                     <input
-                        key={`title-${resetKey}`}
                         id='title'
                         name="title"
-                        value={form.title}
+                        value={form.title || ''}
                         onChange={handleChange}
                         required
                         className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
@@ -147,13 +138,13 @@ export default function CreateProductForm({ onSave }) {
                         Descripción <span className="text-red-500">*</span>
                     </div>
                     <RichTextEditor
-                        key={resetKey}
+                        key={resetKey} 
                         value={form.description}
-                        onChange={(content) => setForm({ ...form, description: content })}
+                        required
+                        onChange={(content) => setForm(prev => ({ ...prev, description: content }))}
                         placeholder="Escribe la descripción del producto..."
                     />
                 </div>
-
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
@@ -161,7 +152,6 @@ export default function CreateProductForm({ onSave }) {
                             Precio (USD)<span className="text-red-500">*</span>
                         </label>
                         <input
-                            key={`price-${resetKey}`}
                             id='price'
                             name="price"
                             type="number"
@@ -180,7 +170,6 @@ export default function CreateProductForm({ onSave }) {
                             Stock <span className="text-red-500">*</span>
                         </label>
                         <input
-                            key={`stock-${resetKey}`}
                             id='stock'
                             name="stock"
                             type="number"
@@ -199,13 +188,13 @@ export default function CreateProductForm({ onSave }) {
                             <span className="text-xs text-gray-500 font-normal ml-1">(alerta de bajo stock)</span>
                         </label>
                         <input
-                            key={`stockCritico-${resetKey}`}
                             id='stockCritico'
                             name="stockCritico"
                             type="number"
                             min="0"
                             value={form.stockCritico === 0 ? 0 : form.stockCritico || ''}
                             onChange={handleChange}
+                            required
                             className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 text-sm"
                             placeholder="Ej: 5"
                         />
@@ -214,7 +203,6 @@ export default function CreateProductForm({ onSave }) {
                     <div>
                         <label htmlFor='status' className="block text-gray-700 mb-1 font-semibold text-sm">Estado</label>
                         <select
-                            key={`status-${resetKey}`}
                             id='status'
                             name="status"
                             value={form.status ? 'true' : 'false'}
@@ -229,9 +217,8 @@ export default function CreateProductForm({ onSave }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                     <div>
-                        <label htmlFor="category" className="block text-gray-700 mb-1 font-semibold text-sm">Categoría</label>
+                        <label htmlFor="category" className="block text-gray-700 mb-1 font-semibold text-sm">Categoría <span className="text-red-500">*</span></label>
                         <select
-                            key={`category-${resetKey}`}
                             id='category'
                             name="category"
                             value={form.category}
@@ -252,7 +239,6 @@ export default function CreateProductForm({ onSave }) {
                             <span className="text-xs text-gray-500 font-normal ml-1">(número mayor = aparece después)</span>
                         </label>
                         <input
-                            key={`displayOrder-${resetKey}`}
                             id='displayOrder'
                             name="displayOrder"
                             type="number"
@@ -265,7 +251,6 @@ export default function CreateProductForm({ onSave }) {
                     </div>
                 </div>
 
-                {/* Componente de gestión de imágenes */}
                 <ProductImageManager
                     selectedImages={selectedImages}
                     onImagesChange={setSelectedImages}

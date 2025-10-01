@@ -10,31 +10,98 @@ const manager = productManager;
 // Ruta GET '/featured' -> Lista productos destacados
 router.get("/featured", async (req, res, next) => {
   try {
+    // Obtener productos destacados
     const featuredProducts = await manager.getFeaturedProducts();
 
+    let combined;
+
     if (featuredProducts.length >= 7) {
-      // Más de 7 destacados -> devolver todos
-      return res.json(featuredProducts);
+      // Si hay 7 o más destacados, usamos solo ellos
+      combined = featuredProducts;
+    } else {
+      // Menos de 7 destacados -> completar hasta 7 con productos válidos
+      const allProducts = await manager.getProducts();
+
+      // Filtrar productos activos y con stock > 0
+      const validProducts = allProducts.filter(
+        (p) => p.stock > 0 && p.status === true
+      );
+
+      // Excluir los que ya están en destacados
+      const remainingProducts = validProducts.filter(
+        (p) => !featuredProducts.some(f => f.id === p.id)
+      );
+
+      // Combinar destacados existentes + otros para completar hasta 7
+      combined = [
+        ...featuredProducts,
+        ...remainingProducts.slice(0, 7 - featuredProducts.length)
+      ];
     }
 
-    // Menos de 7 destacados -> completar hasta 7 con otros productos válidos
-    const allProducts = await manager.getProducts();
-    
-    // Filtramos productos activos y con stock > 0
-    const validProducts = allProducts.filter(
-      (p) => p.stock > 0 && p.status === true
-    );
+    // Ordenar siempre por displayOrder ASC, luego createdAt DESC, luego id ASC
+    combined.sort((a, b) => {
+      if (a.displayOrder !== b.displayOrder) {
+        return a.displayOrder - b.displayOrder;
+      }
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      if (dateA.getTime() !== dateB.getTime()) {
+        return dateB - dateA; // createdAt DESC
+      }
+      return a.id.localeCompare(b.id); // id ASC
+    });
 
-    // Excluir los que ya están en destacados
-    const remainingProducts = validProducts.filter(
-      (p) => !featuredProducts.some(f => f.id === p.id)
-    );
+    res.json(combined);
 
-    // Combinar destacados existentes + otros para completar hasta 7
-    const combined = [
-      ...featuredProducts,
-      ...remainingProducts.slice(0, 7 - featuredProducts.length)
-    ];
+  } catch (error) {
+    next(error);
+  }
+});
+// Ruta GET '/featured' -> Lista productos destacados
+router.get("/featured", async (req, res, next) => {
+  try {
+    // Obtener productos destacados
+    const featuredProducts = await manager.getFeaturedProducts();
+
+    let combined;
+
+    if (featuredProducts.length >= 7) {
+      // Si hay 7 o más destacados, usamos solo ellos
+      combined = featuredProducts;
+    } else {
+      // Menos de 7 destacados -> completar hasta 7 con productos válidos
+      const allProducts = await manager.getProducts();
+
+      // Filtrar productos activos y con stock > 0
+      const validProducts = allProducts.filter(
+        (p) => p.stock > 0 && p.status === true
+      );
+
+      // Excluir los que ya están en destacados
+      const remainingProducts = validProducts.filter(
+        (p) => !featuredProducts.some(f => f.id === p.id)
+      );
+
+      // Combinar destacados existentes + otros para completar hasta 7
+      combined = [
+        ...featuredProducts,
+        ...remainingProducts.slice(0, 7 - featuredProducts.length)
+      ];
+    }
+
+    // Ordenar siempre por displayOrder ASC, luego createdAt DESC, luego id ASC
+    combined.sort((a, b) => {
+      if (a.displayOrder !== b.displayOrder) {
+        return a.displayOrder - b.displayOrder;
+      }
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      if (dateA.getTime() !== dateB.getTime()) {
+        return dateB - dateA; // createdAt DESC
+      }
+      return a.id.localeCompare(b.id); // id ASC
+    });
 
     res.json(combined);
 

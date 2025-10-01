@@ -52,7 +52,7 @@ export default function ProductList({ productos, onGoToDetail, loading, error })
     // Si no hay productos después de filtrar
     if (productos.length === 0) {
         return (
-            <div className="flex justify-center items-center py-20 text-gray-600">
+            <div className="flex justify-center items-center text-gray-600">
                 <div className="text-center">
                     <div className="text-6xl mb-4">🔍</div>
                     <h3 className="text-xl font-semibold mb-2">No se encontraron productos</h3>
@@ -65,9 +65,9 @@ export default function ProductList({ productos, onGoToDetail, loading, error })
     return (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6 max-w-full mx-auto animate-fadeInUp">
             {productos.map((producto) => (
-                <ProductCard 
-                    key={producto._id} 
-                    {...producto} 
+                <ProductCard
+                    key={producto._id}
+                    {...producto}
                     id={producto._id}
                     cotizacion={cotizacion}
                     loadingCotizacion={loadingDolar}
