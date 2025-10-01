@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { io } from '../app.js';
 
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -18,23 +17,18 @@ export function authenticateToken(req, res, next) {
   
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      // Para cualquier error de token, emitir una sola vez
-      io.emit('tokenExpired', { 
-        message: err.name === 'TokenExpiredError' ? 'Sesión expirada' : 'Token inválido',
-        timestamp: Date.now()
-      });
-
       return res.status(401).json({ 
         error: err.name === 'TokenExpiredError' 
           ? 'Su sesión ha expirado. Por favor, inicie sesión nuevamente.'
           : 'El token proporcionado no es válido',
-        expired: true
+        expired: err.name === 'TokenExpiredError'
       });
     }
     
     req.user = user;
     next();
   });
+
 }
 
 export function isAdmin(req, res, next) {
