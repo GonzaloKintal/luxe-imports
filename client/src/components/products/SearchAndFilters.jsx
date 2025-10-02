@@ -41,7 +41,7 @@ export default function SearchAndFilters({
 
     return (
         <section className="max-w-7xl mx-auto mb-10 animate-fadeInUp">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 bg-white rounded-lg shadow-sm p-6 mb-4 border border-gray-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 bg-white rounded-lg px-4 sm:px-6 shadow-sm p-6 mb-4 border border-gray-200">
 
                 {/* Filtro de búsqueda */}
                 <div className="flex flex-col w-full">

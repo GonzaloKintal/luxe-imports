@@ -34,20 +34,16 @@ export default function UsernameFilter({
       </button>
 
       {open && (
-        <div className="relative top-1 left-0 right-0 z-20 bg-white border border-gray-200 rounded-b-lg shadow-xl p-4 mt-1 animate-fadeInUp w-full min-w-0">
+        <div className="relative mb-4 top-1 left-0 right-0 z-20 bg-white border border-gray-200 rounded-b-lg shadow-xl p-4 mt-1 animate-fadeInUp w-full min-w-0">
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 items-end">
             <div className="flex flex-col min-w-0">
-              <label htmlFor="username" className="mb-2 text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <FaUser className="text-gray-500" />
-                {showTitle ? title : "Buscar por nombre"}
-              </label>
               <input
                 type="text"
                 id="username"
                 value={localUsername}
                 onChange={(e) => setLocalUsername(e.target.value)}
                 placeholder="Ej: Juan Pérez"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
               {loading && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -60,7 +56,7 @@ export default function UsernameFilter({
               <button
                 onClick={handleFilter}
                 disabled={loading || !localUsername}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full px-4 py-1 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading && (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -70,7 +66,7 @@ export default function UsernameFilter({
               <button
                 onClick={handleClear}
                 disabled={loading || !localUsername}
-                className="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-1 sm:py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Limpiar
               </button>

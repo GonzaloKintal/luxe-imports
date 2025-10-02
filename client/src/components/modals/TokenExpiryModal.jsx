@@ -1,52 +1,50 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTokenExpiry } from '../../context/TokenExpiryContext';
 
 const TokenExpiryModal = () => {
   const { showModal, closeModal } = useTokenExpiry();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
-  // Prevenir scroll cuando el modal está abierto
+  // Prevenir scroll
   useEffect(() => {
     if (showModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-    
-    // Cleanup
+
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [showModal]);
 
-  // Manejar tecla ESC para cerrar (opcional)
+  // Manejar tecla ESC (opcional)
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape' && showModal) {
+      if (event.key === 'Escape' && showModal && !isRedirecting) {
         closeModal();
       }
     };
-
-    if (showModal) {
-      document.addEventListener('keydown', handleKeyDown);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [showModal, closeModal]);
+    if (showModal) document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showModal, closeModal, isRedirecting]);
 
   if (!showModal) return null;
 
-  const handleCloseModal = () => {
-    closeModal();
+  const handleRedirect = () => {
+    setIsRedirecting(true);
+    // Simular pequeño delay para mostrar "Redirigiendo..." antes de ir al home
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 1000);
   };
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white border border-gray-200 rounded-2xl p-10 max-w-lg mx-6 shadow-2xl transform transition-all duration-300 hover:shadow-3xl">
         <div className="text-center">
-          {/* Icono elegante con gradiente sutil */}
+                    {/* Icono elegante con gradiente sutil */}
           <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 mb-8 shadow-lg">
             <svg className="h-10 w-10 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
@@ -82,20 +80,25 @@ const TokenExpiryModal = () => {
               Podrás navegar libremente por el sitio o iniciar sesión nuevamente cuando lo desees.
             </p>
           </div>
-          
+
           {/* Botón elegante */}
           <button
-            onClick={handleCloseModal}
-            className="w-full cursor-pointer bg-black hover:bg-gray-800 text-white font-medium py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 active:scale-[0.98]"
+            onClick={handleRedirect}
+            disabled={isRedirecting}
+            className={`w-full cursor-pointer bg-black text-white font-medium py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 active:scale-[0.98] ${
+              isRedirecting ? 'bg-gray-700 cursor-not-allowed hover:scale-100 hover:shadow-none' : 'hover:bg-gray-800'
+            }`}
           >
-            <span className="flex items-center justify-center">
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011 1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              Ir al Inicio
-            </span>
+            {isRedirecting ? 'Redirigiendo...' : (
+              <span className="flex items-center justify-center">
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011 1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Ir al Inicio
+              </span>
+            )}
           </button>
-          
+
           {/* Texto pequeño elegante */}
           <p className="text-xs text-gray-500 mt-6 font-light tracking-wide">
             Tus datos permanecen seguros y protegidos

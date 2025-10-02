@@ -74,7 +74,7 @@ export default function AdminActions({ API_URL }) {
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6">
+            <div className="p-3 sm:p-6">
                 <ActionButtonsList 
                     openForm={openForm}
                     onFormOpen={handleOpenForm}

@@ -267,7 +267,7 @@ export default function CartHistory({ token, API_URL }) {
     const totalCarritos = historialCarritos.confirmados.length + historialCarritos.pendientes.length;
 
     return (
-        <div className="mt-15 max-w-4xl mx-auto px-4">
+        <div className="mt-15 max-w-4xl mx-auto sm:px-4">
             <HistoryHeader onClose={handleCloseHistory} />
 
             <PendingOrders

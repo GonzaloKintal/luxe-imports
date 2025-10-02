@@ -32,7 +32,7 @@ export default function FilteredProductCard({
     }, [isEditing, product]);
 
     return (
-        <li className="bg-white p-4 rounded-xl border border-gray-300 shadow-md transition-all duration-300 hover:shadow-lg">
+        <li className="bg-white pt-4 pl-4 pr-2 sm:pr-4 sm:pb-2 rounded-xl border border-gray-300 shadow-md transition-all duration-300 hover:shadow-lg">
             <div className="flex flex-col gap-2">
                 {/* Vista siempre visible */}
                 <div className="flex items-center gap-4">
@@ -50,7 +50,7 @@ export default function FilteredProductCard({
 
                 </div>
 
-                <div className="flex justify-start mt-4 md:justify-end md:mt-0">
+                <div className="flex justify-end mt-4  md:mt-0">
                     <div className="flex gap-2">
                         <ProductActions
                             product={product}

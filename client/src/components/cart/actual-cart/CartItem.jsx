@@ -120,11 +120,17 @@ export default function CartItem({ product, onAdd, onRemove, onRemoveInactive, l
                   <p className="text-red-500 text-md">{errorCotizacion}</p>
                 ) : (
                   <>
-                    <p className="text-gray-800 text-md">
-                      Precio: <span className="font-semibold">AR$ {cotizacion ? (product.price * cotizacion).toLocaleString('es-AR', { minimumFractionDigits: 2 }) : '-'}</span>
-                      <span className="mx-2">|</span>
-                      <span className="text-gray-700">USD ${typeof product.price === 'number' ? product.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : 'N/A'}</span>
+                    <p className="text-gray-800 text-md flex flex-col">
+                      <span>
+                        Precio: <span className="font-semibold">
+                          {cotizacion ? `AR$ ${ (product.price * cotizacion).toLocaleString('es-AR', { minimumFractionDigits: 2 }) }` : '-'}
+                        </span>
+                      </span>
+                      <span className="text-gray-700">
+                        USD {typeof product.price === 'number' ? product.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : 'N/A'}
+                      </span>
                     </p>
+
                   </>
                 )}
                 {(isInactiveOrNoStock || superaStock) && (
@@ -195,13 +201,22 @@ export default function CartItem({ product, onAdd, onRemove, onRemoveInactive, l
             </div>
             {/* Subtotal */}
             {loadingCotizacion ? (
-              <span className="mt-2 font-semibold text-gray-500 text-base text-center sm:text-right">Cargando cotización...</span>
-            ) : errorCotizacion ? (
-              <span className="mt-2 font-semibold text-red-500 text-base text-center sm:text-right">{errorCotizacion}</span>
-            ) : (
-              <span className="mt-2 font-semibold text-black text-base text-center sm:text-right">
-                Subtotal: AR$ {subtotalARS?.toLocaleString('es-AR', { minimumFractionDigits: 2 })} <span className="mx-2">|</span> USD ${subtotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              <span className="mt-2 font-semibold text-gray-500 text-base block text-center sm:text-right">
+                Cargando cotización...
               </span>
+            ) : errorCotizacion ? (
+              <span className="mt-2 font-semibold text-red-500 text-base block text-center sm:text-right">
+                {errorCotizacion}
+              </span>
+            ) : (
+              <div className="mt-2 text-base font-semibold text-black flex flex-col text-right">
+                <span>
+                  Subtotal: AR$ {subtotalARS?.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                </span>
+                <span className="font-normal text-gray-600">
+                  USD ${subtotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
             )}
         </div>
     </div>
