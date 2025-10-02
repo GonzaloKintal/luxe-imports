@@ -22,13 +22,13 @@ router.get("/admin-info", authenticateToken, async (req, res) => {
 });
 
 router.post("/create-admin", authenticateToken, isAdmin, async (req, res) => {
-  const { email, password, firstName, lastName, role = "user" } = req.body;
+  const { email: rawEmail, password, firstName, lastName, role = "user" } = req.body;
 
-  if (!email || !password || !firstName || !lastName) {
+  if (!rawEmail || !password || !firstName || !lastName) {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }
 
-  email = email.toLowerCase().trim();
+  const email = rawEmail.toLowerCase().trim();
 
   const VALID_ROLES = ["user", "admin"];
   if (!VALID_ROLES.includes(role)) {
@@ -44,6 +44,15 @@ router.post("/create-admin", authenticateToken, isAdmin, async (req, res) => {
       return res.status(409).json({ error: "El usuario ya existe" });
     }
 
+    // Si es admin, obtener el teléfono del primer admin existente
+    let telefono = null;
+    if (role === "admin") {
+      const firstAdmin = await User.findOne({ role: "admin" });
+      if (firstAdmin && firstAdmin.telefono) {
+        telefono = firstAdmin.telefono;
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       email,
@@ -51,6 +60,7 @@ router.post("/create-admin", authenticateToken, isAdmin, async (req, res) => {
       firstName,
       lastName,
       role,
+      ...(telefono && { telefono })
     });
     await newUser.save();
 
