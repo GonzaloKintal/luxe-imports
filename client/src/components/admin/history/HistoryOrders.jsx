@@ -36,6 +36,7 @@ export default function HistoryOrders() {
 
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [filtersApplied, setFiltersApplied] = useState(false);
+    const [filtersLoading, setFiltersLoading] = useState(false);
 
     // Persistir filtros
     useEffect(() => {
@@ -63,9 +64,14 @@ export default function HistoryOrders() {
     }, [clearExpandedData]);
 
     // Función para aplicar filtros
-    const applyFilters = useCallback((filters) => {
+    const applyFilters = useCallback(async (filters) => {
         setFiltersApplied(true);
-        fetchOrders(filters, authFetch);
+        setFiltersLoading(true);
+        try {
+            await fetchOrders(filters, authFetch);
+        } finally {
+            setFiltersLoading(false);
+        }
     }, [authFetch, fetchOrders]);
 
     // Handler para cambios de username con debounce
@@ -109,20 +115,26 @@ export default function HistoryOrders() {
     };
 
     const handleDateFilter = async (fromDate, toDate) => {
+        setFiltersLoading(true);
         try {
             await applyDateFilters(fromDate, toDate, authFetch);
         } catch (err) {
             console.error(err);
+        } finally {
+            setFiltersLoading(false);
         }
     };
 
     const handleClearFilters = async () => {
+        setUsername('');
+        setFiltersApplied(true);
+        setFiltersLoading(true);
         try {
-            setUsername('');
-            setFiltersApplied(true);
             await clearFilters(authFetch);
         } catch (err) {
             console.error(err);
+        } finally {
+            setFiltersLoading(false);
         }
     };
 
@@ -164,13 +176,13 @@ export default function HistoryOrders() {
                     <UsernameFilter
                         username={username}
                         setUsername={handleUsernameChange}
-                        loading={loading}
+                        loading={filtersLoading}
                     />
 
                     <DateRangeFilter
                         onFilter={handleDateFilter}
                         onClear={handleClearFilters}
-                        loading={loading}
+                        loading={filtersLoading}
                         title="Filtrar por fecha"
                         showTitle={false}
                     />

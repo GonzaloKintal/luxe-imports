@@ -16,6 +16,7 @@ export default function CartHistory({ token, API_URL }) {
     const [expandedHistorial, setExpandedHistorial] = useState({});
     const [loading, setLoading] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
+    const [filtersLoading, setFiltersLoading] = useState(false);
     const [error, setError] = useState(null);
     const [hasMoreConfirmed, setHasMoreConfirmed] = useState(false);
     const [hasMorePending, setHasMorePending] = useState(false);
@@ -159,7 +160,7 @@ export default function CartHistory({ token, API_URL }) {
 
     async function filtrarConfirmados(from, to) {
         try {
-            setLoading(true);
+            setFiltersLoading(true);
             setError(null);
             const newFilters = { from, to };
             setCurrentFilters(newFilters);
@@ -172,13 +173,13 @@ export default function CartHistory({ token, API_URL }) {
         } catch (err) {
             setError(err.message);
         } finally {
-            setLoading(false);
+            setFiltersLoading(false);
         }
     }
 
     async function filtrarPendientes(from, to) {
         try {
-            setLoading(true);
+            setFiltersLoading(true);
             setError(null);
             const newFilters = { from, to };
             setCurrentFilters(newFilters);
@@ -191,7 +192,7 @@ export default function CartHistory({ token, API_URL }) {
         } catch (err) {
             setError(err.message);
         } finally {
-            setLoading(false);
+            setFiltersLoading(false);
         }
     }
 
@@ -277,7 +278,7 @@ export default function CartHistory({ token, API_URL }) {
                 onFilterPending={filtrarPendientes}
                 onLoadMore={cargarMasPendientes}
                 hasMore={hasMorePending}
-                loading={loading}
+                loading={filtersLoading}
                 loadingMore={loadingMore}
                 onRefresh={handleRefreshPending}
                 isRefreshing={isRefreshingPending}
@@ -291,7 +292,7 @@ export default function CartHistory({ token, API_URL }) {
                 onFilterConfirmed={filtrarConfirmados}
                 onLoadMore={cargarMasConfirmados}
                 hasMore={hasMoreConfirmed}
-                loading={loading}
+                loading={filtersLoading}
                 loadingMore={loadingMore}
                 onRefresh={handleRefreshConfirmed}
                 isRefreshing={isRefreshingConfirmed}
