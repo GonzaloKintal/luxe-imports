@@ -41,7 +41,7 @@ const Contact = () => {
     {
       name: "WhatsApp",
       icon: FaWhatsapp,
-      url: "https://wa.me/5491122334455",
+      url: "https://wa.me/5491171001140",
       hoverEffect: "hover:scale-110 hover:-rotate-3",
       color: "bg-gradient-to-tr from-green-500 to-green-600",
     },
@@ -180,7 +180,7 @@ const Contact = () => {
             {/* Botón de WhatsApp */}
             <div className="mt-6 flex justify-center px-4">
               <a
-                href="https://wa.me/5491122334455"
+                href="https://wa.me/5491171001140"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 bg-green-500 hover:bg-green-600 text-white text-base sm:text-lg font-semibold rounded-full shadow-lg transition-all duration-300 hover:scale-105"
