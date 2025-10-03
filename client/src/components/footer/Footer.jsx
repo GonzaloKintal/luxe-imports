@@ -87,7 +87,7 @@ const Footer = () => {
           <p className="text-gray-500 text-sm mb-4 md:mb-0 flex items-center gap-x-2">
             <span>Desarrollado por</span>
             <a
-              href="https://wa.me/5491127079848?text=Hola%20Franco%2C%20vi%20su%20trabajo%20en%20Luxe%20Imports%20y%20me%20interesa%20contactarlos%20para%20un%20proyecto%20web."
+              href="https://www.novarasoft.com.ar"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center hover:text-white transition-colors duration-300"
