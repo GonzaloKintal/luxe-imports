@@ -87,7 +87,7 @@ const Footer = () => {
           <p className="text-gray-500 text-sm mb-4 md:mb-0 flex items-center gap-x-2">
             <span>Desarrollado por</span>
             <a
-              href="https://www.novarasoft.com.ar"
+              href="https://www.novarasoft.com"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center hover:text-white transition-colors duration-300"
