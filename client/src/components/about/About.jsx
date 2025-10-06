@@ -9,8 +9,8 @@ const About = () => {
   });
 
   return (
-    <main className="bg-gray-100 px-0 pt-12 relative overflow-hidden min-h-screen">
-      <div className="relative z-10 px-2 sm:px-6 py-10 sm:py-20">
+    <main className="bg-gray-100 pt-12 relative overflow-hidden min-h-screen">
+      <div className="relative z-10 px-4 sm:px-8 lg:px-16 py-10 sm:py-20 max-w-7xl mx-auto">
         
         {/* Título con animación */}
         <motion.h1
@@ -28,7 +28,7 @@ const About = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="bg-white rounded-2xl shadow-lg p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
+          className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-center w-full max-w-none"
         >
           {/* Columna Texto */}
           <motion.div
