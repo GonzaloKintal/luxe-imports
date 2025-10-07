@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import logo1 from '../../../assets/logos/logo1.png';
+import foto from '../../../assets/about/foto.jpeg';
 
 const About = () => {
 
@@ -80,10 +81,10 @@ const About = () => {
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="w-72 h-72 rounded-2xl shadow-xl overflow-hidden"
+              className="w-72 h-72 sm:w-90 sm:h-90 rounded-2xl shadow-xl overflow-hidden"
             >
               <img
-                src="https://placehold.co/500x500"
+                src={foto}
                 alt="Diego y Sabrina"
                 className="w-full h-full object-cover"
               />
