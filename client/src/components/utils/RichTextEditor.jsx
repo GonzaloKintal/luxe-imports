@@ -6,7 +6,6 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { ListNode, ListItemNode, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
@@ -49,7 +48,7 @@ const emojis = [
   '🖤',
 ];
 
-// Plugin para la toolbar
+// Toolbar
 function ToolbarPlugin({ onChange }) {
   const [editor] = useLexicalComposerContext();
   const [isBold, setIsBold] = useState(false);
@@ -65,33 +64,21 @@ function ToolbarPlugin({ onChange }) {
           setIsItalic(selection.hasFormat('italic'));
         }
       });
-      
-      // Notificar cambios
+
       if (onChange) {
-        const serialized = JSON.stringify(editorState.toJSON());
-        onChange(serialized);
+        onChange(JSON.stringify(editorState.toJSON()));
       }
     });
   }, [editor, onChange]);
 
-  const formatBold = () => {
-    editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
-  };
-
-  const formatItalic = () => {
-    editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
-  };
-
-  const insertList = () => {
-    editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-  };
+  const formatBold = () => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+  const formatItalic = () => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+  const insertList = () => editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
 
   const insertEmoji = (emoji) => {
     editor.update(() => {
       const selection = $getSelection();
-      if (selection) {
-        selection.insertText(emoji);
-      }
+      if (selection) selection.insertText(emoji);
     });
     setShowEmojis(false);
   };
@@ -101,25 +88,19 @@ function ToolbarPlugin({ onChange }) {
       <button
         type="button"
         onClick={formatBold}
-        className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-          isBold ? 'bg-blue-200 text-blue-700' : 'text-gray-600'
-        }`}
+        className={`p-2 rounded hover:bg-gray-200 transition-colors ${isBold ? 'bg-blue-200 text-blue-700' : 'text-gray-600'}`}
         title="Negrita"
       >
         <FaBold size={14} />
       </button>
-      
       <button
         type="button"
         onClick={formatItalic}
-        className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-          isItalic ? 'bg-blue-200 text-blue-700' : 'text-gray-600'
-        }`}
+        className={`p-2 rounded hover:bg-gray-200 transition-colors ${isItalic ? 'bg-blue-200 text-blue-700' : 'text-gray-600'}`}
         title="Cursiva"
       >
         <FaItalic size={14} />
       </button>
-
       <button
         type="button"
         onClick={insertList}
@@ -128,7 +109,6 @@ function ToolbarPlugin({ onChange }) {
       >
         <FaListUl size={14} />
       </button>
-
       <div className="relative">
         <button
           type="button"
@@ -138,7 +118,6 @@ function ToolbarPlugin({ onChange }) {
         >
           <FaSmile size={14} />
         </button>
-        
         {showEmojis && (
           <div className="absolute bottom-full mb-1 z-[1000] bg-white border border-gray-300 rounded-lg shadow-lg p-2 w-[90vw] max-w-48 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:w-48 md:left-0">
             <div className="grid grid-cols-5 gap-1">
@@ -164,61 +143,73 @@ function onError(error) {
   console.error(error);
 }
 
-export default function RichTextEditor({ 
-  value = '', 
-  onChange, 
-  placeholder = 'Escribe aquí...' 
-}) {
-  // Función para crear un estado inicial desde texto plano
-  const createInitialState = (text) => {
-    if (!text) return null;
-    
-    // Si el valor ya es JSON (formato Lexical), usarlo directamente
-    try {
-      JSON.parse(text);
-      return text;
-    } catch {
-      // Si es texto plano, crear un estado Lexical básico
+// Función para generar un estado Lexical seguro
+const createInitialState = (val) => {
+  if (!val) val = '';
+
+  try {
+    const parsed = typeof val === 'string' ? JSON.parse(val) : val;
+
+    // Si children está vacío, reemplazar por párrafo mínimo
+    if (!parsed.root || !Array.isArray(parsed.root.children) || parsed.root.children.length === 0) {
       return JSON.stringify({
         root: {
           children: [
             {
+              type: 'paragraph',
               children: [
-                {
-                  detail: 0,
-                  format: 0,
-                  mode: "normal",
-                  style: "",
-                  text: text,
-                  type: "text",
-                  version: 1
-                }
+                { type: 'text', text: '', detail: 0, format: 0, mode: 'normal', style: '', version: 1 }
               ],
-              direction: "ltr",
-              format: "",
+              direction: 'ltr',
+              format: '',
               indent: 0,
-              type: "paragraph",
-              version: 1
+              version: 1,
             }
           ],
-          direction: "ltr",
-          format: "",
+          direction: 'ltr',
+          format: '',
           indent: 0,
-          type: "root",
-          version: 1
+          type: 'root',
+          version: 1,
         }
       });
     }
-  };
 
+    return JSON.stringify(parsed);
+
+  } catch {
+    // Texto plano → párrafo mínimo con contenido
+    return JSON.stringify({
+      root: {
+        children: [
+          {
+            type: 'paragraph',
+            children: [
+              { type: 'text', text: val, detail: 0, format: 0, mode: 'normal', style: '', version: 1 }
+            ],
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            version: 1,
+          }
+        ],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        type: 'root',
+        version: 1,
+      }
+    });
+  }
+};
+
+// Componente principal
+export default function RichTextEditor({ value = '', onChange, placeholder = 'Escribe aquí...' }) {
   const initialConfig = {
     namespace: 'RichTextEditor',
     theme,
     onError,
-    nodes: [
-      ListNode,
-      ListItemNode,
-    ],
+    nodes: [ListNode, ListItemNode],
     editorState: createInitialState(value),
   };
 
